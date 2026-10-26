@@ -27,18 +27,20 @@ abstract final class AppTheme {
     outlineVariant: BrandColors.bordaClaro,
   );
 
+  /// Escuro em azul-noite: botão principal BEGE com texto azul-noite;
+  /// rosa e azul como acentos, sempre com texto azul-noite por cima.
   static const ColorScheme darkScheme = ColorScheme(
     brightness: Brightness.dark,
-    primary: BrandColors.azul,
-    onPrimary: BrandColors.tinta,
+    primary: BrandColors.bege,
+    onPrimary: BrandColors.fundoEscuro,
     primaryContainer: BrandColors.azul,
-    onPrimaryContainer: BrandColors.tinta,
+    onPrimaryContainer: BrandColors.fundoEscuro,
     secondary: BrandColors.rosa,
-    onSecondary: BrandColors.tinta,
+    onSecondary: BrandColors.fundoEscuro,
     secondaryContainer: BrandColors.rosa,
-    onSecondaryContainer: BrandColors.tinta,
-    tertiary: BrandColors.bege,
-    onTertiary: BrandColors.tinta,
+    onSecondaryContainer: BrandColors.fundoEscuro,
+    tertiary: BrandColors.azul,
+    onTertiary: BrandColors.fundoEscuro,
     error: BrandColors.erroEscuro,
     onError: BrandColors.sobreErroEscuro,
     surface: BrandColors.superficieEscura,
@@ -92,12 +94,11 @@ abstract final class AppTheme {
           side: BorderSide(color: scheme.outline),
         ),
       ),
+      // Cores do chip vêm dos padrões do Material 3: selecionado usa
+      // secondaryContainer/onSecondaryContainer (pares testados no contrast_test).
       chipTheme: ChipThemeData(
         side: BorderSide(color: scheme.outline),
-        labelStyle: TextStyle(color: scheme.onSurface, fontSize: 16),
-        selectedColor: scheme.primary,
-        secondarySelectedColor: scheme.primary,
-        checkmarkColor: scheme.onPrimary,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       ),
     );
   }

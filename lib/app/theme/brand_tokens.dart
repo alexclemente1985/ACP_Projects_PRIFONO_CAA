@@ -12,22 +12,22 @@ abstract final class BrandColors {
   static const Color bege = Color(0xFFFEFEE9);
   static const Color branco = Color(0xFFFFFFFF);
 
-  // --- Derivadas (propostas) ---
+  // --- Derivadas (propostas): tema claro ---
   /// Tinta: texto sobre rosa/azul/bege/branco. 7,05:1 sobre azul.
   static const Color tinta = Color(0xFF1B1B1F);
 
   /// Azul escuro para texto/ícone/borda sobre fundo claro. 7,17:1 sobre branco.
   static const Color azulForte = Color(0xFF1A5F73);
 
-  // Neutros do tema claro.
   static const Color textoSecundarioClaro = Color(0xFF4A4A52); // 8,78:1 s/ branco
   static const Color bordaClaro = Color(0xFF6B6B73); // 5,28:1 s/ branco
 
-  // Neutros do tema escuro.
-  static const Color fundoEscuro = Color(0xFF121214);
-  static const Color superficieEscura = Color(0xFF1B1B1F);
-  static const Color textoSecundarioEscuro = Color(0xFFC9C9D1); // 10,43:1
-  static const Color bordaEscuro = Color(0xFF8E8E96); // 5,28:1
+  // --- Derivadas (propostas): tema escuro, em azul-noite ---
+  // Mesmo matiz (193°) do azul da marca, bem mais escuro.
+  static const Color fundoEscuro = Color(0xFF122A30); // bege 14,7:1
+  static const Color superficieEscura = Color(0xFF1C3C45); // bege 11,5:1
+  static const Color textoSecundarioEscuro = Color(0xFFC3DBE2); // 10,4:1 s/ fundo
+  static const Color bordaEscuro = Color(0xFF8FB4C0); // 5,3:1 s/ superfície
 
   // Erro (funcional, não é da marca).
   static const Color erroClaro = Color(0xFFB3261B); // 6,54:1 com branco

@@ -10,8 +10,14 @@ void main() {
 
   void expectScheme(String name, ColorScheme s, Color scaffold) {
     final textPairs = <String, (Color, Color)>{
-      'onPrimary/primary': (s.onPrimary, s.primary),
-      'onSecondary/secondary': (s.onSecondary, s.secondary),
+      'onPrimaryContainer/primaryContainer': (
+        s.onPrimaryContainer,
+        s.primaryContainer,
+      ),
+      'onSecondaryContainer/secondaryContainer': (
+        s.onSecondaryContainer,
+        s.secondaryContainer,
+      ),
       'onTertiary/tertiary': (s.onTertiary, s.tertiary),
       'onError/error': (s.onError, s.error),
       'onSurface/surface': (s.onSurface, s.surface),

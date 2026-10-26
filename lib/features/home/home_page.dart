@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:prifono_caa/app/app_scope.dart';
 import 'package:prifono_caa/app/l10n/app_localizations.dart';
@@ -38,7 +39,7 @@ class HomePage extends StatelessWidget {
                       ChoiceChip(
                         label: Text(label),
                         selected: settings.themeMode == mode,
-                        onSelected: (_) => settings.setThemeMode(mode),
+                        onSelected: (_) => unawaited(settings.setThemeMode(mode)),
                       ),
                   ],
                 );
