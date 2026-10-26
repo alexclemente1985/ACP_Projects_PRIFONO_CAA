@@ -1,0 +1,17 @@
+{
+  "@@locale": "pt",
+  "appName": "PRIFONO CAA",
+  "homeTitle": "Laboratório de tema",
+  "themeSectionTitle": "Aparência",
+  "themeSystem": "Sistema",
+  "themeLight": "Claro",
+  "themeDark": "Escuro",
+  "paletteSectionTitle": "Cores da marca",
+  "colorRosa": "Rosa",
+  "colorAzul": "Azul",
+  "colorBege": "Bege",
+  "colorBranco": "Branco",
+  "buttonsSectionTitle": "Botões",
+  "primaryButton": "Botão principal",
+  "tonalButton": "Botão secundário"
+}
