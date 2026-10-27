@@ -15,6 +15,21 @@ final class SymbolResult {
   /// Conteúdo marcado pela fonte como sexual ou violento.
   final bool isSensitive;
 
-  /// Texto sugerido para o card.
+  /// Primeira palavra da fonte.
   String get label => keywords.isEmpty ? '' : keywords.first;
+
+  /// Texto sugerido para o card: a palavra que o usuário buscou, se ela for
+  /// uma das palavras do símbolo (ex.: buscou "criança", o símbolo tem
+  /// [menina, garota, criança] -> sugere "criança", não "menina").
+  String suggestedLabel(String query) {
+    final wanted = query.trim().toLowerCase();
+    if (wanted.isEmpty) return label;
+    for (final keyword in keywords) {
+      if (keyword.toLowerCase() == wanted) return keyword;
+    }
+    for (final keyword in keywords) {
+      if (keyword.toLowerCase().contains(wanted)) return keyword;
+    }
+    return label;
+  }
 }

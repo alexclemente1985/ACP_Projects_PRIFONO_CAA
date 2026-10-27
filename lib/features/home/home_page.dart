@@ -1,11 +1,14 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:prifono_caa/app/app_scope.dart';
 import 'package:prifono_caa/app/l10n/app_localizations.dart';
 import 'package:prifono_caa/app/theme/brand_tokens.dart';
+import 'package:prifono_caa/features/about/credits_page.dart';
+import 'package:prifono_caa/features/home/symbol_try_out_card.dart';
 
-/// Tela provisória da E0: confere visualmente tema, l10n e estado.
-/// Será substituída pela lista de pranchas na E4.
+/// Tela provisória: confere visualmente tema, l10n, estado e busca de
+/// símbolos. Será substituída pela lista de pranchas na E4.
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
@@ -39,7 +42,8 @@ class HomePage extends StatelessWidget {
                       ChoiceChip(
                         label: Text(label),
                         selected: settings.themeMode == mode,
-                        onSelected: (_) => unawaited(settings.setThemeMode(mode)),
+                        onSelected: (_) =>
+                            unawaited(settings.setThemeMode(mode)),
                       ),
                   ],
                 );
@@ -80,6 +84,17 @@ class HomePage extends StatelessWidget {
             FilledButton(onPressed: () {}, child: Text(l10n.primaryButton)),
             const SizedBox(height: 12),
             OutlinedButton(onPressed: () {}, child: Text(l10n.tonalButton)),
+            const SizedBox(height: 24),
+            Text(l10n.tryOutSectionTitle, style: textTheme.titleLarge),
+            const SizedBox(height: 12),
+            const SymbolTryOutCard(),
+            const SizedBox(height: 24),
+            OutlinedButton(
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(builder: (_) => const CreditsPage()),
+              ),
+              child: Text(l10n.creditsButton),
+            ),
           ],
         ),
       ),

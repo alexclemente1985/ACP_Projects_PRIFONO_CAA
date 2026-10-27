@@ -1,13 +1,30 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 import 'package:prifono_caa/app/app.dart';
 import 'package:prifono_caa/app/app_scope.dart';
 import 'package:prifono_caa/features/home/home_page.dart';
 import 'package:prifono_caa/features/settings/settings_controller.dart';
 import 'package:prifono_caa/features/splash/splash_page.dart';
+import 'package:prifono_caa/features/symbols/data/arasaac_provider.dart';
+import 'package:prifono_caa/features/symbols/data/symbol_image_store.dart';
 
 Widget _buildApp(SettingsController settings) {
-  return AppScope(settings: settings, child: const PrifonoApp());
+  // Rede e disco falsos: os testes de widget nunca saem da máquina.
+  final provider = ArasaacProvider(
+    client: MockClient((_) async => http.Response('[]', 404)),
+  );
+  final root = Directory.systemTemp.createTempSync('prifono_symbols_');
+  addTearDown(() => root.deleteSync(recursive: true));
+  return AppScope(
+    settings: settings,
+    symbols: provider,
+    symbolImages: SymbolImageStore(root: root, provider: provider),
+    child: const PrifonoApp(),
+  );
 }
 
 /// Sobe o app e espera a splash terminar.

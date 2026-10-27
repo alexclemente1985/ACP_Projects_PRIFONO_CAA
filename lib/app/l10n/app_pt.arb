@@ -13,5 +13,38 @@
   "colorBranco": "Branco",
   "buttonsSectionTitle": "Botões",
   "primaryButton": "Botão principal",
-  "tonalButton": "Botão secundário"
+  "tonalButton": "Botão secundário",
+
+  "tryOutSectionTitle": "Pictogramas (teste)",
+  "tryOutButton": "Buscar pictograma",
+  "tryOutDownloading": "Baixando pictograma",
+  "tryOutDownloadFailed": "Não foi possível baixar o pictograma.",
+  "creditsButton": "Créditos e licenças",
+
+  "searchTitle": "Buscar pictogramas",
+  "searchHint": "Digite uma palavra",
+  "searchClear": "Limpar busca",
+  "searchLoading": "Buscando",
+  "searchIdleMessage": "Digite uma palavra para buscar pictogramas.",
+  "searchEmptyMessage": "Nenhum pictograma encontrado para “{query}”.",
+  "@searchEmptyMessage": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "searchErrorOffline": "Sem conexão com a internet. Verifique a rede e tente de novo.",
+  "searchErrorTimeout": "A busca demorou demais. Tente novamente.",
+  "searchErrorServer": "O serviço de pictogramas está indisponível no momento.",
+  "searchErrorGeneric": "Não foi possível ler a resposta do serviço de pictogramas.",
+  "searchRetry": "Tentar de novo",
+  "imageUnavailable": "Imagem indisponível",
+
+  "attributionShort": "Pictogramas: ARASAAC (Governo de Aragão), licença CC BY-NC-SA. Toque para ver os créditos.",
+  "creditsTitle": "Créditos e licenças",
+  "creditsArasaacTitle": "Pictogramas",
+  "creditsArasaacBody": "Os símbolos pictográficos utilizados são de propriedade do Governo de Aragão e foram criados por Sergio Palao para o ARASAAC (https://arasaac.org), que os distribui sob licença Creative Commons (BY-NC-SA).",
+  "creditsPrivacyTitle": "Privacidade da busca",
+  "creditsPrivacyBody": "Ao buscar pictogramas, a palavra digitada e o endereço IP do aparelho são enviados aos servidores do ARASAAC. O app não envia dados pessoais nem usa conta. Os pictogramas que você escolhe ficam salvos no aparelho para funcionar sem internet."
 }
