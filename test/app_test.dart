@@ -11,6 +11,7 @@ import 'package:prifono_caa/features/boards/domain/board_card.dart';
 import 'package:prifono_caa/features/boards/domain/board_repository.dart';
 import 'package:prifono_caa/features/boards/presentation/board_page.dart';
 import 'package:prifono_caa/features/boards/presentation/boards_list_page.dart';
+import 'package:prifono_caa/features/boards/presentation/card_editor_page.dart';
 import 'package:prifono_caa/features/settings/settings_controller.dart';
 import 'package:prifono_caa/features/splash/splash_page.dart';
 import 'package:prifono_caa/features/symbols/data/arasaac_provider.dart';
@@ -302,6 +303,46 @@ void main() {
 
       expect(tester.takeException(), isNull);
       expect(find.text('Sim'), findsOneWidget);
+    });
+
+        testWidgets('cria um card pelo + e ele aparece na grade', (tester) async {
+      final repository = InMemoryBoardRepository();
+      await repository.createBoard(name: 'Casa');
+      await _pumpToBoards(tester, boards: repository);
+      await tester.tap(find.text('Casa'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byTooltip('Adicionar card'));
+      await tester.pumpAndSettle();
+      expect(find.text('Novo card'), findsOneWidget);
+      await tester.enterText(find.byType(TextFormField).first, 'Água');
+      await tester.tap(find.text('Salvar'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(CardEditorPage), findsNothing);
+      expect(find.text('Água'), findsOneWidget);
+    });
+
+    testWidgets('tocar num card abre o editor e permite excluir', (tester) async {
+      final repository = InMemoryBoardRepository();
+      final board = await repository.createBoard(name: 'Casa');
+      await repository.addCard(board.id, const CardContent(label: 'Água'));
+      await _pumpToBoards(tester, boards: repository);
+      await tester.tap(find.text('Casa'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Água'));
+      await tester.pumpAndSettle();
+      expect(find.text('Editar card'), findsOneWidget);
+
+      await tester.tap(find.byTooltip('Excluir card'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(FilledButton, 'Excluir'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(CardEditorPage), findsNothing);
+      expect(find.text('Água'), findsNothing);
+      expect(find.text('Toque no + para adicionar o primeiro card.'), findsOneWidget);
     });
   });
 

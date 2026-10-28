@@ -54,7 +54,35 @@
   },
   "boardCardsLoadError": "Não foi possível carregar os cards.",
   "cardAdd": "Adicionar card",
-  "cardEditorComingSoon": "O editor de cards chega no próximo passo.",
+    "cardEditorNewTitle": "Novo card",
+  "cardEditorEditTitle": "Editar card",
+  "cardLabelLabel": "Texto do card",
+  "cardLabelRequired": "Escreva o texto do card.",
+  "cardSpeechLabel": "Texto falado (opcional)",
+  "cardSpeechHelper": "Se ficar vazio, o app fala o texto do card.",
+  "cardSaving": "Salvando…",
+  "cardSymbolSectionTitle": "Pictograma",
+  "cardSymbolChoose": "Escolher pictograma",
+  "cardSymbolChange": "Trocar pictograma",
+  "cardSymbolRemove": "Remover pictograma",
+  "cardSymbolDownloading": "Baixando o pictograma…",
+  "cardSymbolFailedHint": "Tente de novo ou remova o pictograma para salvar só com texto.",
+  "cardColorSectionTitle": "Cor do card",
+  "cardColorDefault": "Padrão",
+  "cardColorPink": "Rosa",
+  "cardColorBlue": "Azul",
+  "cardColorBeige": "Bege",
+  "cardColorWhite": "Branco",
+  "cardDelete": "Excluir card",
+  "cardDeleteTitle": "Excluir card?",
+  "cardDeleteMessage": "O card “{label}” será excluído. Isso não pode ser desfeito.",
+  "@cardDeleteMessage": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
 
   "boardFormNewTitle": "Nova prancha",
   "boardFormEditTitle": "Editar prancha",

@@ -120,8 +120,73 @@ class AppLocalizationsPt extends AppLocalizations {
   String get cardAdd => 'Adicionar card';
 
   @override
-  String get cardEditorComingSoon =>
-      'O editor de cards chega no próximo passo.';
+  String get cardEditorNewTitle => 'Novo card';
+
+  @override
+  String get cardEditorEditTitle => 'Editar card';
+
+  @override
+  String get cardLabelLabel => 'Texto do card';
+
+  @override
+  String get cardLabelRequired => 'Escreva o texto do card.';
+
+  @override
+  String get cardSpeechLabel => 'Texto falado (opcional)';
+
+  @override
+  String get cardSpeechHelper => 'Se ficar vazio, o app fala o texto do card.';
+
+  @override
+  String get cardSaving => 'Salvando…';
+
+  @override
+  String get cardSymbolSectionTitle => 'Pictograma';
+
+  @override
+  String get cardSymbolChoose => 'Escolher pictograma';
+
+  @override
+  String get cardSymbolChange => 'Trocar pictograma';
+
+  @override
+  String get cardSymbolRemove => 'Remover pictograma';
+
+  @override
+  String get cardSymbolDownloading => 'Baixando o pictograma…';
+
+  @override
+  String get cardSymbolFailedHint =>
+      'Tente de novo ou remova o pictograma para salvar só com texto.';
+
+  @override
+  String get cardColorSectionTitle => 'Cor do card';
+
+  @override
+  String get cardColorDefault => 'Padrão';
+
+  @override
+  String get cardColorPink => 'Rosa';
+
+  @override
+  String get cardColorBlue => 'Azul';
+
+  @override
+  String get cardColorBeige => 'Bege';
+
+  @override
+  String get cardColorWhite => 'Branco';
+
+  @override
+  String get cardDelete => 'Excluir card';
+
+  @override
+  String get cardDeleteTitle => 'Excluir card?';
+
+  @override
+  String cardDeleteMessage(String label) {
+    return 'O card “$label” será excluído. Isso não pode ser desfeito.';
+  }
 
   @override
   String get boardFormNewTitle => 'Nova prancha';

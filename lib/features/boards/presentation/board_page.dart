@@ -9,6 +9,7 @@ import 'package:prifono_caa/features/boards/domain/board.dart';
 import 'package:prifono_caa/features/boards/domain/board_card.dart';
 import 'package:prifono_caa/features/boards/presentation/board_cards_controller.dart';
 import 'package:prifono_caa/features/boards/presentation/card_colors.dart';
+import 'package:prifono_caa/features/boards/presentation/card_editor_page.dart';
 import 'package:prifono_caa/features/symbols/domain/symbol_provider.dart';
 
 /// Tela da prancha: grade de cards em ordem de leitura (ADR-026), sem
@@ -42,22 +43,30 @@ class _BoardPageState extends State<BoardPage> {
 
   // --- Ações de EDIÇÃO (ADR-027): na E5 ficam atrás do PIN. ---
 
-  void _addCard() => _showEditorComingSoon();
+  Future<void> _addCard() {
+    return Navigator.of(context).push<void>(
+      MaterialPageRoute<void>(
+        builder: (_) => CardEditorPage(onSave: _controller.add),
+      ),
+    );
+  }
 
-  void _editCard(BoardCard card) => _showEditorComingSoon();
+  Future<void> _editCard(BoardCard card) {
+    return Navigator.of(context).push<void>(
+      MaterialPageRoute<void>(
+        builder: (_) => CardEditorPage(
+          initial: card.content,
+          onSave: (content) => _controller.update(card.id, content),
+          onDelete: () => _controller.delete(card.id),
+        ),
+      ),
+    );
+  }
 
   // --- Ações de USO (ADR-027). ---
 
-  /// E5: falar o texto do card. Até lá, tocar abre a edição.
-  void _useCard(BoardCard card) => _editCard(card);
-
-  /// Provisório: o editor chega no bloco 4.
-  void _showEditorComingSoon() {
-    final l10n = AppLocalizations.of(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(l10n.cardEditorComingSoon)),
-    );
-  }
+  /// E5: falar o texto do card. Até lá, tocar abre o editor.
+  void _useCard(BoardCard card) => unawaited(_editCard(card));
 
   String? _statusMessage(AppLocalizations l10n) {
     if (_controller.cards.isEmpty) return l10n.boardEmptyHint;

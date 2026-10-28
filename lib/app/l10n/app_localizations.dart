@@ -250,11 +250,137 @@ abstract class AppLocalizations {
   /// **'Adicionar card'**
   String get cardAdd;
 
-  /// No description provided for @cardEditorComingSoon.
+  /// No description provided for @cardEditorNewTitle.
   ///
   /// In pt, this message translates to:
-  /// **'O editor de cards chega no próximo passo.'**
-  String get cardEditorComingSoon;
+  /// **'Novo card'**
+  String get cardEditorNewTitle;
+
+  /// No description provided for @cardEditorEditTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Editar card'**
+  String get cardEditorEditTitle;
+
+  /// No description provided for @cardLabelLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Texto do card'**
+  String get cardLabelLabel;
+
+  /// No description provided for @cardLabelRequired.
+  ///
+  /// In pt, this message translates to:
+  /// **'Escreva o texto do card.'**
+  String get cardLabelRequired;
+
+  /// No description provided for @cardSpeechLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Texto falado (opcional)'**
+  String get cardSpeechLabel;
+
+  /// No description provided for @cardSpeechHelper.
+  ///
+  /// In pt, this message translates to:
+  /// **'Se ficar vazio, o app fala o texto do card.'**
+  String get cardSpeechHelper;
+
+  /// No description provided for @cardSaving.
+  ///
+  /// In pt, this message translates to:
+  /// **'Salvando…'**
+  String get cardSaving;
+
+  /// No description provided for @cardSymbolSectionTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Pictograma'**
+  String get cardSymbolSectionTitle;
+
+  /// No description provided for @cardSymbolChoose.
+  ///
+  /// In pt, this message translates to:
+  /// **'Escolher pictograma'**
+  String get cardSymbolChoose;
+
+  /// No description provided for @cardSymbolChange.
+  ///
+  /// In pt, this message translates to:
+  /// **'Trocar pictograma'**
+  String get cardSymbolChange;
+
+  /// No description provided for @cardSymbolRemove.
+  ///
+  /// In pt, this message translates to:
+  /// **'Remover pictograma'**
+  String get cardSymbolRemove;
+
+  /// No description provided for @cardSymbolDownloading.
+  ///
+  /// In pt, this message translates to:
+  /// **'Baixando o pictograma…'**
+  String get cardSymbolDownloading;
+
+  /// No description provided for @cardSymbolFailedHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Tente de novo ou remova o pictograma para salvar só com texto.'**
+  String get cardSymbolFailedHint;
+
+  /// No description provided for @cardColorSectionTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cor do card'**
+  String get cardColorSectionTitle;
+
+  /// No description provided for @cardColorDefault.
+  ///
+  /// In pt, this message translates to:
+  /// **'Padrão'**
+  String get cardColorDefault;
+
+  /// No description provided for @cardColorPink.
+  ///
+  /// In pt, this message translates to:
+  /// **'Rosa'**
+  String get cardColorPink;
+
+  /// No description provided for @cardColorBlue.
+  ///
+  /// In pt, this message translates to:
+  /// **'Azul'**
+  String get cardColorBlue;
+
+  /// No description provided for @cardColorBeige.
+  ///
+  /// In pt, this message translates to:
+  /// **'Bege'**
+  String get cardColorBeige;
+
+  /// No description provided for @cardColorWhite.
+  ///
+  /// In pt, this message translates to:
+  /// **'Branco'**
+  String get cardColorWhite;
+
+  /// No description provided for @cardDelete.
+  ///
+  /// In pt, this message translates to:
+  /// **'Excluir card'**
+  String get cardDelete;
+
+  /// No description provided for @cardDeleteTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Excluir card?'**
+  String get cardDeleteTitle;
+
+  /// No description provided for @cardDeleteMessage.
+  ///
+  /// In pt, this message translates to:
+  /// **'O card “{label}” será excluído. Isso não pode ser desfeito.'**
+  String cardDeleteMessage(String label);
 
   /// No description provided for @boardFormNewTitle.
   ///
