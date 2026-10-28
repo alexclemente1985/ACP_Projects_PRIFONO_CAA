@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:prifono_caa/features/boards/domain/board.dart';
+import 'package:prifono_caa/features/boards/domain/board_capacity.dart';
 import 'package:prifono_caa/features/boards/domain/board_repository.dart';
 
 enum BoardsStatus { loading, ready, error }
@@ -31,6 +32,12 @@ class BoardsController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Quantos cards a prancha tem hoje (usado pelo formulário de edição).
+  Future<int> cardCount(int boardId) async {
+    final cards = await _repository.listCards(boardId);
+    return cards.length;
+  }
+
   /// Operações de escrita: erros (Exception) sobem para a tela avisar o
   /// usuário. Dados inválidos (ArgumentError) são bug de quem chamou.
   Future<Board> create({
@@ -47,7 +54,16 @@ class BoardsController extends ChangeNotifier {
     return board;
   }
 
+  /// Atualiza a prancha. Lança [BoardGridTooSmallException] se a nova grade
+  /// não comportar os cards que a prancha já tem (ADR-025).
   Future<void> update(Board board) async {
+    final count = await cardCount(board.id);
+    final overflow = BoardCapacity.overflowAfterResize(
+      cardCount: count,
+      columns: board.gridColumns,
+      rows: board.gridRows,
+    );
+    if (overflow > 0) throw BoardGridTooSmallException(overflow);
     await _repository.updateBoard(board);
     await load();
   }

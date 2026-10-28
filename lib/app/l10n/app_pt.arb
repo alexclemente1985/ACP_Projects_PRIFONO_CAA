@@ -34,7 +34,27 @@
     }
   },
   "boardActionFailed": "Não foi possível concluir a ação. Tente novamente.",
-  "boardCardsComingSoon": "Em breve: adicionar cards a esta prancha.",
+  "boardGridTooSmall": "Remova {count, plural, =1{1 card} other{{count} cards}} antes de reduzir a grade.",
+  "@boardGridTooSmall": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+
+  "boardEmptyHint": "Toque no + para adicionar o primeiro card.",
+  "boardFull": "Prancha cheia: {count, plural, =1{1 card} other{{count} cards}}. Aumente a grade ou remova cards para adicionar mais.",
+  "@boardFull": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "boardCardsLoadError": "Não foi possível carregar os cards.",
+  "cardAdd": "Adicionar card",
+  "cardEditorComingSoon": "O editor de cards chega no próximo passo.",
 
   "boardFormNewTitle": "Nova prancha",
   "boardFormEditTitle": "Editar prancha",
@@ -46,6 +66,14 @@
   "boardColumnsIncrease": "Aumentar colunas",
   "boardRowsDecrease": "Diminuir linhas",
   "boardRowsIncrease": "Aumentar linhas",
+  "boardFormShrinkBlocked": "Esta prancha tem {count, plural, =1{1 card} other{{count} cards}}. Para reduzir mais a grade, remova cards antes.",
+  "@boardFormShrinkBlocked": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
 
   "boardDeleteTitle": "Excluir prancha?",
   "boardDeleteMessage": "A prancha “{name}” e todos os seus cards serão excluídos. Isso não pode ser desfeito.",

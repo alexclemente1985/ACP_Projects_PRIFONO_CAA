@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:prifono_caa/app/app_scope.dart';
 import 'package:prifono_caa/app/l10n/app_localizations.dart';
 import 'package:prifono_caa/features/boards/domain/board.dart';
+import 'package:prifono_caa/features/boards/domain/board_capacity.dart';
 import 'package:prifono_caa/features/boards/presentation/board_form_dialog.dart';
 import 'package:prifono_caa/features/boards/presentation/board_page.dart';
 import 'package:prifono_caa/features/boards/presentation/boards_controller.dart';
@@ -37,14 +38,19 @@ class _BoardsListPageState extends State<BoardsListPage> {
 
   /// Executa uma operação de escrita e avisa o usuário se falhar.
   Future<void> _run(Future<void> Function() action) async {
-    // Capturado ANTES do await (o context pode não valer depois dele).
+    // Capturados ANTES do await (o context pode não valer depois dele).
     final messenger = ScaffoldMessenger.of(context);
-    final failureMessage = AppLocalizations.of(context).boardActionFailed;
+    final l10n = AppLocalizations.of(context);
     try {
       await action();
+    } on BoardGridTooSmallException catch (error) {
+      if (!mounted) return;
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.boardGridTooSmall(error.cardsToRemove))),
+      );
     } on Exception {
       if (!mounted) return;
-      messenger.showSnackBar(SnackBar(content: Text(failureMessage)));
+      messenger.showSnackBar(SnackBar(content: Text(l10n.boardActionFailed)));
     }
   }
 
@@ -61,17 +67,23 @@ class _BoardsListPageState extends State<BoardsListPage> {
   }
 
   Future<void> _edit(Board board) async {
-    final result = await showBoardFormDialog(context, board: board);
-    if (result == null) return;
-    await _run(
-      () => _controller.update(
+    await _run(() async {
+      final cardCount = await _controller.cardCount(board.id);
+      if (!mounted) return;
+      final result = await showBoardFormDialog(
+        context,
+        board: board,
+        cardCount: cardCount,
+      );
+      if (result == null) return;
+      await _controller.update(
         board.copyWith(
           name: result.name,
           gridColumns: result.columns,
           gridRows: result.rows,
         ),
-      ),
-    );
+      );
+    });
   }
 
   Future<void> _delete(Board board) async {

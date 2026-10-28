@@ -220,11 +220,41 @@ abstract class AppLocalizations {
   /// **'Não foi possível concluir a ação. Tente novamente.'**
   String get boardActionFailed;
 
-  /// No description provided for @boardCardsComingSoon.
+  /// No description provided for @boardGridTooSmall.
   ///
   /// In pt, this message translates to:
-  /// **'Em breve: adicionar cards a esta prancha.'**
-  String get boardCardsComingSoon;
+  /// **'Remova {count, plural, =1{1 card} other{{count} cards}} antes de reduzir a grade.'**
+  String boardGridTooSmall(int count);
+
+  /// No description provided for @boardEmptyHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Toque no + para adicionar o primeiro card.'**
+  String get boardEmptyHint;
+
+  /// No description provided for @boardFull.
+  ///
+  /// In pt, this message translates to:
+  /// **'Prancha cheia: {count, plural, =1{1 card} other{{count} cards}}. Aumente a grade ou remova cards para adicionar mais.'**
+  String boardFull(int count);
+
+  /// No description provided for @boardCardsLoadError.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não foi possível carregar os cards.'**
+  String get boardCardsLoadError;
+
+  /// No description provided for @cardAdd.
+  ///
+  /// In pt, this message translates to:
+  /// **'Adicionar card'**
+  String get cardAdd;
+
+  /// No description provided for @cardEditorComingSoon.
+  ///
+  /// In pt, this message translates to:
+  /// **'O editor de cards chega no próximo passo.'**
+  String get cardEditorComingSoon;
 
   /// No description provided for @boardFormNewTitle.
   ///
@@ -285,6 +315,12 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Aumentar linhas'**
   String get boardRowsIncrease;
+
+  /// No description provided for @boardFormShrinkBlocked.
+  ///
+  /// In pt, this message translates to:
+  /// **'Esta prancha tem {count, plural, =1{1 card} other{{count} cards}}. Para reduzir mais a grade, remova cards antes.'**
+  String boardFormShrinkBlocked(int count);
 
   /// No description provided for @boardDeleteTitle.
   ///

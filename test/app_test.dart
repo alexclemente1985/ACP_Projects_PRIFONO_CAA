@@ -7,6 +7,7 @@ import 'package:http/testing.dart';
 import 'package:prifono_caa/app/app.dart';
 import 'package:prifono_caa/app/app_scope.dart';
 import 'package:prifono_caa/features/boards/data/in_memory_board_repository.dart';
+import 'package:prifono_caa/features/boards/domain/board_card.dart';
 import 'package:prifono_caa/features/boards/domain/board_repository.dart';
 import 'package:prifono_caa/features/boards/presentation/board_page.dart';
 import 'package:prifono_caa/features/boards/presentation/boards_list_page.dart';
@@ -14,6 +15,7 @@ import 'package:prifono_caa/features/settings/settings_controller.dart';
 import 'package:prifono_caa/features/splash/splash_page.dart';
 import 'package:prifono_caa/features/symbols/data/arasaac_provider.dart';
 import 'package:prifono_caa/features/symbols/data/symbol_image_store.dart';
+import 'package:prifono_caa/features/symbols/domain/symbol_ref.dart';
 
 Widget _buildApp({SettingsController? settings, BoardRepository? boards}) {
   // Rede, disco e banco falsos: os testes de widget nunca saem da máquina.
@@ -162,7 +164,7 @@ void main() {
       expect(find.text('Casa'), findsOneWidget);
     });
 
-    testWidgets('tocar numa prancha abre a tela da prancha', (tester) async {
+        testWidgets('tocar numa prancha abre a tela da prancha', (tester) async {
       final repository = InMemoryBoardRepository();
       await repository.createBoard(name: 'Casa');
       await _pumpToBoards(tester, boards: repository);
@@ -171,7 +173,135 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(BoardPage), findsOneWidget);
-      expect(find.text('Em breve: adicionar cards a esta prancha.'), findsOneWidget);
+      expect(
+        find.text('Toque no + para adicionar o primeiro card.'),
+        findsOneWidget,
+      );
+      expect(find.byTooltip('Adicionar card'), findsOneWidget);
+    });
+
+    testWidgets('não deixa reduzir a grade abaixo da quantidade de cards', (tester) async {
+      final repository = InMemoryBoardRepository();
+      final board = await repository.createBoard(
+        name: 'Casa',
+        gridColumns: 2,
+        gridRows: 2,
+      );
+      for (final label in ['A', 'B', 'C', 'D']) {
+        await repository.addCard(board.id, CardContent(label: label));
+      }
+      await _pumpToBoards(tester, boards: repository);
+
+      await tester.tap(find.byTooltip('Mais opções'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Editar'));
+      await tester.pumpAndSettle();
+
+      final decreaseColumns = tester.widget<IconButton>(
+        find.widgetWithIcon(IconButton, Icons.remove).first,
+      );
+      expect(decreaseColumns.onPressed, isNull);
+      expect(find.textContaining('Esta prancha tem 4 cards'), findsOneWidget);
+    });
+
+    testWidgets('permite reduzir até o limite dos cards e salva', (tester) async {
+      final repository = InMemoryBoardRepository();
+      final board = await repository.createBoard(
+        name: 'Casa',
+        gridColumns: 3,
+        gridRows: 2,
+      );
+      for (final label in ['A', 'B', 'C', 'D']) {
+        await repository.addCard(board.id, CardContent(label: label));
+      }
+      await _pumpToBoards(tester, boards: repository);
+
+      await tester.tap(find.byTooltip('Mais opções'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Editar'));
+      await tester.pumpAndSettle();
+
+      // 3 → 2 colunas dá 2 × 2 = 4 células: ainda cabe. O passo seguinte não.
+      await tester.tap(find.byTooltip('Diminuir colunas'));
+      await tester.pump();
+      final decreaseColumns = tester.widget<IconButton>(
+        find.widgetWithIcon(IconButton, Icons.remove).first,
+      );
+      expect(decreaseColumns.onPressed, isNull);
+
+      await tester.tap(find.text('Salvar'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('2 colunas × 2 linhas'), findsOneWidget);
+    });
+  });
+
+    group('cards na prancha', () {
+    testWidgets('mostra os cards em ordem de leitura e um único "+"', (tester) async {
+      final repository = InMemoryBoardRepository();
+      final board = await repository.createBoard(
+        name: 'Casa',
+        gridColumns: 3,
+        gridRows: 2,
+      );
+      await repository.addCard(board.id, const CardContent(label: 'Água'));
+      await repository.addCard(board.id, const CardContent(label: 'Comer'));
+      await _pumpToBoards(tester, boards: repository);
+
+      await tester.tap(find.text('Casa'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Água'), findsOneWidget);
+      expect(find.text('Comer'), findsOneWidget);
+      expect(find.byTooltip('Adicionar card'), findsOneWidget);
+      final agua = tester.getTopLeft(find.text('Água'));
+      final comer = tester.getTopLeft(find.text('Comer'));
+      expect(agua.dx, lessThan(comer.dx));
+      expect(agua.dy, closeTo(comer.dy, 1));
+    });
+
+    testWidgets('prancha cheia não mostra "+" e avisa', (tester) async {
+      final repository = InMemoryBoardRepository();
+      final board = await repository.createBoard(
+        name: 'Casa',
+        gridColumns: 2,
+        gridRows: 1,
+      );
+      await repository.addCard(board.id, const CardContent(label: 'Sim'));
+      await repository.addCard(board.id, const CardContent(label: 'Não'));
+      await _pumpToBoards(tester, boards: repository);
+
+      await tester.tap(find.text('Casa'));
+      await tester.pumpAndSettle();
+
+      expect(find.byTooltip('Adicionar card'), findsNothing);
+      expect(find.textContaining('Prancha cheia'), findsOneWidget);
+    });
+
+    testWidgets('cards com imagem e cor não estouram o layout em 200%', (tester) async {
+      tester.platformDispatcher.textScaleFactorTestValue = 2.0;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      final repository = InMemoryBoardRepository();
+      final board = await repository.createBoard(name: 'Casa');
+      await repository.addCard(
+        board.id,
+        const CardContent(
+          label: 'Quero beber água agora',
+          symbol: SymbolRef(source: SymbolRef.arasaac, id: '2265'),
+          backgroundColor: 0xFFFBB7C4,
+        ),
+      );
+      await repository.addCard(
+        board.id,
+        const CardContent(label: 'Sim', backgroundColor: 0xFF122A30),
+      );
+      await _pumpToBoards(tester, boards: repository);
+
+      await tester.tap(find.text('Casa'));
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      expect(find.text('Sim'), findsOneWidget);
     });
   });
 

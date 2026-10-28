@@ -89,8 +89,39 @@ class AppLocalizationsPt extends AppLocalizations {
       'Não foi possível concluir a ação. Tente novamente.';
 
   @override
-  String get boardCardsComingSoon =>
-      'Em breve: adicionar cards a esta prancha.';
+  String boardGridTooSmall(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count cards',
+      one: '1 card',
+    );
+    return 'Remova $_temp0 antes de reduzir a grade.';
+  }
+
+  @override
+  String get boardEmptyHint => 'Toque no + para adicionar o primeiro card.';
+
+  @override
+  String boardFull(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count cards',
+      one: '1 card',
+    );
+    return 'Prancha cheia: $_temp0. Aumente a grade ou remova cards para adicionar mais.';
+  }
+
+  @override
+  String get boardCardsLoadError => 'Não foi possível carregar os cards.';
+
+  @override
+  String get cardAdd => 'Adicionar card';
+
+  @override
+  String get cardEditorComingSoon =>
+      'O editor de cards chega no próximo passo.';
 
   @override
   String get boardFormNewTitle => 'Nova prancha';
@@ -121,6 +152,17 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get boardRowsIncrease => 'Aumentar linhas';
+
+  @override
+  String boardFormShrinkBlocked(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count cards',
+      one: '1 card',
+    );
+    return 'Esta prancha tem $_temp0. Para reduzir mais a grade, remova cards antes.';
+  }
 
   @override
   String get boardDeleteTitle => 'Excluir prancha?';
