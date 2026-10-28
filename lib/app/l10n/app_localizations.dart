@@ -97,7 +97,7 @@ abstract class AppLocalizations {
   /// No description provided for @appName.
   ///
   /// In pt, this message translates to:
-  /// **'PRIFONO CAA'**
+  /// **'Privox'**
   String get appName;
 
   /// No description provided for @commonCancel.
