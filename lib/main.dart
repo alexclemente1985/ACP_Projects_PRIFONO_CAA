@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:prifono_caa/app/app.dart';
 import 'package:prifono_caa/app/app_scope.dart';
 import 'package:prifono_caa/core/db/app_database.dart';
+import 'package:prifono_caa/features/boards/data/sqlite_board_repository.dart';
 import 'package:prifono_caa/features/settings/data/sqlite_settings_repository.dart';
 import 'package:prifono_caa/features/settings/settings_controller.dart';
 import 'package:prifono_caa/features/symbols/data/arasaac_provider.dart';
@@ -31,6 +32,7 @@ Future<void> main() async {
   runApp(
     AppScope(
       settings: settings,
+      boards: SqliteBoardRepository(database.db),
       symbols: symbols,
       symbolImages: symbolImages,
       child: const PrifonoApp(),

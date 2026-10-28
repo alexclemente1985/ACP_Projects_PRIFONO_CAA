@@ -32,8 +32,8 @@ class SqliteBoardRepository implements BoardRepository {
     int gridColumns = Board.defaultColumns,
     int gridRows = Board.defaultRows,
   }) async {
-    final cleanName = _checkName(name);
-    _checkGrid(gridColumns, gridRows);
+    final cleanName = Board.checkName(name);
+    Board.checkGrid(gridColumns, gridRows);
 
     // Transação: ler a próxima posição e inserir é uma operação só.
     return _db.transaction<Board>((txn) async {
@@ -58,8 +58,8 @@ class SqliteBoardRepository implements BoardRepository {
 
   @override
   Future<Board> updateBoard(Board board) async {
-    final cleanName = _checkName(board.name);
-    _checkGrid(board.gridColumns, board.gridRows);
+    final cleanName = Board.checkName(board.name);
+    Board.checkGrid(board.gridColumns, board.gridRows);
 
     final count = await _db.update(
       'boards',
@@ -175,28 +175,6 @@ class SqliteBoardRepository implements BoardRepository {
 
   // --------------------------------------------------------------- helpers
 
-  String _checkName(String name) {
-    final clean = name.trim();
-    if (clean.isEmpty) {
-      throw ArgumentError.value(name, 'name', 'não pode ser vazio');
-    }
-    return clean;
-  }
-
-  void _checkGrid(int columns, int rows) {
-    RangeError.checkValueInInterval(
-      columns,
-      Board.minGrid,
-      Board.maxGrid,
-      'gridColumns',
-    );
-    RangeError.checkValueInInterval(
-      rows,
-      Board.minGrid,
-      Board.maxGrid,
-      'gridRows',
-    );
-  }
 
   Future<Board?> _boardById(DatabaseExecutor executor, int id) async {
     final rows = await executor.query(

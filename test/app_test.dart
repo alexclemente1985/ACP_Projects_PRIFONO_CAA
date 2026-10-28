@@ -6,21 +6,25 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:prifono_caa/app/app.dart';
 import 'package:prifono_caa/app/app_scope.dart';
-import 'package:prifono_caa/features/home/home_page.dart';
+import 'package:prifono_caa/features/boards/data/in_memory_board_repository.dart';
+import 'package:prifono_caa/features/boards/domain/board_repository.dart';
+import 'package:prifono_caa/features/boards/presentation/board_page.dart';
+import 'package:prifono_caa/features/boards/presentation/boards_list_page.dart';
 import 'package:prifono_caa/features/settings/settings_controller.dart';
 import 'package:prifono_caa/features/splash/splash_page.dart';
 import 'package:prifono_caa/features/symbols/data/arasaac_provider.dart';
 import 'package:prifono_caa/features/symbols/data/symbol_image_store.dart';
 
-Widget _buildApp(SettingsController settings) {
-  // Rede e disco falsos: os testes de widget nunca saem da máquina.
+Widget _buildApp({SettingsController? settings, BoardRepository? boards}) {
+  // Rede, disco e banco falsos: os testes de widget nunca saem da máquina.
   final provider = ArasaacProvider(
     client: MockClient((_) async => http.Response('[]', 404)),
   );
   final root = Directory.systemTemp.createTempSync('prifono_symbols_');
   addTearDown(() => root.deleteSync(recursive: true));
   return AppScope(
-    settings: settings,
+    settings: settings ?? SettingsController(),
+    boards: boards ?? InMemoryBoardRepository(),
     symbols: provider,
     symbolImages: SymbolImageStore(root: root, provider: provider),
     child: const PrifonoApp(),
@@ -28,31 +32,35 @@ Widget _buildApp(SettingsController settings) {
 }
 
 /// Sobe o app e espera a splash terminar.
-Future<void> _pumpToHome(WidgetTester tester, SettingsController settings) async {
-  await tester.pumpWidget(_buildApp(settings));
+Future<void> _pumpToBoards(
+  WidgetTester tester, {
+  SettingsController? settings,
+  BoardRepository? boards,
+}) async {
+  await tester.pumpWidget(_buildApp(settings: settings, boards: boards));
   await tester.pumpAndSettle();
 }
 
 void main() {
   group('splash', () {
-    testWidgets('começa na splash e termina na Home', (tester) async {
-      await tester.pumpWidget(_buildApp(SettingsController()));
+    testWidgets('começa na splash e termina na lista de pranchas', (tester) async {
+      await tester.pumpWidget(_buildApp());
       expect(find.byType(SplashPage), findsOneWidget);
 
       await tester.pumpAndSettle();
 
       expect(find.byType(SplashPage), findsNothing);
-      expect(find.byType(HomePage), findsOneWidget);
+      expect(find.byType(BoardsListPage), findsOneWidget);
     });
 
     testWidgets('tocar na tela pula a splash', (tester) async {
-      await tester.pumpWidget(_buildApp(SettingsController()));
+      await tester.pumpWidget(_buildApp());
       await tester.pump(const Duration(milliseconds: 100));
 
       await tester.tap(find.byType(SplashPage));
       await tester.pumpAndSettle();
 
-      expect(find.byType(HomePage), findsOneWidget);
+      expect(find.byType(BoardsListPage), findsOneWidget);
     });
 
     testWidgets('com "reduzir movimento" a splash é curta', (tester) async {
@@ -60,26 +68,120 @@ void main() {
           const FakeAccessibilityFeatures(disableAnimations: true);
       addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
 
-      await tester.pumpWidget(_buildApp(SettingsController()));
+      await tester.pumpWidget(_buildApp());
       await tester.pump(const Duration(milliseconds: 850)); // > 800 ms
       await tester.pump(const Duration(milliseconds: 500)); // transição
 
-      expect(find.byType(HomePage), findsOneWidget);
+      expect(find.byType(BoardsListPage), findsOneWidget);
     });
   });
 
-  group('home', () {
-    testWidgets('mostra a tela inicial em português', (tester) async {
-      await _pumpToHome(tester, SettingsController());
+  group('pranchas', () {
+    testWidgets('sem pranchas mostra o estado vazio', (tester) async {
+      await _pumpToBoards(tester);
 
-      expect(find.text('Laboratório de tema'), findsOneWidget);
-      expect(find.text('Cores da marca'), findsOneWidget);
+      expect(find.text('Nenhuma prancha ainda'), findsOneWidget);
+      expect(find.text('Criar primeira prancha'), findsOneWidget);
     });
 
+    testWidgets('cria uma prancha com nome e grade', (tester) async {
+      await _pumpToBoards(tester);
+
+      await tester.tap(find.text('Nova prancha'));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextFormField), 'Casa');
+      await tester.tap(find.byTooltip('Aumentar colunas'));
+      await tester.pump();
+      await tester.tap(find.text('Salvar'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Casa'), findsOneWidget);
+      expect(find.text('5 colunas × 4 linhas'), findsOneWidget);
+    });
+
+    testWidgets('nome vazio mostra erro e mantém o formulário aberto', (tester) async {
+      await _pumpToBoards(tester);
+
+      await tester.tap(find.text('Nova prancha'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Salvar'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Dê um nome à prancha.'), findsOneWidget);
+      expect(find.byType(AlertDialog), findsOneWidget);
+    });
+
+    testWidgets('edita o nome de uma prancha', (tester) async {
+      final repository = InMemoryBoardRepository();
+      await repository.createBoard(name: 'Casa');
+      await _pumpToBoards(tester, boards: repository);
+
+      await tester.tap(find.byTooltip('Mais opções'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Editar'));
+      await tester.pumpAndSettle();
+      expect(find.widgetWithText(TextFormField, 'Casa'), findsOneWidget);
+
+      await tester.enterText(find.byType(TextFormField), 'Casa nova');
+      await tester.tap(find.text('Salvar'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Casa nova'), findsOneWidget);
+    });
+
+    testWidgets('excluir pede confirmação e remove a prancha', (tester) async {
+      final repository = InMemoryBoardRepository();
+      await repository.createBoard(name: 'Casa');
+      await _pumpToBoards(tester, boards: repository);
+
+      await tester.tap(find.byTooltip('Mais opções'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Excluir'));
+      await tester.pumpAndSettle();
+      expect(find.text('Excluir prancha?'), findsOneWidget);
+
+      await tester.tap(find.widgetWithText(FilledButton, 'Excluir'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Casa'), findsNothing);
+      expect(find.text('Nenhuma prancha ainda'), findsOneWidget);
+    });
+
+    testWidgets('cancelar a exclusão mantém a prancha', (tester) async {
+      final repository = InMemoryBoardRepository();
+      await repository.createBoard(name: 'Casa');
+      await _pumpToBoards(tester, boards: repository);
+
+      await tester.tap(find.byTooltip('Mais opções'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Excluir'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Cancelar'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Casa'), findsOneWidget);
+    });
+
+    testWidgets('tocar numa prancha abre a tela da prancha', (tester) async {
+      final repository = InMemoryBoardRepository();
+      await repository.createBoard(name: 'Casa');
+      await _pumpToBoards(tester, boards: repository);
+
+      await tester.tap(find.text('Casa'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(BoardPage), findsOneWidget);
+      expect(find.text('Em breve: adicionar cards a esta prancha.'), findsOneWidget);
+    });
+  });
+
+  group('ajustes', () {
     testWidgets('escolher "Escuro" muda o themeMode do app', (tester) async {
       final settings = SettingsController();
-      await _pumpToHome(tester, settings);
+      await _pumpToBoards(tester, settings: settings);
 
+      await tester.tap(find.byTooltip('Ajustes'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Escuro'));
       await tester.pumpAndSettle();
 
@@ -92,11 +194,17 @@ void main() {
   testWidgets('não estoura layout com texto em 200%', (tester) async {
     tester.platformDispatcher.textScaleFactorTestValue = 2.0;
     addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    final repository = InMemoryBoardRepository();
+    await repository.createBoard(name: 'Prancha com um nome bem comprido');
 
-    await tester.pumpWidget(_buildApp(SettingsController()));
+    await tester.pumpWidget(_buildApp(boards: repository));
     expect(tester.takeException(), isNull); // splash em 200%
 
     await tester.pumpAndSettle();
-    expect(tester.takeException(), isNull); // home em 200%
+    expect(tester.takeException(), isNull); // lista em 200%
+
+    await tester.tap(find.text('Nova prancha'));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull); // formulário em 200%
   });
 }

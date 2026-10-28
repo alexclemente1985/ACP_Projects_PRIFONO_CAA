@@ -13,7 +13,13 @@ class AppLocalizationsPt extends AppLocalizations {
   String get appName => 'PRIFONO CAA';
 
   @override
-  String get homeTitle => 'Laboratório de tema';
+  String get commonCancel => 'Cancelar';
+
+  @override
+  String get commonSave => 'Salvar';
+
+  @override
+  String get commonRetry => 'Tentar de novo';
 
   @override
   String get themeSectionTitle => 'Aparência';
@@ -28,43 +34,101 @@ class AppLocalizationsPt extends AppLocalizations {
   String get themeDark => 'Escuro';
 
   @override
-  String get paletteSectionTitle => 'Cores da marca';
-
-  @override
-  String get colorRosa => 'Rosa';
-
-  @override
-  String get colorAzul => 'Azul';
-
-  @override
-  String get colorBege => 'Bege';
-
-  @override
-  String get colorBranco => 'Branco';
-
-  @override
-  String get buttonsSectionTitle => 'Botões';
-
-  @override
-  String get primaryButton => 'Botão principal';
-
-  @override
-  String get tonalButton => 'Botão secundário';
-
-  @override
-  String get tryOutSectionTitle => 'Pictogramas (teste)';
-
-  @override
-  String get tryOutButton => 'Buscar pictograma';
-
-  @override
-  String get tryOutDownloading => 'Baixando pictograma';
-
-  @override
-  String get tryOutDownloadFailed => 'Não foi possível baixar o pictograma.';
+  String get settingsTitle => 'Ajustes';
 
   @override
   String get creditsButton => 'Créditos e licenças';
+
+  @override
+  String get boardsTitle => 'Pranchas';
+
+  @override
+  String get boardsEmptyTitle => 'Nenhuma prancha ainda';
+
+  @override
+  String get boardsEmptyMessage =>
+      'Crie a sua primeira prancha de comunicação.';
+
+  @override
+  String get boardsEmptyAction => 'Criar primeira prancha';
+
+  @override
+  String get boardsLoadError => 'Não foi possível carregar as pranchas.';
+
+  @override
+  String get boardNew => 'Nova prancha';
+
+  @override
+  String get boardEdit => 'Editar';
+
+  @override
+  String get boardDelete => 'Excluir';
+
+  @override
+  String get boardMoreOptions => 'Mais opções';
+
+  @override
+  String boardGridSummary(int columns, int rows) {
+    String _temp0 = intl.Intl.pluralLogic(
+      columns,
+      locale: localeName,
+      other: '$columns colunas',
+      one: '1 coluna',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      rows,
+      locale: localeName,
+      other: '$rows linhas',
+      one: '1 linha',
+    );
+    return '$_temp0 × $_temp1';
+  }
+
+  @override
+  String get boardActionFailed =>
+      'Não foi possível concluir a ação. Tente novamente.';
+
+  @override
+  String get boardCardsComingSoon =>
+      'Em breve: adicionar cards a esta prancha.';
+
+  @override
+  String get boardFormNewTitle => 'Nova prancha';
+
+  @override
+  String get boardFormEditTitle => 'Editar prancha';
+
+  @override
+  String get boardFormNameLabel => 'Nome da prancha';
+
+  @override
+  String get boardFormNameRequired => 'Dê um nome à prancha.';
+
+  @override
+  String get boardFormColumns => 'Colunas';
+
+  @override
+  String get boardFormRows => 'Linhas';
+
+  @override
+  String get boardColumnsDecrease => 'Diminuir colunas';
+
+  @override
+  String get boardColumnsIncrease => 'Aumentar colunas';
+
+  @override
+  String get boardRowsDecrease => 'Diminuir linhas';
+
+  @override
+  String get boardRowsIncrease => 'Aumentar linhas';
+
+  @override
+  String get boardDeleteTitle => 'Excluir prancha?';
+
+  @override
+  String boardDeleteMessage(String name) {
+    return 'A prancha “$name” e todos os seus cards serão excluídos. Isso não pode ser desfeito.';
+  }
 
   @override
   String get searchTitle => 'Buscar pictogramas';

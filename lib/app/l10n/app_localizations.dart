@@ -100,11 +100,23 @@ abstract class AppLocalizations {
   /// **'PRIFONO CAA'**
   String get appName;
 
-  /// No description provided for @homeTitle.
+  /// No description provided for @commonCancel.
   ///
   /// In pt, this message translates to:
-  /// **'Laboratório de tema'**
-  String get homeTitle;
+  /// **'Cancelar'**
+  String get commonCancel;
+
+  /// No description provided for @commonSave.
+  ///
+  /// In pt, this message translates to:
+  /// **'Salvar'**
+  String get commonSave;
+
+  /// No description provided for @commonRetry.
+  ///
+  /// In pt, this message translates to:
+  /// **'Tentar de novo'**
+  String get commonRetry;
 
   /// No description provided for @themeSectionTitle.
   ///
@@ -130,83 +142,161 @@ abstract class AppLocalizations {
   /// **'Escuro'**
   String get themeDark;
 
-  /// No description provided for @paletteSectionTitle.
+  /// No description provided for @settingsTitle.
   ///
   /// In pt, this message translates to:
-  /// **'Cores da marca'**
-  String get paletteSectionTitle;
-
-  /// No description provided for @colorRosa.
-  ///
-  /// In pt, this message translates to:
-  /// **'Rosa'**
-  String get colorRosa;
-
-  /// No description provided for @colorAzul.
-  ///
-  /// In pt, this message translates to:
-  /// **'Azul'**
-  String get colorAzul;
-
-  /// No description provided for @colorBege.
-  ///
-  /// In pt, this message translates to:
-  /// **'Bege'**
-  String get colorBege;
-
-  /// No description provided for @colorBranco.
-  ///
-  /// In pt, this message translates to:
-  /// **'Branco'**
-  String get colorBranco;
-
-  /// No description provided for @buttonsSectionTitle.
-  ///
-  /// In pt, this message translates to:
-  /// **'Botões'**
-  String get buttonsSectionTitle;
-
-  /// No description provided for @primaryButton.
-  ///
-  /// In pt, this message translates to:
-  /// **'Botão principal'**
-  String get primaryButton;
-
-  /// No description provided for @tonalButton.
-  ///
-  /// In pt, this message translates to:
-  /// **'Botão secundário'**
-  String get tonalButton;
-
-  /// No description provided for @tryOutSectionTitle.
-  ///
-  /// In pt, this message translates to:
-  /// **'Pictogramas (teste)'**
-  String get tryOutSectionTitle;
-
-  /// No description provided for @tryOutButton.
-  ///
-  /// In pt, this message translates to:
-  /// **'Buscar pictograma'**
-  String get tryOutButton;
-
-  /// No description provided for @tryOutDownloading.
-  ///
-  /// In pt, this message translates to:
-  /// **'Baixando pictograma'**
-  String get tryOutDownloading;
-
-  /// No description provided for @tryOutDownloadFailed.
-  ///
-  /// In pt, this message translates to:
-  /// **'Não foi possível baixar o pictograma.'**
-  String get tryOutDownloadFailed;
+  /// **'Ajustes'**
+  String get settingsTitle;
 
   /// No description provided for @creditsButton.
   ///
   /// In pt, this message translates to:
   /// **'Créditos e licenças'**
   String get creditsButton;
+
+  /// No description provided for @boardsTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Pranchas'**
+  String get boardsTitle;
+
+  /// No description provided for @boardsEmptyTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhuma prancha ainda'**
+  String get boardsEmptyTitle;
+
+  /// No description provided for @boardsEmptyMessage.
+  ///
+  /// In pt, this message translates to:
+  /// **'Crie a sua primeira prancha de comunicação.'**
+  String get boardsEmptyMessage;
+
+  /// No description provided for @boardsEmptyAction.
+  ///
+  /// In pt, this message translates to:
+  /// **'Criar primeira prancha'**
+  String get boardsEmptyAction;
+
+  /// No description provided for @boardsLoadError.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não foi possível carregar as pranchas.'**
+  String get boardsLoadError;
+
+  /// No description provided for @boardNew.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nova prancha'**
+  String get boardNew;
+
+  /// No description provided for @boardEdit.
+  ///
+  /// In pt, this message translates to:
+  /// **'Editar'**
+  String get boardEdit;
+
+  /// No description provided for @boardDelete.
+  ///
+  /// In pt, this message translates to:
+  /// **'Excluir'**
+  String get boardDelete;
+
+  /// No description provided for @boardMoreOptions.
+  ///
+  /// In pt, this message translates to:
+  /// **'Mais opções'**
+  String get boardMoreOptions;
+
+  /// No description provided for @boardGridSummary.
+  ///
+  /// In pt, this message translates to:
+  /// **'{columns, plural, =1{1 coluna} other{{columns} colunas}} × {rows, plural, =1{1 linha} other{{rows} linhas}}'**
+  String boardGridSummary(int columns, int rows);
+
+  /// No description provided for @boardActionFailed.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não foi possível concluir a ação. Tente novamente.'**
+  String get boardActionFailed;
+
+  /// No description provided for @boardCardsComingSoon.
+  ///
+  /// In pt, this message translates to:
+  /// **'Em breve: adicionar cards a esta prancha.'**
+  String get boardCardsComingSoon;
+
+  /// No description provided for @boardFormNewTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nova prancha'**
+  String get boardFormNewTitle;
+
+  /// No description provided for @boardFormEditTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Editar prancha'**
+  String get boardFormEditTitle;
+
+  /// No description provided for @boardFormNameLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nome da prancha'**
+  String get boardFormNameLabel;
+
+  /// No description provided for @boardFormNameRequired.
+  ///
+  /// In pt, this message translates to:
+  /// **'Dê um nome à prancha.'**
+  String get boardFormNameRequired;
+
+  /// No description provided for @boardFormColumns.
+  ///
+  /// In pt, this message translates to:
+  /// **'Colunas'**
+  String get boardFormColumns;
+
+  /// No description provided for @boardFormRows.
+  ///
+  /// In pt, this message translates to:
+  /// **'Linhas'**
+  String get boardFormRows;
+
+  /// No description provided for @boardColumnsDecrease.
+  ///
+  /// In pt, this message translates to:
+  /// **'Diminuir colunas'**
+  String get boardColumnsDecrease;
+
+  /// No description provided for @boardColumnsIncrease.
+  ///
+  /// In pt, this message translates to:
+  /// **'Aumentar colunas'**
+  String get boardColumnsIncrease;
+
+  /// No description provided for @boardRowsDecrease.
+  ///
+  /// In pt, this message translates to:
+  /// **'Diminuir linhas'**
+  String get boardRowsDecrease;
+
+  /// No description provided for @boardRowsIncrease.
+  ///
+  /// In pt, this message translates to:
+  /// **'Aumentar linhas'**
+  String get boardRowsIncrease;
+
+  /// No description provided for @boardDeleteTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Excluir prancha?'**
+  String get boardDeleteTitle;
+
+  /// No description provided for @boardDeleteMessage.
+  ///
+  /// In pt, this message translates to:
+  /// **'A prancha “{name}” e todos os seus cards serão excluídos. Isso não pode ser desfeito.'**
+  String boardDeleteMessage(String name);
 
   /// No description provided for @searchTitle.
   ///

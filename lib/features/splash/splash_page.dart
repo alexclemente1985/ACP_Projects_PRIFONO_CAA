@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:prifono_caa/app/l10n/app_localizations.dart';
 import 'package:prifono_caa/app/navigation.dart';
 import 'package:prifono_caa/app/theme/brand_tokens.dart';
-import 'package:prifono_caa/features/home/home_page.dart';
+import 'package:prifono_caa/features/boards/presentation/boards_list_page.dart';
 import 'package:prifono_caa/features/splash/brand_mark_painter.dart';
 
 class SplashPage extends StatefulWidget {
@@ -45,7 +45,7 @@ class _SplashPageState extends State<SplashPage>
     if (_navigated || !mounted) return;
     _navigated = true;
     Navigator.of(context).pushReplacement<void, void>(
-      fadeRoute<void>(const HomePage()),
+      fadeRoute<void>(const BoardsListPage()),
     );
   }
 

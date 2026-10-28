@@ -36,6 +36,17 @@ class CardContent {
     return (text != null && text.isNotEmpty) ? text : label;
   }
 
+    /// Mesmo conteúdo, sem o link para outra prancha.
+  CardContent withoutLink() {
+    return CardContent(
+      label: label,
+      speechText: speechText,
+      symbol: symbol,
+      imagePath: imagePath,
+      backgroundColor: backgroundColor,
+    );
+  }
+
   @override
   bool operator ==(Object other) {
     return other is CardContent &&

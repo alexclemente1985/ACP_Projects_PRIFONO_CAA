@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:prifono_caa/features/boards/domain/board_repository.dart';
 import 'package:prifono_caa/features/settings/settings_controller.dart';
 import 'package:prifono_caa/features/symbols/data/symbol_image_store.dart';
 import 'package:prifono_caa/features/symbols/domain/symbol_provider.dart';
@@ -12,6 +13,7 @@ import 'package:prifono_caa/features/symbols/domain/symbol_provider.dart';
 class AppScope extends InheritedWidget {
   const AppScope({
     required this.settings,
+    required this.boards,
     required this.symbols,
     required this.symbolImages,
     required super.child,
@@ -19,6 +21,7 @@ class AppScope extends InheritedWidget {
   });
 
   final SettingsController settings;
+  final BoardRepository boards;
   final SymbolProvider symbols;
   final SymbolImageStore symbolImages;
 
@@ -31,6 +34,7 @@ class AppScope extends InheritedWidget {
   @override
   bool updateShouldNotify(AppScope oldWidget) {
     return settings != oldWidget.settings ||
+        boards != oldWidget.boards ||
         symbols != oldWidget.symbols ||
         symbolImages != oldWidget.symbolImages;
   }

@@ -26,6 +26,22 @@ class Board {
   final DateTime createdAt;
   final DateTime updatedAt;
 
+  /// Regra: o nome é obrigatório (sem espaços nas pontas).
+  /// Devolve o nome limpo ou lança [ArgumentError].
+  static String checkName(String name) {
+    final clean = name.trim();
+    if (clean.isEmpty) {
+      throw ArgumentError.value(name, 'name', 'não pode ser vazio');
+    }
+    return clean;
+  }
+
+  /// Regra: a grade fica entre [minGrid] e [maxGrid]. Lança [RangeError].
+  static void checkGrid(int columns, int rows) {
+    RangeError.checkValueInInterval(columns, minGrid, maxGrid, 'gridColumns');
+    RangeError.checkValueInInterval(rows, minGrid, maxGrid, 'gridRows');
+  }
+
   /// Copia alterando só o que o usuário pode editar.
   Board copyWith({String? name, int? gridColumns, int? gridRows}) {
     return Board(

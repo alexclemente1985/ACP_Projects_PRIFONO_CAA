@@ -1,25 +1,61 @@
 {
   "@@locale": "pt",
   "appName": "PRIFONO CAA",
-  "homeTitle": "Laboratório de tema",
+
+  "commonCancel": "Cancelar",
+  "commonSave": "Salvar",
+  "commonRetry": "Tentar de novo",
+
   "themeSectionTitle": "Aparência",
   "themeSystem": "Sistema",
   "themeLight": "Claro",
   "themeDark": "Escuro",
-  "paletteSectionTitle": "Cores da marca",
-  "colorRosa": "Rosa",
-  "colorAzul": "Azul",
-  "colorBege": "Bege",
-  "colorBranco": "Branco",
-  "buttonsSectionTitle": "Botões",
-  "primaryButton": "Botão principal",
-  "tonalButton": "Botão secundário",
-
-  "tryOutSectionTitle": "Pictogramas (teste)",
-  "tryOutButton": "Buscar pictograma",
-  "tryOutDownloading": "Baixando pictograma",
-  "tryOutDownloadFailed": "Não foi possível baixar o pictograma.",
+  "settingsTitle": "Ajustes",
   "creditsButton": "Créditos e licenças",
+
+  "boardsTitle": "Pranchas",
+  "boardsEmptyTitle": "Nenhuma prancha ainda",
+  "boardsEmptyMessage": "Crie a sua primeira prancha de comunicação.",
+  "boardsEmptyAction": "Criar primeira prancha",
+  "boardsLoadError": "Não foi possível carregar as pranchas.",
+  "boardNew": "Nova prancha",
+  "boardEdit": "Editar",
+  "boardDelete": "Excluir",
+  "boardMoreOptions": "Mais opções",
+  "boardGridSummary": "{columns, plural, =1{1 coluna} other{{columns} colunas}} × {rows, plural, =1{1 linha} other{{rows} linhas}}",
+  "@boardGridSummary": {
+    "placeholders": {
+      "columns": {
+        "type": "int"
+      },
+      "rows": {
+        "type": "int"
+      }
+    }
+  },
+  "boardActionFailed": "Não foi possível concluir a ação. Tente novamente.",
+  "boardCardsComingSoon": "Em breve: adicionar cards a esta prancha.",
+
+  "boardFormNewTitle": "Nova prancha",
+  "boardFormEditTitle": "Editar prancha",
+  "boardFormNameLabel": "Nome da prancha",
+  "boardFormNameRequired": "Dê um nome à prancha.",
+  "boardFormColumns": "Colunas",
+  "boardFormRows": "Linhas",
+  "boardColumnsDecrease": "Diminuir colunas",
+  "boardColumnsIncrease": "Aumentar colunas",
+  "boardRowsDecrease": "Diminuir linhas",
+  "boardRowsIncrease": "Aumentar linhas",
+
+  "boardDeleteTitle": "Excluir prancha?",
+  "boardDeleteMessage": "A prancha “{name}” e todos os seus cards serão excluídos. Isso não pode ser desfeito.",
+  "@boardDeleteMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
 
   "searchTitle": "Buscar pictogramas",
   "searchHint": "Digite uma palavra",
