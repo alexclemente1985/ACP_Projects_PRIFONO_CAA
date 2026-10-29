@@ -151,7 +151,7 @@ abstract class AppLocalizations {
   /// No description provided for @creditsButton.
   ///
   /// In pt, this message translates to:
-  /// **'Créditos e licenças'**
+  /// **'Sobre e créditos'**
   String get creditsButton;
 
   /// No description provided for @boardsTitle.
@@ -541,7 +541,7 @@ abstract class AppLocalizations {
   /// No description provided for @creditsTitle.
   ///
   /// In pt, this message translates to:
-  /// **'Créditos e licenças'**
+  /// **'Sobre e créditos'**
   String get creditsTitle;
 
   /// No description provided for @creditsArasaacTitle.
@@ -550,11 +550,23 @@ abstract class AppLocalizations {
   /// **'Pictogramas'**
   String get creditsArasaacTitle;
 
+  /// No description provided for @creditsArasaacOfficial.
+  ///
+  /// In pt, this message translates to:
+  /// **'Los símbolos pictográficos utilizados son propiedad del Gobierno de Aragón y han sido creados por Sergio Palao para ARASAAC (http://www.arasaac.org), que los distribuye bajo Licencia Creative Commons BY-NC-SA.'**
+  String get creditsArasaacOfficial;
+
   /// No description provided for @creditsArasaacBody.
   ///
   /// In pt, this message translates to:
   /// **'Os símbolos pictográficos utilizados são de propriedade do Governo de Aragão e foram criados por Sergio Palao para o ARASAAC (https://arasaac.org), que os distribui sob licença Creative Commons (BY-NC-SA).'**
   String get creditsArasaacBody;
+
+  /// No description provided for @creditsArasaacTerms.
+  ///
+  /// In pt, this message translates to:
+  /// **'Os pictogramas são para uso não comercial. Ao compartilhar pictogramas ou pranchas feitas com eles, mantenha a atribuição ao ARASAAC e use a mesma licença (CC BY-NC-SA).'**
+  String get creditsArasaacTerms;
 
   /// No description provided for @creditsPrivacyTitle.
   ///
@@ -567,6 +579,42 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Ao buscar pictogramas, a palavra digitada e o endereço IP do aparelho são enviados aos servidores do ARASAAC. O app não envia dados pessoais nem usa conta. Os pictogramas que você escolhe ficam salvos no aparelho para funcionar sem internet.'**
   String get creditsPrivacyBody;
+
+  /// No description provided for @aboutTagline.
+  ///
+  /// In pt, this message translates to:
+  /// **'Pranchas de comunicação gratuitas, sem conta e sem anúncios.'**
+  String get aboutTagline;
+
+  /// No description provided for @aboutMakersTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Quem faz o Privox'**
+  String get aboutMakersTitle;
+
+  /// No description provided for @aboutMadeBy.
+  ///
+  /// In pt, this message translates to:
+  /// **'Desenvolvido por ACP Projects.'**
+  String get aboutMadeBy;
+
+  /// No description provided for @aboutClinic.
+  ///
+  /// In pt, this message translates to:
+  /// **'Em parceria com o consultório PRIFONO, da fonoaudióloga Priscilla de Sá.'**
+  String get aboutClinic;
+
+  /// No description provided for @aboutPolicyTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Política de privacidade'**
+  String get aboutPolicyTitle;
+
+  /// No description provided for @aboutPolicyBody.
+  ///
+  /// In pt, this message translates to:
+  /// **'A política de privacidade completa fica neste endereço:'**
+  String get aboutPolicyBody;
 }
 
 class _AppLocalizationsDelegate

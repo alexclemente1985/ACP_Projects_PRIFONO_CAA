@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:prifono_caa/app/l10n/app_localizations.dart';
 import 'package:prifono_caa/app/navigation.dart';
 import 'package:prifono_caa/app/theme/brand_tokens.dart';
+import 'package:prifono_caa/features/about/privox_mark.dart';
 import 'package:prifono_caa/features/boards/presentation/boards_list_page.dart';
-import 'package:prifono_caa/features/splash/brand_mark_painter.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -16,6 +16,10 @@ class _SplashPageState extends State<SplashPage>
     with SingleTickerProviderStateMixin {
   static const Duration _fullDuration = Duration(milliseconds: 2400);
   static const Duration _reducedDuration = Duration(milliseconds: 800);
+
+  /// A marca termina de se desenhar aos 85% e fica parada até o fim, para a
+  /// pessoa ver o selo completo antes de a splash sumir.
+  static const Interval _markInterval = Interval(0, 0.85);
   static const Interval _textInterval =
       Interval(0.7, 1, curve: Curves.easeIn);
 
@@ -73,22 +77,18 @@ class _SplashPageState extends State<SplashPage>
               animation: _controller,
               builder: (context, _) {
                 final t = _reduceMotion ? 1.0 : _controller.value;
+                final markProgress =
+                    _reduceMotion ? 1.0 : _markInterval.transform(t);
                 final textOpacity =
                     _reduceMotion ? 1.0 : _textInterval.transform(t);
                 return Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    CustomPaint(
-                      size: const Size.square(160),
-                      painter: BrandMarkPainter(
-                        progress: t,
-                        strokeColor: BrandColors.azul,
-                        dotColors: const [
-                          BrandColors.rosa,
-                          BrandColors.azul,
-                          BrandColors.rosa,
-                        ],
-                      ),
+                    PrivoxMark(
+                      size: 160,
+                      progress: markProgress,
+                      pinkColor: BrandColors.rosa,
+                      blueColor: BrandColors.azul,
                     ),
                     const SizedBox(height: 24),
                     Opacity(

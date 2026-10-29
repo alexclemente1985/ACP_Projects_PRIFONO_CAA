@@ -37,7 +37,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get settingsTitle => 'Ajustes';
 
   @override
-  String get creditsButton => 'Créditos e licenças';
+  String get creditsButton => 'Sobre e créditos';
 
   @override
   String get boardsTitle => 'Pranchas';
@@ -283,14 +283,22 @@ class AppLocalizationsPt extends AppLocalizations {
       'Pictogramas: ARASAAC (Governo de Aragão), licença CC BY-NC-SA. Toque para ver os créditos.';
 
   @override
-  String get creditsTitle => 'Créditos e licenças';
+  String get creditsTitle => 'Sobre e créditos';
 
   @override
   String get creditsArasaacTitle => 'Pictogramas';
 
   @override
+  String get creditsArasaacOfficial =>
+      'Los símbolos pictográficos utilizados son propiedad del Gobierno de Aragón y han sido creados por Sergio Palao para ARASAAC (http://www.arasaac.org), que los distribuye bajo Licencia Creative Commons BY-NC-SA.';
+
+  @override
   String get creditsArasaacBody =>
       'Os símbolos pictográficos utilizados são de propriedade do Governo de Aragão e foram criados por Sergio Palao para o ARASAAC (https://arasaac.org), que os distribui sob licença Creative Commons (BY-NC-SA).';
+
+  @override
+  String get creditsArasaacTerms =>
+      'Os pictogramas são para uso não comercial. Ao compartilhar pictogramas ou pranchas feitas com eles, mantenha a atribuição ao ARASAAC e use a mesma licença (CC BY-NC-SA).';
 
   @override
   String get creditsPrivacyTitle => 'Privacidade da busca';
@@ -298,4 +306,25 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get creditsPrivacyBody =>
       'Ao buscar pictogramas, a palavra digitada e o endereço IP do aparelho são enviados aos servidores do ARASAAC. O app não envia dados pessoais nem usa conta. Os pictogramas que você escolhe ficam salvos no aparelho para funcionar sem internet.';
+
+  @override
+  String get aboutTagline =>
+      'Pranchas de comunicação gratuitas, sem conta e sem anúncios.';
+
+  @override
+  String get aboutMakersTitle => 'Quem faz o Privox';
+
+  @override
+  String get aboutMadeBy => 'Desenvolvido por ACP Projects.';
+
+  @override
+  String get aboutClinic =>
+      'Em parceria com o consultório PRIFONO, da fonoaudióloga Priscilla de Sá.';
+
+  @override
+  String get aboutPolicyTitle => 'Política de privacidade';
+
+  @override
+  String get aboutPolicyBody =>
+      'A política de privacidade completa fica neste endereço:';
 }

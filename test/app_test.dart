@@ -46,7 +46,9 @@ Future<void> _pumpToBoards(
 
 void main() {
   group('splash', () {
-    testWidgets('começa na splash e termina na lista de pranchas', (tester) async {
+    testWidgets('começa na splash e termina na lista de pranchas', (
+      tester,
+    ) async {
       await tester.pumpWidget(_buildApp());
       expect(find.byType(SplashPage), findsOneWidget);
 
@@ -69,7 +71,9 @@ void main() {
     testWidgets('com "reduzir movimento" a splash é curta', (tester) async {
       tester.platformDispatcher.accessibilityFeaturesTestValue =
           const FakeAccessibilityFeatures(disableAnimations: true);
-      addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
+      addTearDown(
+        tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
+      );
 
       await tester.pumpWidget(_buildApp());
       await tester.pump(const Duration(milliseconds: 850)); // > 800 ms
@@ -102,7 +106,9 @@ void main() {
       expect(find.text('5 colunas × 4 linhas'), findsOneWidget);
     });
 
-    testWidgets('nome vazio mostra erro e mantém o formulário aberto', (tester) async {
+    testWidgets('nome vazio mostra erro e mantém o formulário aberto', (
+      tester,
+    ) async {
       await _pumpToBoards(tester);
 
       await tester.tap(find.text('Nova prancha'));
@@ -165,7 +171,7 @@ void main() {
       expect(find.text('Casa'), findsOneWidget);
     });
 
-        testWidgets('tocar numa prancha abre a tela da prancha', (tester) async {
+    testWidgets('tocar numa prancha abre a tela da prancha', (tester) async {
       final repository = InMemoryBoardRepository();
       await repository.createBoard(name: 'Casa');
       await _pumpToBoards(tester, boards: repository);
@@ -181,7 +187,9 @@ void main() {
       expect(find.byTooltip('Adicionar card'), findsOneWidget);
     });
 
-    testWidgets('não deixa reduzir a grade abaixo da quantidade de cards', (tester) async {
+    testWidgets('não deixa reduzir a grade abaixo da quantidade de cards', (
+      tester,
+    ) async {
       final repository = InMemoryBoardRepository();
       final board = await repository.createBoard(
         name: 'Casa',
@@ -205,7 +213,9 @@ void main() {
       expect(find.textContaining('Esta prancha tem 4 cards'), findsOneWidget);
     });
 
-    testWidgets('permite reduzir até o limite dos cards e salva', (tester) async {
+    testWidgets('permite reduzir até o limite dos cards e salva', (
+      tester,
+    ) async {
       final repository = InMemoryBoardRepository();
       final board = await repository.createBoard(
         name: 'Casa',
@@ -237,8 +247,10 @@ void main() {
     });
   });
 
-    group('cards na prancha', () {
-    testWidgets('mostra os cards em ordem de leitura e um único "+"', (tester) async {
+  group('cards na prancha', () {
+    testWidgets('mostra os cards em ordem de leitura e um único "+"', (
+      tester,
+    ) async {
       final repository = InMemoryBoardRepository();
       final board = await repository.createBoard(
         name: 'Casa',
@@ -279,7 +291,9 @@ void main() {
       expect(find.textContaining('Prancha cheia'), findsOneWidget);
     });
 
-    testWidgets('cards com imagem e cor não estouram o layout em 200%', (tester) async {
+    testWidgets('cards com imagem e cor não estouram o layout em 200%', (
+      tester,
+    ) async {
       tester.platformDispatcher.textScaleFactorTestValue = 2.0;
       addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
       final repository = InMemoryBoardRepository();
@@ -305,7 +319,7 @@ void main() {
       expect(find.text('Sim'), findsOneWidget);
     });
 
-        testWidgets('cria um card pelo + e ele aparece na grade', (tester) async {
+    testWidgets('cria um card pelo + e ele aparece na grade', (tester) async {
       final repository = InMemoryBoardRepository();
       await repository.createBoard(name: 'Casa');
       await _pumpToBoards(tester, boards: repository);
@@ -323,7 +337,9 @@ void main() {
       expect(find.text('Água'), findsOneWidget);
     });
 
-    testWidgets('tocar num card abre o editor e permite excluir', (tester) async {
+    testWidgets('tocar num card abre o editor e permite excluir', (
+      tester,
+    ) async {
       final repository = InMemoryBoardRepository();
       final board = await repository.createBoard(name: 'Casa');
       await repository.addCard(board.id, const CardContent(label: 'Água'));
@@ -342,7 +358,10 @@ void main() {
 
       expect(find.byType(CardEditorPage), findsNothing);
       expect(find.text('Água'), findsNothing);
-      expect(find.text('Toque no + para adicionar o primeiro card.'), findsOneWidget);
+      expect(
+        find.text('Toque no + para adicionar o primeiro card.'),
+        findsOneWidget,
+      );
     });
   });
 
@@ -377,5 +396,16 @@ void main() {
     await tester.tap(find.text('Nova prancha'));
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull); // formulário em 200%
+  });
+
+  testWidgets('abre a tela Sobre e créditos', (tester) async {
+    await _pumpToBoards(tester);
+
+    await tester.tap(find.byTooltip('Ajustes'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(OutlinedButton));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Quem faz o Privox'), findsOneWidget);
   });
 }
