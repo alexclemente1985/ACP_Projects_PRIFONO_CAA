@@ -50,7 +50,10 @@ class _BoardPageState extends State<BoardPage> {
   Future<void> _addCard() {
     return Navigator.of(context).push<void>(
       MaterialPageRoute<void>(
-        builder: (_) => CardEditorPage(onSave: _controller.add),
+        builder: (_) => CardEditorPage(
+          currentBoardId: widget.board.id,
+          onSave: _controller.add,
+        ),
       ),
     );
   }
@@ -59,6 +62,7 @@ class _BoardPageState extends State<BoardPage> {
     return Navigator.of(context).push<void>(
       MaterialPageRoute<void>(
         builder: (_) => CardEditorPage(
+          currentBoardId: widget.board.id,
           initial: card.content,
           onSave: (content) => _controller.update(card.id, content),
           onDelete: () => _controller.delete(card.id),
@@ -71,9 +75,42 @@ class _BoardPageState extends State<BoardPage> {
 
   /// Modo de USO: tocar no card FALA o texto dele (E5-1) e o ADICIONA à barra
   /// de frase (E5-2). Não há toque longo: editar é só no modo de edição.
+  ///
+  /// Card com link para outra prancha (E5-4) só NAVEGA: não fala e não entra
+  /// na frase. Se a prancha de destino não existir mais, age como card comum.
   void _useCard(BoardCard card) {
+    final linkId = card.content.linkBoardId;
+    if (linkId != null) {
+      unawaited(_openLinkedBoard(card, linkId));
+      return;
+    }
+    _speakAndAdd(card);
+  }
+
+  void _speakAndAdd(BoardCard card) {
     AppScope.of(context).sentence.add(SentenceItem.fromContent(card.content));
     unawaited(speakWithFeedback(context, card.content.textToSpeak));
+  }
+
+  Future<void> _openLinkedBoard(BoardCard card, int boardId) async {
+    // Capturados ANTES do await.
+    final navigator = Navigator.of(context);
+    final repository = AppScope.of(context).boards;
+    Board? found;
+    try {
+      found = await repository.getBoard(boardId);
+    } on Exception {
+      found = null;
+    }
+    if (!mounted) return;
+    final destination = found;
+    if (destination == null) {
+      _speakAndAdd(card);
+      return;
+    }
+    await navigator.push<void>(
+      MaterialPageRoute<void>(builder: (_) => BoardPage(board: destination)),
+    );
   }
 
   String? _statusMessage(AppLocalizations l10n, {required bool editing}) {
@@ -194,6 +231,7 @@ class _BoardGrid extends StatelessWidget {
           imageFile: symbol == null
               ? null
               : store.fileFor(symbol, size: SymbolImageSize.medium),
+          linked: card.content.linkBoardId != null,
           onTap: () => editing ? onEdit(card) : onUse(card),
         );
       }
@@ -225,11 +263,15 @@ class _CardTile extends StatelessWidget {
   const _CardTile({
     required this.card,
     required this.imageFile,
+    required this.linked,
     required this.onTap,
   });
 
   final BoardCard card;
   final File? imageFile;
+
+  /// O card abre outra prancha: mostra um ícone de pasta (E5-4).
+  final bool linked;
 
   /// Em uso: fala e adiciona à frase. Em edição: abre o editor.
   final VoidCallback onTap;
@@ -251,6 +293,7 @@ class _CardTile extends StatelessWidget {
     return Semantics(
       button: true,
       label: label,
+      hint: linked ? AppLocalizations.of(context).cardOpensBoardHint : null,
       child: Material(
         color: background,
         clipBehavior: Clip.antiAlias,
@@ -261,17 +304,33 @@ class _CardTile extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           child: ExcludeSemantics(
-            child: Padding(
-              padding: const EdgeInsets.all(6),
-              child: Column(
-                children: [
-                  if (file != null) Expanded(flex: 3, child: _CardImage(file: file)),
-                  Expanded(
-                    flex: file != null ? 2 : 1,
-                    child: _CardLabel(label: label, color: foreground),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(6),
+                  child: Column(
+                    children: [
+                      if (file != null)
+                        Expanded(flex: 3, child: _CardImage(file: file)),
+                      Expanded(
+                        flex: file != null ? 2 : 1,
+                        child: _CardLabel(label: label, color: foreground),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+                if (linked)
+                  Positioned(
+                    top: 4,
+                    right: 4,
+                    child: Icon(
+                      Icons.folder_outlined,
+                      size: 22,
+                      color: foreground,
+                    ),
+                  ),
+              ],
             ),
           ),
         ),

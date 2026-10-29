@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:prifono_caa/app/app_scope.dart';
 import 'package:prifono_caa/app/l10n/app_localizations.dart';
 import 'package:prifono_caa/app/theme/brand_tokens.dart';
+import 'package:prifono_caa/features/boards/domain/board.dart';
 import 'package:prifono_caa/features/boards/domain/board_capacity.dart';
 import 'package:prifono_caa/features/boards/domain/board_card.dart';
 import 'package:prifono_caa/features/boards/presentation/card_colors.dart';
@@ -24,10 +25,14 @@ class CardEditorPage extends StatefulWidget {
     required this.onSave,
     this.initial,
     this.onDelete,
+    this.currentBoardId,
     super.key,
   });
 
   final CardContent? initial;
+
+  /// Prancha onde o card está (ela não aparece como destino do link).
+  final int? currentBoardId;
   final Future<void> Function(CardContent content) onSave;
   final Future<void> Function()? onDelete;
 
@@ -219,6 +224,10 @@ class _CardEditorPageState extends State<CardEditorPage> {
             final symbol = _SymbolSection(draft: _draft, onChoose: _pickSymbol);
             final fields = _buildFields(l10n);
             final colors = _ColorSection(draft: _draft);
+            final link = _LinkSection(
+              draft: _draft,
+              currentBoardId: widget.currentBoardId,
+            );
 
             return SingleChildScrollView(
               keyboardDismissBehavior:
@@ -253,6 +262,8 @@ class _CardEditorPageState extends State<CardEditorPage> {
                                     fields,
                                     const SizedBox(height: 24),
                                     colors,
+                                    const SizedBox(height: 24),
+                                    link,
                                   ],
                                 ),
                               ),
@@ -268,6 +279,8 @@ class _CardEditorPageState extends State<CardEditorPage> {
                               fields,
                               const SizedBox(height: 24),
                               colors,
+                              const SizedBox(height: 24),
+                              link,
                             ],
                           ),
                   ),
@@ -276,6 +289,134 @@ class _CardEditorPageState extends State<CardEditorPage> {
             );
           },
         ),
+      ),
+    );
+  }
+}
+
+/// Escolha da prancha que o card abre ao ser tocado em modo de uso (E5-4).
+/// Lista as OUTRAS pranchas; "Nenhuma" deixa o card só falar.
+class _LinkSection extends StatefulWidget {
+  const _LinkSection({required this.draft, required this.currentBoardId});
+
+  final CardDraftController draft;
+  final int? currentBoardId;
+
+  @override
+  State<_LinkSection> createState() => _LinkSectionState();
+}
+
+class _LinkSectionState extends State<_LinkSection> {
+  late final Future<List<Board>> _boards =
+      AppScope.of(context).boards.listBoards();
+
+  Future<void> _choose(List<Board> boards) async {
+    final l10n = AppLocalizations.of(context);
+    final selected = widget.draft.linkBoardId;
+    final choice = await showDialog<({int? id})>(
+      context: context,
+      builder: (dialogContext) => SimpleDialog(
+        title: Text(l10n.cardLinkTitle),
+        children: [
+          _LinkOption(
+            label: l10n.cardLinkNone,
+            selected: selected == null,
+            onTap: () => Navigator.of(dialogContext).pop((id: null)),
+          ),
+          for (final board in boards)
+            _LinkOption(
+              label: board.name,
+              selected: selected == board.id,
+              onTap: () => Navigator.of(dialogContext).pop((id: board.id)),
+            ),
+        ],
+      ),
+    );
+    if (choice == null) return; // fechou sem escolher
+    widget.draft.setLinkBoardId(choice.id);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final textTheme = Theme.of(context).textTheme;
+
+    return FutureBuilder<List<Board>>(
+      future: _boards,
+      builder: (context, snapshot) {
+        final data = snapshot.data;
+        if (data == null) return const SizedBox.shrink();
+        final boards =
+            data.where((b) => b.id != widget.currentBoardId).toList();
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Semantics(
+              header: true,
+              child: Text(l10n.cardLinkTitle, style: textTheme.titleMedium),
+            ),
+            const SizedBox(height: 8),
+            if (boards.isEmpty)
+              Text(l10n.cardLinkEmpty, style: textTheme.bodyMedium)
+            else
+              ListenableBuilder(
+                listenable: widget.draft,
+                builder: (context, _) {
+                  final selectedId = widget.draft.linkBoardId;
+                  final match = boards.where((b) => b.id == selectedId);
+                  final name =
+                      match.isEmpty ? l10n.cardLinkNone : match.first.name;
+                  return OutlinedButton(
+                    onPressed: () => unawaited(_choose(boards)),
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(56),
+                      alignment: Alignment.centerLeft,
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.folder_outlined),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            name,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const Icon(Icons.arrow_drop_down),
+                      ],
+                    ),
+                  );
+                },
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _LinkOption extends StatelessWidget {
+  const _LinkOption({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return SimpleDialogOption(
+      onPressed: onTap,
+      child: Row(
+        children: [
+          Expanded(child: Text(label)),
+          if (selected) const Icon(Icons.check),
+        ],
       ),
     );
   }

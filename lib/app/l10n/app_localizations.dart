@@ -687,6 +687,30 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Esta prancha está vazia. Segure o cadeado por 1,5 segundo para adicionar cards.'**
   String get boardEmptyUseHint;
+
+  /// No description provided for @cardLinkTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Abrir outra prancha ao tocar'**
+  String get cardLinkTitle;
+
+  /// No description provided for @cardLinkNone.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhuma (o card só fala)'**
+  String get cardLinkNone;
+
+  /// No description provided for @cardLinkEmpty.
+  ///
+  /// In pt, this message translates to:
+  /// **'Crie outra prancha para poder ligar este card a ela.'**
+  String get cardLinkEmpty;
+
+  /// No description provided for @cardOpensBoardHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Abre outra prancha'**
+  String get cardOpensBoardHint;
 }
 
 class _AppLocalizationsDelegate

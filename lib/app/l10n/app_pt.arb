@@ -162,5 +162,10 @@
   "editLockLeave": "Sair do modo de edição",
   "editLockHoldHint": "Segure o cadeado por 1,5 segundo para editar.",
   "editModeHint": "Modo de edição: toque num card para editar.",
-  "boardEmptyUseHint": "Esta prancha está vazia. Segure o cadeado por 1,5 segundo para adicionar cards."
+  "boardEmptyUseHint": "Esta prancha está vazia. Segure o cadeado por 1,5 segundo para adicionar cards.",
+
+  "cardLinkTitle": "Abrir outra prancha ao tocar",
+  "cardLinkNone": "Nenhuma (o card só fala)",
+  "cardLinkEmpty": "Crie outra prancha para poder ligar este card a ela.",
+  "cardOpensBoardHint": "Abre outra prancha"
 }

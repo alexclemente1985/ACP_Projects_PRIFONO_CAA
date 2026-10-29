@@ -367,4 +367,17 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get boardEmptyUseHint =>
       'Esta prancha está vazia. Segure o cadeado por 1,5 segundo para adicionar cards.';
+
+  @override
+  String get cardLinkTitle => 'Abrir outra prancha ao tocar';
+
+  @override
+  String get cardLinkNone => 'Nenhuma (o card só fala)';
+
+  @override
+  String get cardLinkEmpty =>
+      'Crie outra prancha para poder ligar este card a ela.';
+
+  @override
+  String get cardOpensBoardHint => 'Abre outra prancha';
 }

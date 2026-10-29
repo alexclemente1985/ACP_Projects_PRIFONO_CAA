@@ -9,7 +9,8 @@ import 'package:prifono_caa/features/symbols/domain/symbol_ref.dart';
 /// Situação da imagem do pictograma escolhido (ADR-030).
 enum SymbolDownloadStatus { none, downloading, ready, failed }
 
-/// Rascunho de um card em edição: símbolo, estado do download e cor.
+/// Rascunho de um card em edição: símbolo, estado do download, cor e a
+/// prancha de destino (link).
 ///
 /// Rótulo e texto falado ficam nos TextEditingControllers da tela; eles
 /// entram em [buildContent]. Sem widgets aqui: testável sem tela.
@@ -21,6 +22,7 @@ class CardDraftController extends ChangeNotifier {
 
   late SymbolRef? _symbol = _initial?.symbol;
   late int? _backgroundColor = _initial?.backgroundColor;
+  late int? _linkBoardId = _initial?.linkBoardId;
 
   /// Símbolo que já vinha salvo conta como pronto: não baixamos de novo.
   late SymbolDownloadStatus _status = _symbol == null
@@ -33,6 +35,9 @@ class CardDraftController extends ChangeNotifier {
 
   SymbolRef? get symbol => _symbol;
   int? get backgroundColor => _backgroundColor;
+
+  /// Prancha que o card abre ao ser tocado em modo de uso (null = só fala).
+  int? get linkBoardId => _linkBoardId;
   SymbolDownloadStatus get symbolStatus => _status;
 
   /// Tipo da falha do último download (null se não falhou ou se não foi de rede).
@@ -77,6 +82,12 @@ class CardDraftController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setLinkBoardId(int? boardId) {
+    if (boardId == _linkBoardId) return;
+    _linkBoardId = boardId;
+    notifyListeners();
+  }
+
   /// Monta o conteúdo final. Lança [StateError] se ainda não pode salvar.
   CardContent buildContent({
     required String label,
@@ -93,7 +104,7 @@ class CardDraftController extends ChangeNotifier {
       symbol: _symbol,
       imagePath: initial?.imagePath,
       backgroundColor: _backgroundColor,
-      linkBoardId: initial?.linkBoardId,
+      linkBoardId: _linkBoardId,
     );
   }
 
