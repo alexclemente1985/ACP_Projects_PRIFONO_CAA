@@ -1,6 +1,8 @@
 import 'package:flutter/widgets.dart';
 import 'package:prifono_caa/features/boards/domain/board_repository.dart';
 import 'package:prifono_caa/features/settings/settings_controller.dart';
+import 'package:prifono_caa/features/speech/data/silent_speech_service.dart';
+import 'package:prifono_caa/features/speech/domain/speech_service.dart';
 import 'package:prifono_caa/features/symbols/data/symbol_image_store.dart';
 import 'package:prifono_caa/features/symbols/domain/symbol_provider.dart';
 
@@ -17,6 +19,7 @@ class AppScope extends InheritedWidget {
     required this.symbols,
     required this.symbolImages,
     required super.child,
+    this.speech = const SilentSpeechService(),
     super.key,
   });
 
@@ -24,6 +27,10 @@ class AppScope extends InheritedWidget {
   final BoardRepository boards;
   final SymbolProvider symbols;
   final SymbolImageStore symbolImages;
+
+  /// Voz do app. O padrão é silencioso (testes não precisam passar nada);
+  /// o `main.dart` entrega a voz real (ADR-033).
+  final SpeechService speech;
 
   static AppScope of(BuildContext context) {
     final scope = context.getInheritedWidgetOfExactType<AppScope>();
@@ -36,6 +43,7 @@ class AppScope extends InheritedWidget {
     return settings != oldWidget.settings ||
         boards != oldWidget.boards ||
         symbols != oldWidget.symbols ||
-        symbolImages != oldWidget.symbolImages;
+        symbolImages != oldWidget.symbolImages ||
+        speech != oldWidget.speech;
   }
 }

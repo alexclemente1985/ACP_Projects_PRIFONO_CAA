@@ -532,6 +532,18 @@ abstract class AppLocalizations {
   /// **'Imagem indisponível'**
   String get imageUnavailable;
 
+  /// No description provided for @speechVoiceMissing.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não há voz em português do Brasil neste aparelho. Instale uma nos ajustes de voz do aparelho.'**
+  String get speechVoiceMissing;
+
+  /// No description provided for @speechFailed.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não foi possível falar agora. Tente de novo.'**
+  String get speechFailed;
+
   /// No description provided for @attributionShort.
   ///
   /// In pt, this message translates to:

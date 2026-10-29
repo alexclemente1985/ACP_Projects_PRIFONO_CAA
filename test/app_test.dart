@@ -347,7 +347,7 @@ void main() {
       await tester.tap(find.text('Casa'));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Água'));
+      await tester.longPress(find.text('Água'));
       await tester.pumpAndSettle();
       expect(find.text('Editar card'), findsOneWidget);
 

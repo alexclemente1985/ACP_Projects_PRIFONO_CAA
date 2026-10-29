@@ -133,6 +133,9 @@
   "searchRetry": "Tentar de novo",
   "imageUnavailable": "Imagem indisponível",
 
+  "speechVoiceMissing": "Não há voz em português do Brasil neste aparelho. Instale uma nos ajustes de voz do aparelho.",
+  "speechFailed": "Não foi possível falar agora. Tente de novo.",
+
   "attributionShort": "Pictogramas: ARASAAC (Governo de Aragão), licença CC BY-NC-SA. Toque para ver os créditos.",
   "creditsTitle": "Sobre e créditos",
   "creditsArasaacTitle": "Pictogramas",

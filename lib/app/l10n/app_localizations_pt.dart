@@ -279,6 +279,13 @@ class AppLocalizationsPt extends AppLocalizations {
   String get imageUnavailable => 'Imagem indisponível';
 
   @override
+  String get speechVoiceMissing =>
+      'Não há voz em português do Brasil neste aparelho. Instale uma nos ajustes de voz do aparelho.';
+
+  @override
+  String get speechFailed => 'Não foi possível falar agora. Tente de novo.';
+
+  @override
   String get attributionShort =>
       'Pictogramas: ARASAAC (Governo de Aragão), licença CC BY-NC-SA. Toque para ver os créditos.';
 
