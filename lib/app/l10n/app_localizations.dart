@@ -627,6 +627,36 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'A política de privacidade completa fica neste endereço:'**
   String get aboutPolicyBody;
+
+  /// No description provided for @sentenceBarLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Frase'**
+  String get sentenceBarLabel;
+
+  /// No description provided for @sentenceHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Toque nos cards para montar uma frase.'**
+  String get sentenceHint;
+
+  /// No description provided for @sentenceSpeak.
+  ///
+  /// In pt, this message translates to:
+  /// **'Falar a frase'**
+  String get sentenceSpeak;
+
+  /// No description provided for @sentenceDeleteLast.
+  ///
+  /// In pt, this message translates to:
+  /// **'Apagar a última palavra'**
+  String get sentenceDeleteLast;
+
+  /// No description provided for @sentenceClear.
+  ///
+  /// In pt, this message translates to:
+  /// **'Limpar a frase'**
+  String get sentenceClear;
 }
 
 class _AppLocalizationsDelegate

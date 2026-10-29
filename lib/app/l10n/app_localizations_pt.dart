@@ -334,4 +334,19 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get aboutPolicyBody =>
       'A política de privacidade completa fica neste endereço:';
+
+  @override
+  String get sentenceBarLabel => 'Frase';
+
+  @override
+  String get sentenceHint => 'Toque nos cards para montar uma frase.';
+
+  @override
+  String get sentenceSpeak => 'Falar a frase';
+
+  @override
+  String get sentenceDeleteLast => 'Apagar a última palavra';
+
+  @override
+  String get sentenceClear => 'Limpar a frase';
 }

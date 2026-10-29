@@ -150,5 +150,11 @@
   "aboutMadeBy": "Desenvolvido por ACP Projects.",
   "aboutClinic": "Em parceria com o consultório PRIFONO, da fonoaudióloga Priscilla de Sá.",
   "aboutPolicyTitle": "Política de privacidade",
-  "aboutPolicyBody": "A política de privacidade completa fica neste endereço:"
+  "aboutPolicyBody": "A política de privacidade completa fica neste endereço:",
+
+  "sentenceBarLabel": "Frase",
+  "sentenceHint": "Toque nos cards para montar uma frase.",
+  "sentenceSpeak": "Falar a frase",
+  "sentenceDeleteLast": "Apagar a última palavra",
+  "sentenceClear": "Limpar a frase"
 }

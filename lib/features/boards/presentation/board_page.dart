@@ -10,8 +10,9 @@ import 'package:prifono_caa/features/boards/domain/board_card.dart';
 import 'package:prifono_caa/features/boards/presentation/board_cards_controller.dart';
 import 'package:prifono_caa/features/boards/presentation/card_colors.dart';
 import 'package:prifono_caa/features/boards/presentation/card_editor_page.dart';
-import 'package:prifono_caa/features/speech/domain/speech_service.dart';
-import 'package:prifono_caa/features/speech/presentation/speech_error_text.dart';
+import 'package:prifono_caa/features/sentence/domain/sentence_item.dart';
+import 'package:prifono_caa/features/sentence/presentation/sentence_bar.dart';
+import 'package:prifono_caa/features/speech/presentation/speak_with_feedback.dart';
 import 'package:prifono_caa/features/symbols/domain/symbol_provider.dart';
 
 /// Tela da prancha: grade de cards em ordem de leitura (ADR-026), sem
@@ -67,25 +68,12 @@ class _BoardPageState extends State<BoardPage> {
 
   // --- Ações de USO (ADR-027). ---
 
-  /// Tocar no card fala o texto dele (E5-1). A edição fica no toque longo até
-  /// o modo de edição protegido chegar (E5-3).
-  void _useCard(BoardCard card) => unawaited(_speakCard(card));
-
-  Future<void> _speakCard(BoardCard card) async {
-    // Capturados ANTES do await.
-    final speech = AppScope.of(context).speech;
-    final messenger = ScaffoldMessenger.of(context);
-    final l10n = AppLocalizations.of(context);
-    try {
-      await speech.speak(card.content.textToSpeak);
-    } on SpeechException catch (error) {
-      if (!mounted) return;
-      messenger
-        ..hideCurrentSnackBar()
-        ..showSnackBar(
-          SnackBar(content: Text(speechErrorText(l10n, error.kind))),
-        );
-    }
+  /// Tocar no card FALA o texto dele (E5-1) e o ADICIONA à barra de frase
+  /// (E5-2). A edição fica no toque longo até o modo de edição protegido
+  /// chegar (E5-3).
+  void _useCard(BoardCard card) {
+    AppScope.of(context).sentence.add(SentenceItem.fromContent(card.content));
+    unawaited(speakWithFeedback(context, card.content.textToSpeak));
   }
 
   String? _statusMessage(AppLocalizations l10n) {
@@ -128,6 +116,8 @@ class _BoardPageState extends State<BoardPage> {
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
+          SentenceBar(controller: AppScope.of(context).sentence),
+          const SizedBox(height: 12),
           // Texto ACIMA da grade (convenção do projeto para testes e leitura).
           if (message != null) ...[
             Text(
