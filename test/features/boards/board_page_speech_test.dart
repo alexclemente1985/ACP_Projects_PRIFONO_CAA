@@ -68,7 +68,9 @@ void main() {
       expect(find.byType(CardEditorPage), findsNothing);
     });
 
-    testWidgets('toque longo abre o editor e não fala', (tester) async {
+    testWidgets('em uso, segurar o card não abre o editor: age como toque', (
+      tester,
+    ) async {
       final speech = await _openBoard(tester, const [
         CardContent(label: 'Água'),
       ]);
@@ -76,8 +78,10 @@ void main() {
       await tester.longPress(find.text('Água'));
       await tester.pumpAndSettle();
 
-      expect(find.byType(CardEditorPage), findsOneWidget);
-      expect(speech.spoken, isEmpty);
+      // Sem gesto de toque longo, soltar o dedo depois de segurar vale como
+      // toque: fala e não abre o editor.
+      expect(find.byType(CardEditorPage), findsNothing);
+      expect(speech.spoken, ['Água']);
     });
 
     testWidgets('sem voz em português mostra o aviso', (tester) async {

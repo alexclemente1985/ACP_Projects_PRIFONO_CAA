@@ -156,5 +156,11 @@
   "sentenceHint": "Toque nos cards para montar uma frase.",
   "sentenceSpeak": "Falar a frase",
   "sentenceDeleteLast": "Apagar a última palavra",
-  "sentenceClear": "Limpar a frase"
+  "sentenceClear": "Limpar a frase",
+
+  "editLockEnter": "Entrar no modo de edição. Segure para destravar.",
+  "editLockLeave": "Sair do modo de edição",
+  "editLockHoldHint": "Segure o cadeado por 1,5 segundo para editar.",
+  "editModeHint": "Modo de edição: toque num card para editar.",
+  "boardEmptyUseHint": "Esta prancha está vazia. Segure o cadeado por 1,5 segundo para adicionar cards."
 }

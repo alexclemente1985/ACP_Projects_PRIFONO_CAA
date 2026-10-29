@@ -10,6 +10,7 @@ import 'package:prifono_caa/features/boards/domain/board_card.dart';
 import 'package:prifono_caa/features/boards/presentation/board_cards_controller.dart';
 import 'package:prifono_caa/features/boards/presentation/card_colors.dart';
 import 'package:prifono_caa/features/boards/presentation/card_editor_page.dart';
+import 'package:prifono_caa/features/editing/presentation/edit_lock_button.dart';
 import 'package:prifono_caa/features/sentence/domain/sentence_item.dart';
 import 'package:prifono_caa/features/sentence/presentation/sentence_bar.dart';
 import 'package:prifono_caa/features/speech/presentation/speak_with_feedback.dart';
@@ -44,7 +45,7 @@ class _BoardPageState extends State<BoardPage> {
     super.dispose();
   }
 
-  // --- Ações de EDIÇÃO (ADR-027): na E5 ficam atrás do PIN. ---
+  // --- Ações de EDIÇÃO (ADR-027): só no modo de edição (E5-3). ---
 
   Future<void> _addCard() {
     return Navigator.of(context).push<void>(
@@ -68,29 +69,36 @@ class _BoardPageState extends State<BoardPage> {
 
   // --- Ações de USO (ADR-027). ---
 
-  /// Tocar no card FALA o texto dele (E5-1) e o ADICIONA à barra de frase
-  /// (E5-2). A edição fica no toque longo até o modo de edição protegido
-  /// chegar (E5-3).
+  /// Modo de USO: tocar no card FALA o texto dele (E5-1) e o ADICIONA à barra
+  /// de frase (E5-2). Não há toque longo: editar é só no modo de edição.
   void _useCard(BoardCard card) {
     AppScope.of(context).sentence.add(SentenceItem.fromContent(card.content));
     unawaited(speakWithFeedback(context, card.content.textToSpeak));
   }
 
-  String? _statusMessage(AppLocalizations l10n) {
-    if (_controller.cards.isEmpty) return l10n.boardEmptyHint;
-    if (!_controller.hasRoom) return l10n.boardFull(_controller.capacity);
+  String? _statusMessage(AppLocalizations l10n, {required bool editing}) {
+    if (editing) {
+      if (_controller.cards.isEmpty) return l10n.boardEmptyHint;
+      if (!_controller.hasRoom) return l10n.boardFull(_controller.capacity);
+      return l10n.editModeHint;
+    }
+    if (_controller.cards.isEmpty) return l10n.boardEmptyUseHint;
     return null;
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final editMode = AppScope.of(context).editMode;
 
     return Scaffold(
-      appBar: AppBar(title: Text(widget.board.name)),
+      appBar: AppBar(
+        title: Text(widget.board.name),
+        actions: const [EditLockButton()],
+      ),
       body: SafeArea(
         child: ListenableBuilder(
-          listenable: _controller,
+          listenable: Listenable.merge([_controller, editMode]),
           builder: (context, _) {
             switch (_controller.status) {
               case CardsStatus.loading:
@@ -102,7 +110,7 @@ class _BoardPageState extends State<BoardPage> {
                   onRetry: _controller.load,
                 );
               case CardsStatus.ready:
-                return _buildReady(context, l10n);
+                return _buildReady(context, l10n, editing: editMode.isEditing);
             }
           },
         ),
@@ -110,8 +118,12 @@ class _BoardPageState extends State<BoardPage> {
     );
   }
 
-  Widget _buildReady(BuildContext context, AppLocalizations l10n) {
-    final message = _statusMessage(l10n);
+  Widget _buildReady(
+    BuildContext context,
+    AppLocalizations l10n, {
+    required bool editing,
+  }) {
+    final message = _statusMessage(l10n, editing: editing);
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -131,6 +143,7 @@ class _BoardPageState extends State<BoardPage> {
             child: _BoardGrid(
               board: widget.board,
               cards: _controller.cards,
+              editing: editing,
               onAdd: _addCard,
               onUse: _useCard,
               onEdit: _editCard,
@@ -143,11 +156,13 @@ class _BoardPageState extends State<BoardPage> {
 }
 
 /// Grade colunas × linhas. Célula i recebe o card de índice i (ordem de
-/// leitura); a primeira célula livre é o único "+" (ADR-026).
+/// leitura); a primeira célula livre é o único "+" (ADR-026), que só
+/// aparece no modo de edição.
 class _BoardGrid extends StatelessWidget {
   const _BoardGrid({
     required this.board,
     required this.cards,
+    required this.editing,
     required this.onAdd,
     required this.onUse,
     required this.onEdit,
@@ -155,6 +170,9 @@ class _BoardGrid extends StatelessWidget {
 
   final Board board;
   final List<BoardCard> cards;
+
+  /// Modo de edição: o "+" aparece e tocar no card abre o editor.
+  final bool editing;
   final VoidCallback onAdd;
   final ValueChanged<BoardCard> onUse;
   final ValueChanged<BoardCard> onEdit;
@@ -176,11 +194,10 @@ class _BoardGrid extends StatelessWidget {
           imageFile: symbol == null
               ? null
               : store.fileFor(symbol, size: SymbolImageSize.medium),
-          onUse: () => onUse(card),
-          onEdit: () => onEdit(card),
+          onTap: () => editing ? onEdit(card) : onUse(card),
         );
       }
-      if (index == cards.length) return _AddTile(onPressed: onAdd);
+      if (editing && index == cards.length) return _AddTile(onPressed: onAdd);
       return const _EmptyCell();
     }
 
@@ -208,14 +225,14 @@ class _CardTile extends StatelessWidget {
   const _CardTile({
     required this.card,
     required this.imageFile,
-    required this.onUse,
-    required this.onEdit,
+    required this.onTap,
   });
 
   final BoardCard card;
   final File? imageFile;
-  final VoidCallback onUse;
-  final VoidCallback onEdit;
+
+  /// Em uso: fala e adiciona à frase. Em edição: abre o editor.
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -242,8 +259,7 @@ class _CardTile extends StatelessWidget {
           side: BorderSide(color: scheme.outline, width: 1.5),
         ),
         child: InkWell(
-          onTap: onUse,
-          onLongPress: onEdit,
+          onTap: onTap,
           child: ExcludeSemantics(
             child: Padding(
               padding: const EdgeInsets.all(6),

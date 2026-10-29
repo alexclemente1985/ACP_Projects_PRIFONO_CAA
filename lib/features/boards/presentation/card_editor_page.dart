@@ -8,6 +8,7 @@ import 'package:prifono_caa/features/boards/domain/board_capacity.dart';
 import 'package:prifono_caa/features/boards/domain/board_card.dart';
 import 'package:prifono_caa/features/boards/presentation/card_colors.dart';
 import 'package:prifono_caa/features/boards/presentation/card_draft_controller.dart';
+import 'package:prifono_caa/features/boards/presentation/card_label_rule.dart';
 import 'package:prifono_caa/features/symbols/domain/symbol_pick.dart';
 import 'package:prifono_caa/features/symbols/domain/symbol_ref.dart';
 import 'package:prifono_caa/features/symbols/presentation/symbol_error_text.dart';
@@ -49,6 +50,9 @@ class _CardEditorPageState extends State<CardEditorPage> {
       TextEditingController(text: widget.initial?.speechText ?? '');
   bool _saving = false;
 
+  /// Último rótulo preenchido por um pictograma (ver [labelAfterPick]).
+  String? _autoLabel;
+
   @override
   void dispose() {
     _draft.dispose();
@@ -67,7 +71,15 @@ class _CardEditorPageState extends State<CardEditorPage> {
       ),
     );
     if (pick == null || !mounted) return;
-    if (_label.text.trim().isEmpty) _label.text = pick.label;
+    final label = labelAfterPick(
+      current: _label.text,
+      autoFilled: _autoLabel,
+      pickLabel: pick.label,
+    );
+    if (label != _label.text) {
+      _label.text = label;
+      _autoLabel = label;
+    }
     await _draft.selectSymbol(
       SymbolRef(source: SymbolRef.arasaac, id: pick.symbol.id),
     );

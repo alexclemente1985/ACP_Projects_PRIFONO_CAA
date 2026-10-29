@@ -657,6 +657,36 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Limpar a frase'**
   String get sentenceClear;
+
+  /// No description provided for @editLockEnter.
+  ///
+  /// In pt, this message translates to:
+  /// **'Entrar no modo de edição. Segure para destravar.'**
+  String get editLockEnter;
+
+  /// No description provided for @editLockLeave.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sair do modo de edição'**
+  String get editLockLeave;
+
+  /// No description provided for @editLockHoldHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Segure o cadeado por 1,5 segundo para editar.'**
+  String get editLockHoldHint;
+
+  /// No description provided for @editModeHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Modo de edição: toque num card para editar.'**
+  String get editModeHint;
+
+  /// No description provided for @boardEmptyUseHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Esta prancha está vazia. Segure o cadeado por 1,5 segundo para adicionar cards.'**
+  String get boardEmptyUseHint;
 }
 
 class _AppLocalizationsDelegate

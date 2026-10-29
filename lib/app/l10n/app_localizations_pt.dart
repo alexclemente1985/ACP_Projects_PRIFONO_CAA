@@ -349,4 +349,22 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get sentenceClear => 'Limpar a frase';
+
+  @override
+  String get editLockEnter =>
+      'Entrar no modo de edição. Segure para destravar.';
+
+  @override
+  String get editLockLeave => 'Sair do modo de edição';
+
+  @override
+  String get editLockHoldHint =>
+      'Segure o cadeado por 1,5 segundo para editar.';
+
+  @override
+  String get editModeHint => 'Modo de edição: toque num card para editar.';
+
+  @override
+  String get boardEmptyUseHint =>
+      'Esta prancha está vazia. Segure o cadeado por 1,5 segundo para adicionar cards.';
 }

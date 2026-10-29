@@ -179,7 +179,7 @@ void main() {
       expect(_button(tester, Icons.volume_up).onPressed, isNull);
     });
 
-    testWidgets('toque longo abre o editor e não mexe na frase', (
+    testWidgets('em uso, segurar o card age como toque na frase', (
       tester,
     ) async {
       final app = await _pumpApp(tester, {
@@ -190,8 +190,9 @@ void main() {
       await tester.longPress(find.text('Água'));
       await tester.pumpAndSettle();
 
-      expect(app.sentence.isEmpty, isTrue);
-      expect(app.speech.spoken, isEmpty);
+      // Soltar o dedo depois de segurar vale como toque (não há toque longo).
+      expect(app.sentence.items.map((i) => i.label), ['Água']);
+      expect(app.speech.spoken, ['Água']);
     });
 
     testWidgets('a frase continua ao trocar de prancha', (tester) async {

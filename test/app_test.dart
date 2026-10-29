@@ -18,6 +18,8 @@ import 'package:prifono_caa/features/symbols/data/arasaac_provider.dart';
 import 'package:prifono_caa/features/symbols/data/symbol_image_store.dart';
 import 'package:prifono_caa/features/symbols/domain/symbol_ref.dart';
 
+import 'support/unlock_edit_mode.dart';
+
 Widget _buildApp({SettingsController? settings, BoardRepository? boards}) {
   // Rede, disco e banco falsos: os testes de widget nunca saem da máquina.
   final provider = ArasaacProvider(
@@ -93,6 +95,7 @@ void main() {
 
     testWidgets('cria uma prancha com nome e grade', (tester) async {
       await _pumpToBoards(tester);
+      await unlockEditMode(tester);
 
       await tester.tap(find.text('Nova prancha'));
       await tester.pumpAndSettle();
@@ -110,6 +113,7 @@ void main() {
       tester,
     ) async {
       await _pumpToBoards(tester);
+      await unlockEditMode(tester);
 
       await tester.tap(find.text('Nova prancha'));
       await tester.pumpAndSettle();
@@ -124,6 +128,7 @@ void main() {
       final repository = InMemoryBoardRepository();
       await repository.createBoard(name: 'Casa');
       await _pumpToBoards(tester, boards: repository);
+      await unlockEditMode(tester);
 
       await tester.tap(find.byTooltip('Mais opções'));
       await tester.pumpAndSettle();
@@ -142,6 +147,7 @@ void main() {
       final repository = InMemoryBoardRepository();
       await repository.createBoard(name: 'Casa');
       await _pumpToBoards(tester, boards: repository);
+      await unlockEditMode(tester);
 
       await tester.tap(find.byTooltip('Mais opções'));
       await tester.pumpAndSettle();
@@ -160,6 +166,7 @@ void main() {
       final repository = InMemoryBoardRepository();
       await repository.createBoard(name: 'Casa');
       await _pumpToBoards(tester, boards: repository);
+      await unlockEditMode(tester);
 
       await tester.tap(find.byTooltip('Mais opções'));
       await tester.pumpAndSettle();
@@ -179,7 +186,13 @@ void main() {
       await tester.tap(find.text('Casa'));
       await tester.pumpAndSettle();
 
+      // Abre em modo de USO: sem "+", com a dica de como editar.
       expect(find.byType(BoardPage), findsOneWidget);
+      expect(find.textContaining('Segure o cadeado'), findsOneWidget);
+      expect(find.byTooltip('Adicionar card'), findsNothing);
+
+      await unlockEditMode(tester);
+
       expect(
         find.text('Toque no + para adicionar o primeiro card.'),
         findsOneWidget,
@@ -200,6 +213,7 @@ void main() {
         await repository.addCard(board.id, CardContent(label: label));
       }
       await _pumpToBoards(tester, boards: repository);
+      await unlockEditMode(tester);
 
       await tester.tap(find.byTooltip('Mais opções'));
       await tester.pumpAndSettle();
@@ -226,6 +240,7 @@ void main() {
         await repository.addCard(board.id, CardContent(label: label));
       }
       await _pumpToBoards(tester, boards: repository);
+      await unlockEditMode(tester);
 
       await tester.tap(find.byTooltip('Mais opções'));
       await tester.pumpAndSettle();
@@ -263,6 +278,8 @@ void main() {
 
       await tester.tap(find.text('Casa'));
       await tester.pumpAndSettle();
+      expect(find.byTooltip('Adicionar card'), findsNothing);
+      await unlockEditMode(tester);
 
       expect(find.text('Água'), findsOneWidget);
       expect(find.text('Comer'), findsOneWidget);
@@ -286,6 +303,8 @@ void main() {
 
       await tester.tap(find.text('Casa'));
       await tester.pumpAndSettle();
+      expect(find.textContaining('Prancha cheia'), findsNothing); // em uso
+      await unlockEditMode(tester);
 
       expect(find.byTooltip('Adicionar card'), findsNothing);
       expect(find.textContaining('Prancha cheia'), findsOneWidget);
@@ -325,6 +344,7 @@ void main() {
       await _pumpToBoards(tester, boards: repository);
       await tester.tap(find.text('Casa'));
       await tester.pumpAndSettle();
+      await unlockEditMode(tester);
 
       await tester.tap(find.byTooltip('Adicionar card'));
       await tester.pumpAndSettle();
@@ -337,7 +357,7 @@ void main() {
       expect(find.text('Água'), findsOneWidget);
     });
 
-    testWidgets('tocar num card abre o editor e permite excluir', (
+    testWidgets('em edição, tocar num card abre o editor e permite excluir', (
       tester,
     ) async {
       final repository = InMemoryBoardRepository();
@@ -346,8 +366,9 @@ void main() {
       await _pumpToBoards(tester, boards: repository);
       await tester.tap(find.text('Casa'));
       await tester.pumpAndSettle();
+      await unlockEditMode(tester);
 
-      await tester.longPress(find.text('Água'));
+      await tester.tap(find.text('Água'));
       await tester.pumpAndSettle();
       expect(find.text('Editar card'), findsOneWidget);
 
@@ -392,6 +413,9 @@ void main() {
 
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull); // lista em 200%
+
+    await unlockEditMode(tester);
+    expect(tester.takeException(), isNull); // lista em edição, 200%
 
     await tester.tap(find.text('Nova prancha'));
     await tester.pumpAndSettle();

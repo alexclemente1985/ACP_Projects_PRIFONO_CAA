@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:prifono_caa/features/boards/domain/board_repository.dart';
+import 'package:prifono_caa/features/editing/presentation/edit_mode_controller.dart';
 import 'package:prifono_caa/features/sentence/presentation/sentence_controller.dart';
 import 'package:prifono_caa/features/settings/settings_controller.dart';
 import 'package:prifono_caa/features/speech/data/silent_speech_service.dart';
@@ -22,8 +23,10 @@ class AppScope extends InheritedWidget {
     required super.child,
     this.speech = const SilentSpeechService(),
     SentenceController? sentence,
+    EditModeController? editMode,
     super.key,
-  }) : sentence = sentence ?? SentenceController();
+  })  : sentence = sentence ?? SentenceController(),
+        editMode = editMode ?? EditModeController();
 
   final SettingsController settings;
   final BoardRepository boards;
@@ -40,6 +43,10 @@ class AppScope extends InheritedWidget {
   /// não se perde.
   final SentenceController sentence;
 
+  /// Modo de uso ou de edição (E5-3). O app sempre abre em uso. Criado aqui
+  /// se ninguém passar um, pelo mesmo motivo da [sentence].
+  final EditModeController editMode;
+
   static AppScope of(BuildContext context) {
     final scope = context.getInheritedWidgetOfExactType<AppScope>();
     assert(scope != null, 'AppScope não encontrado acima na árvore de widgets.');
@@ -53,6 +60,7 @@ class AppScope extends InheritedWidget {
         symbols != oldWidget.symbols ||
         symbolImages != oldWidget.symbolImages ||
         speech != oldWidget.speech ||
-        sentence != oldWidget.sentence;
+        sentence != oldWidget.sentence ||
+        editMode != oldWidget.editMode;
   }
 }
