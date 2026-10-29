@@ -185,12 +185,14 @@ class _SentenceChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final argb = item.backgroundColor;
-    final background =
-        argb == null ? scheme.surface : CardColors.fromArgb(argb);
-    final foreground = argb == null
-        ? scheme.onSurface
-        : CardColors.foregroundFor(background);
+    final palette = CardColors.resolve(
+      wordClass: item.wordClass,
+      legacyArgb: item.backgroundColor,
+      themeBackground: scheme.surface,
+      themeForeground: scheme.onSurface,
+    );
+    final background = palette.background;
+    final foreground = palette.foreground;
     final symbol = item.symbol;
     final File? file = symbol == null
         ? null

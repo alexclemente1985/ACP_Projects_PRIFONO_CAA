@@ -7,9 +7,11 @@ import 'package:prifono_caa/app/theme/brand_tokens.dart';
 import 'package:prifono_caa/features/boards/domain/board.dart';
 import 'package:prifono_caa/features/boards/domain/board_capacity.dart';
 import 'package:prifono_caa/features/boards/domain/board_card.dart';
+import 'package:prifono_caa/features/boards/domain/word_class.dart';
 import 'package:prifono_caa/features/boards/presentation/card_colors.dart';
 import 'package:prifono_caa/features/boards/presentation/card_draft_controller.dart';
 import 'package:prifono_caa/features/boards/presentation/card_label_rule.dart';
+import 'package:prifono_caa/features/boards/presentation/word_class_text.dart';
 import 'package:prifono_caa/features/symbols/domain/symbol_pick.dart';
 import 'package:prifono_caa/features/symbols/domain/symbol_ref.dart';
 import 'package:prifono_caa/features/symbols/presentation/symbol_error_text.dart';
@@ -223,7 +225,7 @@ class _CardEditorPageState extends State<CardEditorPage> {
             );
             final symbol = _SymbolSection(draft: _draft, onChoose: _pickSymbol);
             final fields = _buildFields(l10n);
-            final colors = _ColorSection(draft: _draft);
+            final wordClass = _WordClassSection(draft: _draft);
             final link = _LinkSection(
               draft: _draft,
               currentBoardId: widget.currentBoardId,
@@ -261,7 +263,7 @@ class _CardEditorPageState extends State<CardEditorPage> {
                                   children: [
                                     fields,
                                     const SizedBox(height: 24),
-                                    colors,
+                                    wordClass,
                                     const SizedBox(height: 24),
                                     link,
                                   ],
@@ -278,7 +280,7 @@ class _CardEditorPageState extends State<CardEditorPage> {
                               const SizedBox(height: 24),
                               fields,
                               const SizedBox(height: 24),
-                              colors,
+                              wordClass,
                               const SizedBox(height: 24),
                               link,
                             ],
@@ -438,12 +440,14 @@ class _CardPreview extends StatelessWidget {
       child: ListenableBuilder(
         listenable: Listenable.merge([draft, label]),
         builder: (context, _) {
-          final argb = draft.backgroundColor;
-          final background =
-              argb == null ? scheme.surface : CardColors.fromArgb(argb);
-          final foreground = argb == null
-              ? scheme.onSurface
-              : CardColors.foregroundFor(background);
+          final palette = CardColors.resolve(
+            wordClass: draft.wordClass,
+            legacyArgb: draft.backgroundColor,
+            themeBackground: scheme.surface,
+            themeForeground: scheme.onSurface,
+          );
+          final background = palette.background;
+          final foreground = palette.foreground;
           final hasSymbol = draft.symbol != null;
           final style = Theme.of(context).textTheme.titleMedium?.copyWith(
                 color: foreground,
@@ -637,8 +641,10 @@ class _SymbolSection extends StatelessWidget {
   }
 }
 
-class _ColorSection extends StatelessWidget {
-  const _ColorSection({required this.draft});
+/// Escolha da classe gramatical, que define a cor do card (ADR-038). Cada
+/// ficha mostra a cor E o nome por extenso: a cor nunca é a única informação.
+class _WordClassSection extends StatelessWidget {
+  const _WordClassSection({required this.draft});
 
   final CardDraftController draft;
 
@@ -646,25 +652,24 @@ class _ColorSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final textTheme = Theme.of(context).textTheme;
+    final scheme = Theme.of(context).colorScheme;
 
-    // null = padrão do tema. Só as cores da marca: tons derivados ainda não
-    // foram aprovados (ADR-007).
-    final options = <(int?, String)>[
-      (null, l10n.cardColorDefault),
-      (BrandColors.rosa.toARGB32(), l10n.cardColorPink),
-      (BrandColors.azul.toARGB32(), l10n.cardColorBlue),
-      (BrandColors.bege.toARGB32(), l10n.cardColorBeige),
-      (BrandColors.branco.toARGB32(), l10n.cardColorWhite),
-    ];
+    // null = "Nenhuma": cor do tema.
+    final options = <WordClass?>[null, ...WordClass.values];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Semantics(
           header: true,
-          child: Text(l10n.cardColorSectionTitle, style: textTheme.titleMedium),
+          child: Text(
+            l10n.cardClassSectionTitle,
+            style: textTheme.titleMedium,
+          ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 4),
+        Text(l10n.cardClassHelper, style: textTheme.bodyMedium),
+        const SizedBox(height: 12),
         ListenableBuilder(
           listenable: draft,
           builder: (context, _) {
@@ -672,12 +677,23 @@ class _ColorSection extends StatelessWidget {
               spacing: 12,
               runSpacing: 12,
               children: [
-                for (final (argb, name) in options)
-                  _ColorSwatch(
-                    argb: argb,
-                    name: name,
-                    selected: draft.backgroundColor == argb,
-                    onTap: () => draft.setBackgroundColor(argb),
+                for (final option in options)
+                  _WordClassChip(
+                    name: option == null
+                        ? l10n.wordClassNone
+                        : wordClassName(l10n, option),
+                    background: option == null
+                        ? scheme.surface
+                        : CardColors.forWordClass(option),
+                    foreground: option == null
+                        ? scheme.onSurface
+                        : CardColors.foregroundFor(
+                            CardColors.forWordClass(option),
+                          ),
+                    selected: draft.wordClass == option &&
+                        // Card antigo com cor livre ainda não "tem" Nenhuma.
+                        (option != null || draft.backgroundColor == null),
+                    onTap: () => draft.setWordClass(option),
                   ),
               ],
             );
@@ -688,56 +704,62 @@ class _ColorSection extends StatelessWidget {
   }
 }
 
-class _ColorSwatch extends StatelessWidget {
-  const _ColorSwatch({
-    required this.argb,
+class _WordClassChip extends StatelessWidget {
+  const _WordClassChip({
     required this.name,
+    required this.background,
+    required this.foreground,
     required this.selected,
     required this.onTap,
   });
 
-  final int? argb;
   final String name;
+  final Color background;
+  final Color foreground;
   final bool selected;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final value = argb;
-    final color = value == null ? scheme.surface : CardColors.fromArgb(value);
-    final iconColor = CardColors.foregroundFor(color);
+    final textStyle = Theme.of(context).textTheme.titleMedium?.copyWith(
+          color: foreground,
+          fontWeight: FontWeight.w600,
+        );
 
-    return Tooltip(
-      message: name,
-      excludeFromSemantics: true,
-      child: Semantics(
-        button: true,
-        selected: selected,
-        label: name,
-        child: Material(
-          color: color,
-          clipBehavior: Clip.antiAlias,
-          shape: CircleBorder(
-            side: BorderSide(
-              color: scheme.onSurface,
-              width: selected ? 4 : 1.5,
-            ),
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: name,
+      child: Material(
+        color: background,
+        clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(
+            color: scheme.onSurface,
+            width: selected ? 4 : 1.5,
           ),
-          child: InkWell(
-            onTap: onTap,
-            child: ExcludeSemantics(
-              child: SizedBox.square(
-                dimension: 56,
-                child: Center(
-                  child: selected
-                      ? Icon(Icons.check, color: iconColor)
-                      : (value == null
-                          ? Icon(
-                              Icons.format_color_reset_outlined,
-                              color: iconColor,
-                            )
-                          : null),
+        ),
+        child: InkWell(
+          onTap: onTap,
+          child: ExcludeSemantics(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 56, minWidth: 56),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (selected) ...[
+                      Icon(Icons.check, color: foreground, size: 22),
+                      const SizedBox(width: 6),
+                    ],
+                    Flexible(child: Text(name, style: textStyle)),
+                  ],
                 ),
               ),
             ),

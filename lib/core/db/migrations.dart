@@ -4,6 +4,7 @@
 /// esquema, acrescente uma nova migração no fim da lista.
 const List<List<String>> kMigrations = [
   _v1,
+  _v2,
 ];
 
 const List<String> _v1 = [
@@ -46,4 +47,10 @@ const List<String> _v1 = [
     value TEXT NOT NULL
   )
   ''',
+];
+
+/// Classe gramatical do card (ADR-038, Chave de Fitzgerald). Texto estável de
+/// `WordClass.key`; NULL = sem classe. Cards antigos ficam com NULL.
+const List<String> _v2 = [
+  'ALTER TABLE cards ADD COLUMN word_class TEXT',
 ];

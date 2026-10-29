@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:prifono_caa/features/boards/domain/board_card.dart';
+import 'package:prifono_caa/features/boards/domain/word_class.dart';
 import 'package:prifono_caa/features/symbols/domain/symbol_ref.dart';
 
 /// Uma palavra (ou frase curta) da barra de frase. Objeto de valor.
@@ -13,6 +14,7 @@ class SentenceItem {
     required this.speech,
     this.symbol,
     this.backgroundColor,
+    this.wordClass,
   });
 
   /// O que a barra mostra: o mesmo rótulo do card.
@@ -22,6 +24,7 @@ class SentenceItem {
       speech: content.textToSpeak,
       symbol: content.symbol,
       backgroundColor: content.backgroundColor,
+      wordClass: content.wordClass,
     );
   }
 
@@ -33,8 +36,11 @@ class SentenceItem {
 
   final SymbolRef? symbol;
 
-  /// Cor de fundo em ARGB, igual à do card.
+  /// Cor livre LEGADA em ARGB, igual à do card (ADR-038).
   final int? backgroundColor;
+
+  /// Classe gramatical do card: define a cor da ficha (ADR-038).
+  final WordClass? wordClass;
 
   @override
   bool operator ==(Object other) {
@@ -42,9 +48,11 @@ class SentenceItem {
         other.label == label &&
         other.speech == speech &&
         other.symbol == symbol &&
-        other.backgroundColor == backgroundColor;
+        other.backgroundColor == backgroundColor &&
+        other.wordClass == wordClass;
   }
 
   @override
-  int get hashCode => Object.hash(label, speech, symbol, backgroundColor);
+  int get hashCode =>
+      Object.hash(label, speech, symbol, backgroundColor, wordClass);
 }

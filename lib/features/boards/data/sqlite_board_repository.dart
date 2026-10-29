@@ -2,6 +2,7 @@ import 'package:prifono_caa/core/errors/not_found_exception.dart';
 import 'package:prifono_caa/features/boards/domain/board.dart';
 import 'package:prifono_caa/features/boards/domain/board_card.dart';
 import 'package:prifono_caa/features/boards/domain/board_repository.dart';
+import 'package:prifono_caa/features/boards/domain/word_class.dart';
 import 'package:prifono_caa/features/symbols/domain/symbol_ref.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -175,7 +176,6 @@ class SqliteBoardRepository implements BoardRepository {
 
   // --------------------------------------------------------------- helpers
 
-
   Future<Board?> _boardById(DatabaseExecutor executor, int id) async {
     final rows = await executor.query(
       'boards',
@@ -233,6 +233,7 @@ class SqliteBoardRepository implements BoardRepository {
         imagePath: row['image_path'] as String?,
         backgroundColor: row['background_color'] as int?,
         linkBoardId: row['link_board_id'] as int?,
+        wordClass: WordClass.fromKey(row['word_class'] as String?),
       ),
       createdAt: _dateFromMs(row['created_at']! as int),
       updatedAt: _dateFromMs(row['updated_at']! as int),
@@ -249,6 +250,7 @@ class SqliteBoardRepository implements BoardRepository {
       'image_path': content.imagePath,
       'background_color': content.backgroundColor,
       'link_board_id': content.linkBoardId,
+      'word_class': content.wordClass?.key,
     };
   }
 }

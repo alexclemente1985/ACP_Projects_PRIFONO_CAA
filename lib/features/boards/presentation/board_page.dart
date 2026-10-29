@@ -279,12 +279,14 @@ class _CardTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final argb = card.content.backgroundColor;
-    final background =
-        argb == null ? scheme.surface : CardColors.fromArgb(argb);
-    final foreground = argb == null
-        ? scheme.onSurface
-        : CardColors.foregroundFor(background);
+    final palette = CardColors.resolve(
+      wordClass: card.content.wordClass,
+      legacyArgb: card.content.backgroundColor,
+      themeBackground: scheme.surface,
+      themeForeground: scheme.onSurface,
+    );
+    final background = palette.background;
+    final foreground = palette.foreground;
     final label = card.content.label;
     final file = imageFile;
 

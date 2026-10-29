@@ -328,41 +328,83 @@ abstract class AppLocalizations {
   /// **'Tente de novo ou remova o pictograma para salvar só com texto.'**
   String get cardSymbolFailedHint;
 
-  /// No description provided for @cardColorSectionTitle.
+  /// No description provided for @cardClassSectionTitle.
   ///
   /// In pt, this message translates to:
-  /// **'Cor do card'**
-  String get cardColorSectionTitle;
+  /// **'Classe gramatical'**
+  String get cardClassSectionTitle;
 
-  /// No description provided for @cardColorDefault.
+  /// No description provided for @cardClassHelper.
   ///
   /// In pt, this message translates to:
-  /// **'Padrão'**
-  String get cardColorDefault;
+  /// **'A cor do card segue a Chave de Fitzgerald. Escolha a classe da palavra.'**
+  String get cardClassHelper;
 
-  /// No description provided for @cardColorPink.
+  /// No description provided for @wordClassNone.
   ///
   /// In pt, this message translates to:
-  /// **'Rosa'**
-  String get cardColorPink;
+  /// **'Nenhuma'**
+  String get wordClassNone;
 
-  /// No description provided for @cardColorBlue.
+  /// No description provided for @wordClassPronoun.
   ///
   /// In pt, this message translates to:
-  /// **'Azul'**
-  String get cardColorBlue;
+  /// **'Pronome'**
+  String get wordClassPronoun;
 
-  /// No description provided for @cardColorBeige.
+  /// No description provided for @wordClassVerb.
   ///
   /// In pt, this message translates to:
-  /// **'Bege'**
-  String get cardColorBeige;
+  /// **'Verbo'**
+  String get wordClassVerb;
 
-  /// No description provided for @cardColorWhite.
+  /// No description provided for @wordClassNoun.
   ///
   /// In pt, this message translates to:
-  /// **'Branco'**
-  String get cardColorWhite;
+  /// **'Substantivo'**
+  String get wordClassNoun;
+
+  /// No description provided for @wordClassAdjective.
+  ///
+  /// In pt, this message translates to:
+  /// **'Adjetivo'**
+  String get wordClassAdjective;
+
+  /// No description provided for @wordClassPreposition.
+  ///
+  /// In pt, this message translates to:
+  /// **'Preposição ou palavra social'**
+  String get wordClassPreposition;
+
+  /// No description provided for @wordClassQuestion.
+  ///
+  /// In pt, this message translates to:
+  /// **'Pergunta'**
+  String get wordClassQuestion;
+
+  /// No description provided for @wordClassNegation.
+  ///
+  /// In pt, this message translates to:
+  /// **'Negação ou urgência'**
+  String get wordClassNegation;
+
+  /// No description provided for @wordClassAdverb.
+  ///
+  /// In pt, this message translates to:
+  /// **'Advérbio'**
+  String get wordClassAdverb;
+
+  /// No description provided for @wordClassConjunction.
+  ///
+  /// In pt, this message translates to:
+  /// **'Conjunção'**
+  String get wordClassConjunction;
+
+  /// No description provided for @wordClassDeterminer.
+  ///
+  /// In pt, this message translates to:
+  /// **'Determinante'**
+  String get wordClassDeterminer;
 
   /// No description provided for @cardDelete.
   ///

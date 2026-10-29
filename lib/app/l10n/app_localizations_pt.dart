@@ -160,22 +160,44 @@ class AppLocalizationsPt extends AppLocalizations {
       'Tente de novo ou remova o pictograma para salvar só com texto.';
 
   @override
-  String get cardColorSectionTitle => 'Cor do card';
+  String get cardClassSectionTitle => 'Classe gramatical';
 
   @override
-  String get cardColorDefault => 'Padrão';
+  String get cardClassHelper =>
+      'A cor do card segue a Chave de Fitzgerald. Escolha a classe da palavra.';
 
   @override
-  String get cardColorPink => 'Rosa';
+  String get wordClassNone => 'Nenhuma';
 
   @override
-  String get cardColorBlue => 'Azul';
+  String get wordClassPronoun => 'Pronome';
 
   @override
-  String get cardColorBeige => 'Bege';
+  String get wordClassVerb => 'Verbo';
 
   @override
-  String get cardColorWhite => 'Branco';
+  String get wordClassNoun => 'Substantivo';
+
+  @override
+  String get wordClassAdjective => 'Adjetivo';
+
+  @override
+  String get wordClassPreposition => 'Preposição ou palavra social';
+
+  @override
+  String get wordClassQuestion => 'Pergunta';
+
+  @override
+  String get wordClassNegation => 'Negação ou urgência';
+
+  @override
+  String get wordClassAdverb => 'Advérbio';
+
+  @override
+  String get wordClassConjunction => 'Conjunção';
+
+  @override
+  String get wordClassDeterminer => 'Determinante';
 
   @override
   String get cardDelete => 'Excluir card';

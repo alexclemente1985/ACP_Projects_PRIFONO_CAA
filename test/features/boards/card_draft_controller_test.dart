@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:prifono_caa/features/boards/domain/board_card.dart';
+import 'package:prifono_caa/features/boards/domain/word_class.dart';
 import 'package:prifono_caa/features/boards/presentation/card_draft_controller.dart';
 import 'package:prifono_caa/features/symbols/data/arasaac_provider.dart';
 import 'package:prifono_caa/features/symbols/data/symbol_image_store.dart';
@@ -134,7 +135,7 @@ void main() {
         linkBoardId: 7,
       );
       final controller = _newController(_FakeNetwork(), initial: initial)
-        ..setBackgroundColor(0xFFFBB7C4);
+        ..setWordClass(WordClass.verb);
 
       final content =
           controller.buildContent(label: '  Água  ', speechText: '   ');
@@ -144,7 +145,7 @@ void main() {
       expect(content.symbol, _ref('2265'));
       expect(content.imagePath, '/img/x.png');
       expect(content.linkBoardId, 7);
-      expect(content.backgroundColor, 0xFFFBB7C4);
+      expect(content.wordClass, WordClass.verb);
 
       final withSpeech =
           controller.buildContent(label: 'Água', speechText: ' Quero água ');
@@ -176,20 +177,6 @@ void main() {
       expect(controller.symbolStatus, SymbolDownloadStatus.ready);
       expect(controller.canSave, isTrue);
       expect(network.requests, 0);
-    });
-
-    test('setBackgroundColor avisa só quando a cor muda', () {
-      final controller = _newController(_FakeNetwork());
-      var notifications = 0;
-      controller.addListener(() => notifications++);
-
-      controller.setBackgroundColor(0xFFFBB7C4);
-      controller.setBackgroundColor(0xFFFBB7C4);
-      expect(notifications, 1);
-
-      controller.setBackgroundColor(null);
-      expect(notifications, 2);
-      expect(controller.backgroundColor, isNull);
     });
 
     test('dispose no meio do download não lança', () async {

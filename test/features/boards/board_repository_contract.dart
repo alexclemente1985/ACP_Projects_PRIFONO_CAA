@@ -3,6 +3,7 @@ import 'package:prifono_caa/core/errors/not_found_exception.dart';
 import 'package:prifono_caa/features/boards/domain/board.dart';
 import 'package:prifono_caa/features/boards/domain/board_card.dart';
 import 'package:prifono_caa/features/boards/domain/board_repository.dart';
+import 'package:prifono_caa/features/boards/domain/word_class.dart';
 import 'package:prifono_caa/features/symbols/domain/symbol_ref.dart';
 
 /// Cria um repositório limpo que usa o relógio [now] informado.
@@ -132,6 +133,36 @@ void runBoardRepositoryContract(RepositoryFactory create) {
       expect(first.content, content);
       expect(first.content.textToSpeak, 'Quero beber água');
       expect(second.content.textToSpeak, 'Comer'); // sem speechText, fala o label
+    });
+
+    test('guarda, troca e remove a classe gramatical', () async {
+      final board = await repository.createBoard(name: 'Casa');
+
+      final verb = await repository.addCard(
+        board.id,
+        const CardContent(label: 'Comer', wordClass: WordClass.verb),
+      );
+      final plain = await repository.addCard(
+        board.id,
+        const CardContent(label: 'Mesa'),
+      );
+
+      expect(verb.content.wordClass, WordClass.verb);
+      expect(plain.content.wordClass, isNull);
+
+      final changed = await repository.updateCard(
+        verb.id,
+        const CardContent(label: 'Comer', wordClass: WordClass.noun),
+      );
+      expect(changed.content.wordClass, WordClass.noun);
+
+      final cleared = await repository.updateCard(
+        verb.id,
+        const CardContent(label: 'Comer'),
+      );
+      expect(cleared.content.wordClass, isNull);
+      final cards = await repository.listCards(board.id);
+      expect(cards.map((c) => c.content.wordClass), [null, null]);
     });
 
     test('adicionar em prancha inexistente lança NotFoundException', () async {

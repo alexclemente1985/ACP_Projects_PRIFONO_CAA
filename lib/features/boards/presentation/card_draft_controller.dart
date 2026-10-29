@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:prifono_caa/features/boards/domain/board_card.dart';
+import 'package:prifono_caa/features/boards/domain/word_class.dart';
 import 'package:prifono_caa/features/symbols/data/symbol_image_store.dart';
 import 'package:prifono_caa/features/symbols/domain/symbol_provider.dart';
 import 'package:prifono_caa/features/symbols/domain/symbol_ref.dart';
@@ -9,8 +10,8 @@ import 'package:prifono_caa/features/symbols/domain/symbol_ref.dart';
 /// Situação da imagem do pictograma escolhido (ADR-030).
 enum SymbolDownloadStatus { none, downloading, ready, failed }
 
-/// Rascunho de um card em edição: símbolo, estado do download, cor e a
-/// prancha de destino (link).
+/// Rascunho de um card em edição: símbolo, estado do download, classe
+/// gramatical (cor) e a prancha de destino (link).
 ///
 /// Rótulo e texto falado ficam nos TextEditingControllers da tela; eles
 /// entram em [buildContent]. Sem widgets aqui: testável sem tela.
@@ -21,6 +22,10 @@ class CardDraftController extends ChangeNotifier {
   final CardContent? _initial;
 
   late SymbolRef? _symbol = _initial?.symbol;
+  late WordClass? _wordClass = _initial?.wordClass;
+
+  /// Cor livre LEGADA (ADR-038): só existe em cards antigos e some assim que a
+  /// pessoa mexe na classe gramatical.
   late int? _backgroundColor = _initial?.backgroundColor;
   late int? _linkBoardId = _initial?.linkBoardId;
 
@@ -34,6 +39,7 @@ class CardDraftController extends ChangeNotifier {
   bool _disposed = false;
 
   SymbolRef? get symbol => _symbol;
+  WordClass? get wordClass => _wordClass;
   int? get backgroundColor => _backgroundColor;
 
   /// Prancha que o card abre ao ser tocado em modo de uso (null = só fala).
@@ -76,9 +82,13 @@ class CardDraftController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setBackgroundColor(int? argb) {
-    if (argb == _backgroundColor) return;
-    _backgroundColor = argb;
+  /// Escolhe a classe gramatical (null = "Nenhuma"). Qualquer escolha também
+  /// descarta a cor livre legada, para a cor do card ser a da classe (ou a do
+  /// tema, em "Nenhuma").
+  void setWordClass(WordClass? wordClass) {
+    if (wordClass == _wordClass && _backgroundColor == null) return;
+    _wordClass = wordClass;
+    _backgroundColor = null;
     notifyListeners();
   }
 
@@ -105,6 +115,7 @@ class CardDraftController extends ChangeNotifier {
       imagePath: initial?.imagePath,
       backgroundColor: _backgroundColor,
       linkBoardId: _linkBoardId,
+      wordClass: _wordClass,
     );
   }
 
