@@ -76,15 +76,14 @@ class _BoardPageState extends State<BoardPage> {
   /// Modo de USO: tocar no card FALA o texto dele (E5-1) e o ADICIONA à barra
   /// de frase (E5-2). Não há toque longo: editar é só no modo de edição.
   ///
-  /// Card com link para outra prancha (E5-4) só NAVEGA: não fala e não entra
-  /// na frase. Se a prancha de destino não existir mais, age como card comum.
+  /// Card com link para outra prancha (E5-4) faz o mesmo e, em seguida, ABRE a
+  /// prancha de destino (ADR-039, pedido da fonoaudióloga). Se a prancha de
+  /// destino não existir mais, o card age como comum: fala, entra na frase e
+  /// não navega.
   void _useCard(BoardCard card) {
-    final linkId = card.content.linkBoardId;
-    if (linkId != null) {
-      unawaited(_openLinkedBoard(card, linkId));
-      return;
-    }
     _speakAndAdd(card);
+    final linkId = card.content.linkBoardId;
+    if (linkId != null) unawaited(_openLinkedBoard(linkId));
   }
 
   void _speakAndAdd(BoardCard card) {
@@ -92,7 +91,7 @@ class _BoardPageState extends State<BoardPage> {
     unawaited(speakWithFeedback(context, card.content.textToSpeak));
   }
 
-  Future<void> _openLinkedBoard(BoardCard card, int boardId) async {
+  Future<void> _openLinkedBoard(int boardId) async {
     // Capturados ANTES do await.
     final navigator = Navigator.of(context);
     final repository = AppScope.of(context).boards;
@@ -104,10 +103,7 @@ class _BoardPageState extends State<BoardPage> {
     }
     if (!mounted) return;
     final destination = found;
-    if (destination == null) {
-      _speakAndAdd(card);
-      return;
-    }
+    if (destination == null) return;
     await navigator.push<void>(
       MaterialPageRoute<void>(builder: (_) => BoardPage(board: destination)),
     );

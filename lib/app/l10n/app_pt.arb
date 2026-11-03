@@ -174,5 +174,56 @@
   "cardLinkTitle": "Abrir outra prancha ao tocar",
   "cardLinkNone": "Nenhuma (o card só fala)",
   "cardLinkEmpty": "Crie outra prancha para poder ligar este card a ela.",
-  "cardOpensBoardHint": "Abre outra prancha"
+  "cardOpensBoardHint": "Abre outra prancha",
+
+  "sentenceChipHint": "Toque para remover ou mover. Segure e arraste para reorganizar.",
+  "sentenceChipUntitled": "Palavra sem texto",
+  "sentenceRemoveWord": "Remover da frase",
+  "sentenceMoveLeft": "Mover para a esquerda",
+  "sentenceMoveRight": "Mover para a direita",
+
+  "pinSectionTitle": "Proteção da edição",
+  "pinSectionHelp": "Com PIN, entrar no modo de edição exige digitar 4 números. Isso impede que crianças alterem as pranchas.",
+  "pinSwitchTitle": "Pedir PIN para editar",
+  "pinOn": "Ligado",
+  "pinOff": "Desligado",
+  "pinChange": "Trocar PIN",
+  "pinEnterTitle": "Digite o PIN",
+  "pinWrong": "PIN incorreto. Tente de novo.",
+  "pinForgot": "Esqueci o PIN",
+  "pinSetupTitle": "Escolha um PIN de 4 números",
+  "pinSetupHelp": "Anote o PIN em lugar seguro. Se esquecer, uma conta de multiplicar libera a edição.",
+  "pinConfirmTitle": "Digite o PIN de novo",
+  "pinMismatch": "Os PINs não são iguais. Escolha de novo.",
+  "pinSaved": "PIN ligado.",
+  "pinChanged": "PIN trocado.",
+  "pinRemoved": "PIN desligado.",
+  "pinSaveFailed": "Não foi possível salvar o PIN. Tente de novo.",
+  "pinBackspace": "Apagar o último número",
+  "pinDotsLabel": "{filled} de {total} números digitados",
+  "@pinDotsLabel": {
+    "placeholders": {
+      "filled": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "pinForgotTitle": "Esqueci o PIN",
+  "pinForgotQuestion": "Para liberar a edição, resolva: quanto é {a} × {b}?",
+  "@pinForgotQuestion": {
+    "placeholders": {
+      "a": {
+        "type": "int"
+      },
+      "b": {
+        "type": "int"
+      }
+    }
+  },
+  "pinForgotAnswer": "Resposta",
+  "pinForgotWrong": "Resposta errada. Esta é outra conta.",
+  "pinForgotConfirm": "Liberar"
 }

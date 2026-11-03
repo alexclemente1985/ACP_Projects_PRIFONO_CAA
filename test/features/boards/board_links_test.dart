@@ -9,6 +9,7 @@ import 'package:prifono_caa/app/app_scope.dart';
 import 'package:prifono_caa/features/boards/data/in_memory_board_repository.dart';
 import 'package:prifono_caa/features/boards/domain/board_card.dart';
 import 'package:prifono_caa/features/boards/presentation/card_editor_page.dart';
+import 'package:prifono_caa/features/sentence/presentation/sentence_bar.dart';
 import 'package:prifono_caa/features/sentence/presentation/sentence_controller.dart';
 import 'package:prifono_caa/features/settings/settings_controller.dart';
 import 'package:prifono_caa/features/symbols/data/arasaac_provider.dart';
@@ -87,7 +88,7 @@ Finder _boardTitle(String name) => find.widgetWithText(AppBar, name);
 
 void main() {
   group('card com link (E5-4)', () {
-    testWidgets('em uso, tocar abre a prancha, sem falar nem entrar na frase', (
+    testWidgets('em uso, tocar fala, entra na frase e abre a prancha', (
       tester,
     ) async {
       final app = await _pumpApp(tester);
@@ -99,25 +100,33 @@ void main() {
 
       expect(_boardTitle('Comidas'), findsOneWidget);
       expect(find.text('Maçã'), findsOneWidget);
-      expect(app.speech.spoken, isEmpty);
-      expect(app.sentence.isEmpty, isTrue);
+      expect(app.speech.spoken, ['Comer']);
+      expect(app.sentence.items.map((i) => i.label), ['Comer']);
     });
 
-    testWidgets('a frase continua ao voltar da prancha de destino', (
+    testWidgets('a frase continua e cresce na prancha de destino e ao voltar', (
       tester,
     ) async {
       final app = await _pumpApp(tester);
       await _open(tester, 'Início');
       await tester.tap(find.text('Comer'));
       await tester.pumpAndSettle();
+      // A palavra do card-link já está na barra da prancha de destino.
+      expect(
+        find.descendant(
+          of: find.byType(SentenceBar),
+          matching: find.text('Comer'),
+        ),
+        findsOneWidget,
+      );
 
       await tester.tap(find.text('Maçã'));
       await tester.pump();
       await _back(tester);
 
       expect(_boardTitle('Início'), findsOneWidget);
-      expect(app.sentence.items.map((i) => i.label), ['Maçã']);
-      expect(app.speech.spoken, ['Maçã']);
+      expect(app.sentence.items.map((i) => i.label), ['Comer', 'Maçã']);
+      expect(app.speech.spoken, ['Comer', 'Maçã']);
     });
 
     testWidgets('em edição, tocar abre o editor e não navega', (tester) async {
@@ -155,6 +164,7 @@ void main() {
 
       expect(app.speech.spoken, ['Comer']);
       expect(app.sentence.items.map((i) => i.label), ['Comer']);
+      expect(_boardTitle('Início'), findsOneWidget); // não navegou
     });
   });
 

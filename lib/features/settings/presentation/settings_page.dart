@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:prifono_caa/app/app_scope.dart';
 import 'package:prifono_caa/app/l10n/app_localizations.dart';
 import 'package:prifono_caa/features/about/credits_page.dart';
+import 'package:prifono_caa/features/pin/presentation/pin_flows.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -43,6 +44,41 @@ class SettingsPage extends StatelessWidget {
                         selected: settings.themeMode == mode,
                         onSelected: (_) =>
                             unawaited(settings.setThemeMode(mode)),
+                      ),
+                  ],
+                );
+              },
+            ),
+            const SizedBox(height: 24),
+            Semantics(
+              header: true,
+              child: Text(l10n.pinSectionTitle, style: textTheme.titleLarge),
+            ),
+            const SizedBox(height: 8),
+            Text(l10n.pinSectionHelp, style: textTheme.bodyMedium),
+            ListenableBuilder(
+              listenable: settings,
+              builder: (context, _) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    SwitchListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(l10n.pinSwitchTitle),
+                      subtitle:
+                          Text(settings.hasPin ? l10n.pinOn : l10n.pinOff),
+                      value: settings.hasPin,
+                      onChanged: (on) => unawaited(
+                        on ? enablePinFlow(context) : disablePinFlow(context),
+                      ),
+                    ),
+                    if (settings.hasPin)
+                      Align(
+                        alignment: AlignmentDirectional.centerStart,
+                        child: OutlinedButton(
+                          onPressed: () => unawaited(changePinFlow(context)),
+                          child: Text(l10n.pinChange),
+                        ),
                       ),
                   ],
                 );

@@ -91,12 +91,10 @@ void main() {
 
       final chip = find.descendant(
         of: find.byType(SentenceBar),
-        matching: find.byWidgetPredicate((widget) {
-          if (widget is! Container) return false;
-          final decoration = widget.decoration;
-          return decoration is BoxDecoration &&
-              decoration.color == const Color(0xFF7ED68B);
-        }),
+        matching: find.byWidgetPredicate(
+          (widget) =>
+              widget is Material && widget.color == const Color(0xFF7ED68B),
+        ),
       );
       expect(chip, findsOneWidget);
     });

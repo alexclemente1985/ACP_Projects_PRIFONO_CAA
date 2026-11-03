@@ -44,6 +44,119 @@ void main() {
     });
   });
 
+  group('SentenceController: remover de qualquer posição e mover (ADR-039)', () {
+    SentenceController frase(List<String> labels) {
+      final controller = SentenceController();
+      for (final label in labels) {
+        controller.add(_item(label));
+      }
+      return controller;
+    }
+
+    List<String> labelsOf(SentenceController c) =>
+        c.items.map((i) => i.label).toList();
+
+    test('removeAt tira o item da posição, no começo, no meio ou no fim', () {
+      final controller = frase(['A', 'B', 'C', 'D'])
+        ..removeAt(1)
+        ..removeAt(0)
+        ..removeAt(1);
+
+      expect(labelsOf(controller), ['C']);
+      expect(controller.length, 1);
+    });
+
+    test('removeAt com posição inexistente não faz nada nem avisa', () {
+      final controller = frase(['A', 'B']);
+      var notifications = 0;
+      controller.addListener(() => notifications++);
+
+      controller
+        ..removeAt(-1)
+        ..removeAt(2)
+        ..removeAt(99);
+
+      expect(labelsOf(controller), ['A', 'B']);
+      expect(notifications, 0);
+    });
+
+    test('move leva o item para a posição final pedida', () {
+      expect((frase(['A', 'B', 'C', 'D'])..move(0, 3)).items.map((i) => i.label),
+          ['B', 'C', 'D', 'A']);
+      expect((frase(['A', 'B', 'C', 'D'])..move(3, 0)).items.map((i) => i.label),
+          ['D', 'A', 'B', 'C']);
+      expect((frase(['A', 'B', 'C', 'D'])..move(1, 2)).items.map((i) => i.label),
+          ['A', 'C', 'B', 'D']);
+      expect((frase(['A', 'B', 'C', 'D'])..move(2, 1)).items.map((i) => i.label),
+          ['A', 'C', 'B', 'D']);
+    });
+
+    test('move muda também a ordem da fala', () {
+      final controller = frase(['Eu', 'quero', 'água'])..move(2, 0);
+
+      expect(controller.text, 'água Eu quero');
+    });
+
+    test('move com posições iguais ou inexistentes não faz nada nem avisa', () {
+      final controller = frase(['A', 'B', 'C']);
+      var notifications = 0;
+      controller.addListener(() => notifications++);
+
+      controller
+        ..move(1, 1)
+        ..move(-1, 0)
+        ..move(0, 3)
+        ..move(5, 1);
+
+      expect(labelsOf(controller), ['A', 'B', 'C']);
+      expect(notifications, 0);
+    });
+
+    test('removeAt e move avisam uma vez cada', () {
+      final controller = frase(['A', 'B', 'C']);
+      var notifications = 0;
+      controller.addListener(() => notifications++);
+
+      controller.move(0, 2);
+      expect(notifications, 1);
+      controller.removeAt(0);
+      expect(notifications, 2);
+    });
+
+    test('cada entrada tem um id próprio que acompanha o item ao mover', () {
+      final controller = frase(['Quero', 'Água', 'Quero']);
+      final ids = controller.entries.map((e) => e.id).toList();
+
+      expect(ids.toSet(), hasLength(3)); // até palavras iguais têm ids diferentes
+
+      controller.move(0, 2);
+      expect(
+        controller.entries.map((e) => e.id).toList(),
+        [ids[1], ids[2], ids[0]],
+      );
+    });
+
+    test('um id removido não é reaproveitado', () {
+      final controller = frase(['A', 'B']);
+      final removedId = controller.entries.last.id;
+
+      controller
+        ..removeAt(1)
+        ..add(_item('C'));
+
+      expect(controller.entries.map((e) => e.id), isNot(contains(removedId)));
+    });
+
+    test('as entradas não podem ser alteradas por fora', () {
+      final controller = frase(['A']);
+
+      expect(
+        () => controller.entries.add(controller.entries.first),
+        throwsUnsupportedError,
+      );
+    });
+  });
+
   group('SentenceController', () {
     test('começa vazio, sem nada para falar', () {
       final controller = SentenceController();

@@ -753,6 +753,180 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Abre outra prancha'**
   String get cardOpensBoardHint;
+
+  /// No description provided for @sentenceChipHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Toque para remover ou mover. Segure e arraste para reorganizar.'**
+  String get sentenceChipHint;
+
+  /// No description provided for @sentenceChipUntitled.
+  ///
+  /// In pt, this message translates to:
+  /// **'Palavra sem texto'**
+  String get sentenceChipUntitled;
+
+  /// No description provided for @sentenceRemoveWord.
+  ///
+  /// In pt, this message translates to:
+  /// **'Remover da frase'**
+  String get sentenceRemoveWord;
+
+  /// No description provided for @sentenceMoveLeft.
+  ///
+  /// In pt, this message translates to:
+  /// **'Mover para a esquerda'**
+  String get sentenceMoveLeft;
+
+  /// No description provided for @sentenceMoveRight.
+  ///
+  /// In pt, this message translates to:
+  /// **'Mover para a direita'**
+  String get sentenceMoveRight;
+
+  /// No description provided for @pinSectionTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Proteção da edição'**
+  String get pinSectionTitle;
+
+  /// No description provided for @pinSectionHelp.
+  ///
+  /// In pt, this message translates to:
+  /// **'Com PIN, entrar no modo de edição exige digitar 4 números. Isso impede que crianças alterem as pranchas.'**
+  String get pinSectionHelp;
+
+  /// No description provided for @pinSwitchTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Pedir PIN para editar'**
+  String get pinSwitchTitle;
+
+  /// No description provided for @pinOn.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ligado'**
+  String get pinOn;
+
+  /// No description provided for @pinOff.
+  ///
+  /// In pt, this message translates to:
+  /// **'Desligado'**
+  String get pinOff;
+
+  /// No description provided for @pinChange.
+  ///
+  /// In pt, this message translates to:
+  /// **'Trocar PIN'**
+  String get pinChange;
+
+  /// No description provided for @pinEnterTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Digite o PIN'**
+  String get pinEnterTitle;
+
+  /// No description provided for @pinWrong.
+  ///
+  /// In pt, this message translates to:
+  /// **'PIN incorreto. Tente de novo.'**
+  String get pinWrong;
+
+  /// No description provided for @pinForgot.
+  ///
+  /// In pt, this message translates to:
+  /// **'Esqueci o PIN'**
+  String get pinForgot;
+
+  /// No description provided for @pinSetupTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Escolha um PIN de 4 números'**
+  String get pinSetupTitle;
+
+  /// No description provided for @pinSetupHelp.
+  ///
+  /// In pt, this message translates to:
+  /// **'Anote o PIN em lugar seguro. Se esquecer, uma conta de multiplicar libera a edição.'**
+  String get pinSetupHelp;
+
+  /// No description provided for @pinConfirmTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Digite o PIN de novo'**
+  String get pinConfirmTitle;
+
+  /// No description provided for @pinMismatch.
+  ///
+  /// In pt, this message translates to:
+  /// **'Os PINs não são iguais. Escolha de novo.'**
+  String get pinMismatch;
+
+  /// No description provided for @pinSaved.
+  ///
+  /// In pt, this message translates to:
+  /// **'PIN ligado.'**
+  String get pinSaved;
+
+  /// No description provided for @pinChanged.
+  ///
+  /// In pt, this message translates to:
+  /// **'PIN trocado.'**
+  String get pinChanged;
+
+  /// No description provided for @pinRemoved.
+  ///
+  /// In pt, this message translates to:
+  /// **'PIN desligado.'**
+  String get pinRemoved;
+
+  /// No description provided for @pinSaveFailed.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não foi possível salvar o PIN. Tente de novo.'**
+  String get pinSaveFailed;
+
+  /// No description provided for @pinBackspace.
+  ///
+  /// In pt, this message translates to:
+  /// **'Apagar o último número'**
+  String get pinBackspace;
+
+  /// No description provided for @pinDotsLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'{filled} de {total} números digitados'**
+  String pinDotsLabel(int filled, int total);
+
+  /// No description provided for @pinForgotTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Esqueci o PIN'**
+  String get pinForgotTitle;
+
+  /// No description provided for @pinForgotQuestion.
+  ///
+  /// In pt, this message translates to:
+  /// **'Para liberar a edição, resolva: quanto é {a} × {b}?'**
+  String pinForgotQuestion(int a, int b);
+
+  /// No description provided for @pinForgotAnswer.
+  ///
+  /// In pt, this message translates to:
+  /// **'Resposta'**
+  String get pinForgotAnswer;
+
+  /// No description provided for @pinForgotWrong.
+  ///
+  /// In pt, this message translates to:
+  /// **'Resposta errada. Esta é outra conta.'**
+  String get pinForgotWrong;
+
+  /// No description provided for @pinForgotConfirm.
+  ///
+  /// In pt, this message translates to:
+  /// **'Liberar'**
+  String get pinForgotConfirm;
 }
 
 class _AppLocalizationsDelegate

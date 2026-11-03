@@ -4,12 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:prifono_caa/app/app_scope.dart';
 import 'package:prifono_caa/app/l10n/app_localizations.dart';
+import 'package:prifono_caa/features/pin/presentation/pin_flows.dart';
 
 /// Cadeado da AppBar.
 ///
 /// Em USO: é preciso SEGURAR por [holdDuration] para entrar em edição (um
-/// anel mostra o progresso; soltar antes só mostra uma dica). Em EDIÇÃO: um
-/// toque volta ao modo de uso.
+/// anel mostra o progresso; soltar antes só mostra uma dica); se houver PIN, ele
+/// é pedido em seguida (ADR-040). Em EDIÇÃO: um toque volta ao modo de uso.
 ///
 /// Usa `Listener` (eventos brutos) e não `GestureDetector`/`Tooltip`: o
 /// reconhecedor de toque longo do Tooltip cancelaria a contagem aos 500 ms.
@@ -57,6 +58,9 @@ class _HoldToUnlockState extends State<HoldToUnlock>
 
   bool _holding = false;
 
+  /// Já há um pedido de PIN na tela? (segurar de novo não abre outro).
+  bool _asking = false;
+
   @override
   void dispose() {
     _hold.dispose();
@@ -68,7 +72,18 @@ class _HoldToUnlockState extends State<HoldToUnlock>
     _holding = false;
     unawaited(_buzz());
     _hold.reset();
-    AppScope.of(context).editMode.enter();
+    unawaited(_unlock());
+  }
+
+  /// Liga a edição; com PIN, só depois de digitá-lo (ADR-040).
+  Future<void> _unlock() async {
+    if (_asking) return;
+    _asking = true;
+    try {
+      await requestEditUnlock(context);
+    } finally {
+      _asking = false;
+    }
   }
 
   /// Vibração curta ao destravar. Aparelhos sem vibração não são problema.
@@ -106,7 +121,7 @@ class _HoldToUnlockState extends State<HoldToUnlock>
 
   /// Leitores de tela: "tocar e segurar" do TalkBack/VoiceOver é uma ação
   /// própria, então destrava direto.
-  void _unlockForAccessibility() => AppScope.of(context).editMode.enter();
+  void _unlockForAccessibility() => unawaited(_unlock());
 
   @override
   Widget build(BuildContext context) {

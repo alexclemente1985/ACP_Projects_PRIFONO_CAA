@@ -402,4 +402,98 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get cardOpensBoardHint => 'Abre outra prancha';
+
+  @override
+  String get sentenceChipHint =>
+      'Toque para remover ou mover. Segure e arraste para reorganizar.';
+
+  @override
+  String get sentenceChipUntitled => 'Palavra sem texto';
+
+  @override
+  String get sentenceRemoveWord => 'Remover da frase';
+
+  @override
+  String get sentenceMoveLeft => 'Mover para a esquerda';
+
+  @override
+  String get sentenceMoveRight => 'Mover para a direita';
+
+  @override
+  String get pinSectionTitle => 'Proteção da edição';
+
+  @override
+  String get pinSectionHelp =>
+      'Com PIN, entrar no modo de edição exige digitar 4 números. Isso impede que crianças alterem as pranchas.';
+
+  @override
+  String get pinSwitchTitle => 'Pedir PIN para editar';
+
+  @override
+  String get pinOn => 'Ligado';
+
+  @override
+  String get pinOff => 'Desligado';
+
+  @override
+  String get pinChange => 'Trocar PIN';
+
+  @override
+  String get pinEnterTitle => 'Digite o PIN';
+
+  @override
+  String get pinWrong => 'PIN incorreto. Tente de novo.';
+
+  @override
+  String get pinForgot => 'Esqueci o PIN';
+
+  @override
+  String get pinSetupTitle => 'Escolha um PIN de 4 números';
+
+  @override
+  String get pinSetupHelp =>
+      'Anote o PIN em lugar seguro. Se esquecer, uma conta de multiplicar libera a edição.';
+
+  @override
+  String get pinConfirmTitle => 'Digite o PIN de novo';
+
+  @override
+  String get pinMismatch => 'Os PINs não são iguais. Escolha de novo.';
+
+  @override
+  String get pinSaved => 'PIN ligado.';
+
+  @override
+  String get pinChanged => 'PIN trocado.';
+
+  @override
+  String get pinRemoved => 'PIN desligado.';
+
+  @override
+  String get pinSaveFailed => 'Não foi possível salvar o PIN. Tente de novo.';
+
+  @override
+  String get pinBackspace => 'Apagar o último número';
+
+  @override
+  String pinDotsLabel(int filled, int total) {
+    return '$filled de $total números digitados';
+  }
+
+  @override
+  String get pinForgotTitle => 'Esqueci o PIN';
+
+  @override
+  String pinForgotQuestion(int a, int b) {
+    return 'Para liberar a edição, resolva: quanto é $a × $b?';
+  }
+
+  @override
+  String get pinForgotAnswer => 'Resposta';
+
+  @override
+  String get pinForgotWrong => 'Resposta errada. Esta é outra conta.';
+
+  @override
+  String get pinForgotConfirm => 'Liberar';
 }
