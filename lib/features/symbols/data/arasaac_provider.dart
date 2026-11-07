@@ -12,11 +12,16 @@ import 'package:prifono_caa/features/symbols/domain/symbol_result.dart';
 /// Rotas e formato verificados na especificação OpenAPI oficial
 /// (repositório Arasaac/public-api, config/openapi_v1.yml, 17/09/2026).
 class ArasaacProvider implements SymbolProvider {
+  /// [localeSource], se informado, é lido a CADA busca: assim a troca de
+  /// idioma nos Ajustes vale na hora, sem recriar o provider (ADR-034).
+  /// Sem ele, vale o [locale] fixo.
   ArasaacProvider({
     http.Client? client,
-    this.locale = defaultLocale,
+    String locale = defaultLocale,
+    this.localeSource,
     this.timeout = const Duration(seconds: 10),
-  }) : _client = client ?? http.Client();
+  })  : _client = client ?? http.Client(),
+        _fixedLocale = locale;
 
   /// 'br' parece ser português do Brasil (inferência: o código do ARASAAC o
   /// trata como 'pt' na busca textual). Confirmado pelo teste live.
@@ -28,8 +33,12 @@ class ArasaacProvider implements SymbolProvider {
   static final RegExp _digitsOnly = RegExp(r'^\d+$');
 
   final http.Client _client;
-  final String locale;
+  final String _fixedLocale;
+  final String Function()? localeSource;
   final Duration timeout;
+
+  /// Idioma da busca em uso agora: 'br', 'es' ou 'en'.
+  String get locale => localeSource?.call() ?? _fixedLocale;
 
   @override
   String get sourceId => SymbolRef.arasaac;
@@ -43,10 +52,12 @@ class ArasaacProvider implements SymbolProvider {
     if (query.isEmpty) return const [];
 
     // pathSegments codifica cada trecho (acentos, espaços, "/" etc.).
+    // O idioma é lido uma vez por busca.
+    final language = locale;
     final uri = Uri(
       scheme: 'https',
       host: _apiHost,
-      pathSegments: [_apiVersion, 'pictograms', locale, 'search', query],
+      pathSegments: [_apiVersion, 'pictograms', language, 'search', query],
     );
 
     final http.Response response;

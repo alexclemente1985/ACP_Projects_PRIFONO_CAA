@@ -199,7 +199,7 @@ void main() {
       await tester.tap(find.byTooltip('Ajustes'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Sobre e créditos'), findsOneWidget);
+      expect(find.widgetWithText(AppBar, 'Ajustes'), findsOneWidget);
     });
   });
 

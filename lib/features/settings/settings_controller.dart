@@ -1,24 +1,51 @@
 import 'package:flutter/material.dart';
 import 'package:prifono_caa/features/pin/domain/pin.dart';
 import 'package:prifono_caa/features/settings/data/in_memory_settings_repository.dart';
+import 'package:prifono_caa/features/settings/domain/app_language.dart';
 import 'package:prifono_caa/features/settings/domain/settings_repository.dart';
 
-/// Configurações do app. O tema atualiza a tela primeiro (otimista) e grava
-/// depois; o PIN só vale depois de gravado (ADR-040).
+/// Configurações do app. Tema e idioma atualizam a tela primeiro (otimista) e
+/// gravam depois; o PIN só vale depois de gravado (ADR-040).
 class SettingsController extends ChangeNotifier {
-  SettingsController({SettingsRepository? repository})
-      : _repository = repository ?? InMemorySettingsRepository();
+  /// [defaultLanguage] vale quando nada foi gravado. O `main.dart` passa
+  /// [AppLanguage.system] (segue o aparelho, ADR-034); o padrão em português
+  /// mantém os testes de widget estáveis, independentes do idioma da máquina.
+  /// [deviceLocales] são os idiomas preferidos do aparelho, do mais para o
+  /// menos preferido (o `main.dart` informa os reais; depois o app avisa as
+  /// mudanças por [deviceLocalesChanged]). Sem informar, vale inglês.
+  SettingsController({
+    SettingsRepository? repository,
+    this.defaultLanguage = AppLanguage.portuguese,
+    List<Locale>? deviceLocales,
+  })  : _repository = repository ?? InMemorySettingsRepository(),
+        _language = defaultLanguage,
+        _deviceLocales = deviceLocales ?? const [Locale('en')];
 
   static const String themeModeKey = 'theme_mode';
+
+  /// Idioma escolhido: system, portuguese, spanish ou english.
+  static const String languageKey = 'app_language';
 
   /// PIN do modo de edição em texto (4 dígitos). Vazio = sem PIN.
   static const String editPinKey = 'edit_pin';
 
   final SettingsRepository _repository;
+  final AppLanguage defaultLanguage;
   ThemeMode _themeMode = ThemeMode.system;
   String? _pin;
+  AppLanguage _language;
+  List<Locale> _deviceLocales;
 
   ThemeMode get themeMode => _themeMode;
+
+  /// A ESCOLHA da pessoa (pode ser o Automático).
+  AppLanguage get language => _language;
+
+  /// O idioma em uso agora, nunca o Automático: segue o aparelho quando a
+  /// escolha é [AppLanguage.system]. Textos, busca e voz leem este valor.
+  AppLanguage get effectiveLanguage => _language == AppLanguage.system
+      ? AppLanguage.fromLocales(_deviceLocales)
+      : _language;
 
   /// O modo de edição pede PIN?
   bool get hasPin => _pin != null;
@@ -32,10 +59,39 @@ class SettingsController extends ChangeNotifier {
     // do próprio app.
     final storedPin = await _repository.read(editPinKey);
     final loadedPin = PinRules.isValid(storedPin) ? storedPin : null;
-    if (loaded == _themeMode && loadedPin == _pin) return;
+    final loadedLanguage = AppLanguage.fromStorage(
+          await _repository.read(languageKey),
+        ) ??
+        defaultLanguage;
+    if (loaded == _themeMode &&
+        loadedPin == _pin &&
+        loadedLanguage == _language) {
+      return;
+    }
     _themeMode = loaded;
     _pin = loadedPin;
+    _language = loadedLanguage;
     notifyListeners();
+  }
+
+  Future<void> setLanguage(AppLanguage language) async {
+    if (language == _language) return;
+    _language = language;
+    notifyListeners();
+    try {
+      await _repository.write(languageKey, language.storageValue);
+    } on Exception catch (error) {
+      // Mesma regra do tema: a escolha vale nesta sessão mesmo sem gravar.
+      debugPrint('Falha ao salvar o idioma: $error');
+    }
+  }
+
+  /// O aparelho mudou de idioma com o app aberto. Só notifica se isso muda o
+  /// idioma em uso (escolha Automático e outro idioma traduzido).
+  void deviceLocalesChanged(List<Locale> locales) {
+    final before = effectiveLanguage;
+    _deviceLocales = List.unmodifiable(locales);
+    if (effectiveLanguage != before) notifyListeners();
   }
 
   Future<void> setThemeMode(ThemeMode mode) async {

@@ -11,6 +11,9 @@
   "themeLight": "Claro",
   "themeDark": "Escuro",
   "settingsTitle": "Ajustes",
+  "languageSectionTitle": "Idioma",
+  "languageAutomatic": "Automático",
+  "languageHelp": "O idioma vale para o app, para a busca de pictogramas e para a voz.",
   "creditsButton": "Sobre e créditos",
 
   "boardsTitle": "Pranchas",

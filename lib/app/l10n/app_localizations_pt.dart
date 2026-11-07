@@ -37,6 +37,16 @@ class AppLocalizationsPt extends AppLocalizations {
   String get settingsTitle => 'Ajustes';
 
   @override
+  String get languageSectionTitle => 'Idioma';
+
+  @override
+  String get languageAutomatic => 'Automático';
+
+  @override
+  String get languageHelp =>
+      'O idioma vale para o app, para a busca de pictogramas e para a voz.';
+
+  @override
   String get creditsButton => 'Sobre e créditos';
 
   @override

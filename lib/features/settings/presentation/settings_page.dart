@@ -5,6 +5,7 @@ import 'package:prifono_caa/app/app_scope.dart';
 import 'package:prifono_caa/app/l10n/app_localizations.dart';
 import 'package:prifono_caa/features/about/credits_page.dart';
 import 'package:prifono_caa/features/pin/presentation/pin_flows.dart';
+import 'package:prifono_caa/features/settings/domain/app_language.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -79,6 +80,40 @@ class SettingsPage extends StatelessWidget {
                           onPressed: () => unawaited(changePinFlow(context)),
                           child: Text(l10n.pinChange),
                         ),
+                      ),
+                  ],
+                );
+              },
+            ),
+            const SizedBox(height: 24),
+            Semantics(
+              header: true,
+              child: Text(
+                l10n.languageSectionTitle,
+                style: textTheme.titleLarge,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(l10n.languageHelp, style: textTheme.bodyMedium),
+            const SizedBox(height: 12),
+            ListenableBuilder(
+              listenable: settings,
+              builder: (context, _) {
+                final options = <(AppLanguage, String)>[
+                  (AppLanguage.system, l10n.languageAutomatic),
+                  for (final language in AppLanguage.concrete)
+                    (language, language.nativeName),
+                ];
+                return Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    for (final (language, label) in options)
+                      ChoiceChip(
+                        label: Text(label),
+                        selected: settings.language == language,
+                        onSelected: (_) =>
+                            unawaited(settings.setLanguage(language)),
                       ),
                   ],
                 );

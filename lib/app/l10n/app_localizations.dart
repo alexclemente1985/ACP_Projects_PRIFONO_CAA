@@ -5,6 +5,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
+import 'app_localizations_en.dart';
+import 'app_localizations_es.dart';
 import 'app_localizations_pt.dart';
 
 // ignore_for_file: type=lint
@@ -92,7 +94,11 @@ abstract class AppLocalizations {
       ];
 
   /// A list of this localizations delegate's supported locales.
-  static const List<Locale> supportedLocales = <Locale>[Locale('pt')];
+  static const List<Locale> supportedLocales = <Locale>[
+    Locale('en'),
+    Locale('es'),
+    Locale('pt'),
+  ];
 
   /// No description provided for @appName.
   ///
@@ -147,6 +153,24 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Ajustes'**
   String get settingsTitle;
+
+  /// No description provided for @languageSectionTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Idioma'**
+  String get languageSectionTitle;
+
+  /// No description provided for @languageAutomatic.
+  ///
+  /// In pt, this message translates to:
+  /// **'Automático'**
+  String get languageAutomatic;
+
+  /// No description provided for @languageHelp.
+  ///
+  /// In pt, this message translates to:
+  /// **'O idioma vale para o app, para a busca de pictogramas e para a voz.'**
+  String get languageHelp;
 
   /// No description provided for @creditsButton.
   ///
@@ -940,7 +964,7 @@ class _AppLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) =>
-      <String>['pt'].contains(locale.languageCode);
+      <String>['en', 'es', 'pt'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -949,6 +973,10 @@ class _AppLocalizationsDelegate
 AppLocalizations lookupAppLocalizations(Locale locale) {
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
+    case 'en':
+      return AppLocalizationsEn();
+    case 'es':
+      return AppLocalizationsEs();
     case 'pt':
       return AppLocalizationsPt();
   }

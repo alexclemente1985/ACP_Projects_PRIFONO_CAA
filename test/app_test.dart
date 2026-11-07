@@ -427,7 +427,10 @@ void main() {
 
     await tester.tap(find.byTooltip('Ajustes'));
     await tester.pumpAndSettle();
-    await tester.tap(find.byType(OutlinedButton));
+    // O botão fica depois das seções de tema, PIN e idioma.
+    await tester.ensureVisible(find.text('Sobre e créditos'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Sobre e créditos'));
     await tester.pumpAndSettle();
 
     expect(find.text('Quem faz o Privox'), findsOneWidget);

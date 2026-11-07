@@ -39,6 +39,7 @@ Widget _app(SymbolProvider provider, {void Function(SymbolPick?)? onResult}) {
   return MaterialApp(
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
+    locale: const Locale('pt'),
     home: Builder(
       builder: (context) => Scaffold(
         body: Center(
