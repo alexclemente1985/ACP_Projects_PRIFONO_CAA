@@ -369,25 +369,36 @@ class _LinkSectionState extends State<_LinkSection> {
                   final match = boards.where((b) => b.id == selectedId);
                   final name =
                       match.isEmpty ? l10n.cardLinkNone : match.first.name;
-                  return OutlinedButton(
-                    onPressed: () => unawaited(_choose(boards)),
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size.fromHeight(56),
-                      alignment: Alignment.centerLeft,
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.folder_outlined),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            name,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
+                  // Um nó só: "Abrir outra prancha ao tocar" (rótulo) + a
+                  // escolha atual (valor). Sem isso o leitor de tela diria só
+                  // "Nenhuma", sem dizer do quê.
+                  return Semantics(
+                    button: true,
+                    enabled: true,
+                    label: l10n.cardLinkTitle,
+                    value: name,
+                    onTap: () => unawaited(_choose(boards)),
+                    excludeSemantics: true,
+                    child: OutlinedButton(
+                      onPressed: () => unawaited(_choose(boards)),
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(56),
+                        alignment: Alignment.centerLeft,
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.folder_outlined),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              name,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
-                        ),
-                        const Icon(Icons.arrow_drop_down),
-                      ],
+                          const Icon(Icons.arrow_drop_down),
+                        ],
+                      ),
                     ),
                   );
                 },
@@ -412,13 +423,19 @@ class _LinkOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SimpleDialogOption(
-      onPressed: onTap,
-      child: Row(
-        children: [
-          Expanded(child: Text(label)),
-          if (selected) const Icon(Icons.check),
-        ],
+    // O "check" é só visual: o leitor de tela recebe "selecionado" e o fato de
+    // as opções formarem um grupo de escolha única (ADR-041).
+    return Semantics(
+      selected: selected,
+      inMutuallyExclusiveGroup: true,
+      child: SimpleDialogOption(
+        onPressed: onTap,
+        child: Row(
+          children: [
+            Expanded(child: Text(label)),
+            if (selected) const ExcludeSemantics(child: Icon(Icons.check)),
+          ],
+        ),
       ),
     );
   }
@@ -591,9 +608,12 @@ class _SymbolSection extends StatelessWidget {
                 liveRegion: true,
                 child: Row(
                   children: [
-                    const SizedBox.square(
-                      dimension: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
+                    // Decorativo: o texto ao lado já diz "baixando".
+                    const ExcludeSemantics(
+                      child: SizedBox.square(
+                        dimension: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -727,9 +747,12 @@ class _WordClassChip extends StatelessWidget {
           fontWeight: FontWeight.w600,
         );
 
+    // As fichas de classe são uma escolha única: `inMutuallyExclusiveGroup`
+    // faz o leitor de tela anunciá-las como opções de um grupo (ADR-041).
     return Semantics(
       button: true,
       selected: selected,
+      inMutuallyExclusiveGroup: true,
       label: name,
       child: Material(
         color: background,

@@ -951,6 +951,48 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Liberar'**
   String get pinForgotConfirm;
+
+  /// No description provided for @commonLoading.
+  ///
+  /// In pt, this message translates to:
+  /// **'Carregando'**
+  String get commonLoading;
+
+  /// No description provided for @editLockTapHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'ver como destravar'**
+  String get editLockTapHint;
+
+  /// No description provided for @editLockLongPressHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'destravar a edição'**
+  String get editLockLongPressHint;
+
+  /// No description provided for @editModeOnAnnounce.
+  ///
+  /// In pt, this message translates to:
+  /// **'Modo de edição ativado.'**
+  String get editModeOnAnnounce;
+
+  /// No description provided for @editModeOffAnnounce.
+  ///
+  /// In pt, this message translates to:
+  /// **'Modo de edição desativado.'**
+  String get editModeOffAnnounce;
+
+  /// No description provided for @boardMoreOptionsFor.
+  ///
+  /// In pt, this message translates to:
+  /// **'Mais opções de {name}'**
+  String boardMoreOptionsFor(String name);
+
+  /// No description provided for @splashSkipHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Toque para pular a abertura.'**
+  String get splashSkipHint;
 }
 
 class _AppLocalizationsDelegate

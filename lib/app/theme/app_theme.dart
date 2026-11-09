@@ -50,11 +50,22 @@ abstract final class AppTheme {
     outlineVariant: BrandColors.bordaEscuro,
   );
 
-  static ThemeData get light => _build(lightScheme, BrandColors.bege);
+  static ThemeData get light =>
+      _build(lightScheme, BrandColors.bege, action: BrandColors.azulForte);
 
-  static ThemeData get dark => _build(darkScheme, BrandColors.fundoEscuro);
+  static ThemeData get dark =>
+      _build(darkScheme, BrandColors.fundoEscuro, action: darkScheme.primary);
 
-  static ThemeData _build(ColorScheme scheme, Color scaffoldBackground) {
+  /// [action] é a cor de TEXTO e ícone de botões sem preenchimento
+  /// (TextButton, OutlinedButton) e de indicadores de progresso. No tema claro
+  /// o `primary` é o azul da marca (#56B2CB), que dá só ~2,4:1 sobre branco e
+  /// bege: não serve como texto (ADR-007 e ADR-041, achado A7). Por isso o
+  /// tema claro usa o azul forte (7,17:1 sobre branco).
+  static ThemeData _build(
+    ColorScheme scheme,
+    Color scaffoldBackground, {
+    required Color action,
+  }) {
     const buttonShape = RoundedRectangleBorder(
       borderRadius: BorderRadius.all(Radius.circular(16)),
     );
@@ -91,9 +102,14 @@ abstract final class AppTheme {
         style: OutlinedButton.styleFrom(
           minimumSize: buttonSize,
           shape: buttonShape,
+          foregroundColor: action,
           side: BorderSide(color: scheme.outline),
         ),
       ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(foregroundColor: action),
+      ),
+      progressIndicatorTheme: ProgressIndicatorThemeData(color: action),
       // Cores do chip vêm dos padrões do Material 3: selecionado usa
       // secondaryContainer/onSecondaryContainer (pares testados no contrast_test).
       chipTheme: ChipThemeData(

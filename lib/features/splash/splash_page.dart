@@ -65,14 +65,18 @@ class _SplashPageState extends State<SplashPage>
     final theme = Theme.of(context);
 
     return Scaffold(
-      body: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: _goHome, // toque em qualquer lugar pula a splash
-        child: Center(
-          child: Semantics(
-            label: l10n.appName,
-            image: true,
-            excludeSemantics: true,
+      // Um nó só para o leitor de tela: nome do app + ação de pular. O
+      // GestureDetector fica sem semântica própria (excludeSemantics).
+      body: Semantics(
+        label: l10n.appName,
+        hint: l10n.splashSkipHint,
+        image: true,
+        onTap: _goHome,
+        excludeSemantics: true,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: _goHome, // toque em qualquer lugar pula a splash
+          child: Center(
             child: AnimatedBuilder(
               animation: _controller,
               builder: (context, _) {

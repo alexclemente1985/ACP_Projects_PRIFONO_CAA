@@ -10,6 +10,7 @@ import 'package:prifono_caa/features/boards/domain/board_card.dart';
 import 'package:prifono_caa/features/boards/presentation/board_cards_controller.dart';
 import 'package:prifono_caa/features/boards/presentation/card_colors.dart';
 import 'package:prifono_caa/features/boards/presentation/card_editor_page.dart';
+import 'package:prifono_caa/features/boards/presentation/word_class_text.dart';
 import 'package:prifono_caa/features/editing/presentation/edit_lock_button.dart';
 import 'package:prifono_caa/features/sentence/domain/sentence_item.dart';
 import 'package:prifono_caa/features/sentence/presentation/sentence_bar.dart';
@@ -135,7 +136,11 @@ class _BoardPageState extends State<BoardPage> {
           builder: (context, _) {
             switch (_controller.status) {
               case CardsStatus.loading:
-                return const Center(child: CircularProgressIndicator());
+                return Center(
+                  child: CircularProgressIndicator(
+                    semanticsLabel: l10n.commonLoading,
+                  ),
+                );
               case CardsStatus.error:
                 return _LoadError(
                   title: l10n.boardCardsLoadError,
@@ -165,10 +170,15 @@ class _BoardPageState extends State<BoardPage> {
           const SizedBox(height: 12),
           // Texto ACIMA da grade (convenção do projeto para testes e leitura).
           if (message != null) ...[
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyLarge,
+            // Região viva: o leitor de tela avisa quando a mensagem aparece ou
+            // muda (entrar na edição, prancha cheia, prancha vazia).
+            Semantics(
+              liveRegion: true,
+              child: Text(
+                message,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
             ),
             const SizedBox(height: 12),
           ],
@@ -285,13 +295,18 @@ class _CardTile extends StatelessWidget {
     final foreground = palette.foreground;
     final label = card.content.label;
     final file = imageFile;
+    final l10n = AppLocalizations.of(context);
+    final wordClass = card.content.wordClass;
 
     // Semantics (label + button) e o gesto do InkWell viram UM nó: o leitor
-    // de tela lê o rótulo uma vez, sem repetir o conteúdo visual.
+    // de tela lê o rótulo uma vez, sem repetir o conteúdo visual. A classe
+    // gramatical entra como VALOR ("Água, Substantivo"): a cor sozinha não
+    // diz nada a quem não enxerga (ADR-041).
     return Semantics(
       button: true,
       label: label,
-      hint: linked ? AppLocalizations.of(context).cardOpensBoardHint : null,
+      value: wordClass == null ? null : wordClassName(l10n, wordClass),
+      hint: linked ? l10n.cardOpensBoardHint : null,
       child: Material(
         color: background,
         clipBehavior: Clip.antiAlias,

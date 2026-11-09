@@ -503,4 +503,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pinForgotConfirm => 'Unlock';
+
+  @override
+  String get commonLoading => 'Loading';
+
+  @override
+  String get editLockTapHint => 'see how to unlock';
+
+  @override
+  String get editLockLongPressHint => 'unlock editing';
+
+  @override
+  String get editModeOnAnnounce => 'Edit mode on.';
+
+  @override
+  String get editModeOffAnnounce => 'Edit mode off.';
+
+  @override
+  String boardMoreOptionsFor(String name) {
+    return 'More options for $name';
+  }
+
+  @override
+  String get splashSkipHint => 'Tap to skip the intro.';
 }

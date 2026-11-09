@@ -141,5 +141,19 @@
   "pinForgotQuestion": "Para desbloquear la edición, resuelve: ¿cuánto es {a} × {b}?",
   "pinForgotAnswer": "Respuesta",
   "pinForgotWrong": "Respuesta incorrecta. Esta es otra cuenta.",
-  "pinForgotConfirm": "Desbloquear"
+  "pinForgotConfirm": "Desbloquear",
+    "commonLoading": "Cargando",
+  "editLockTapHint": "ver cómo desbloquear",
+  "editLockLongPressHint": "desbloquear la edición",
+  "editModeOnAnnounce": "Modo de edición activado.",
+  "editModeOffAnnounce": "Modo de edición desactivado.",
+  "boardMoreOptionsFor": "Más opciones de {name}",
+  "@boardMoreOptionsFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "splashSkipHint": "Toca para omitir la introducción."
 }

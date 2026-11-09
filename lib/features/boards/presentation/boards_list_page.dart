@@ -155,7 +155,11 @@ class _BoardsListPageState extends State<BoardsListPage> {
           builder: (context, _) {
             switch (_controller.status) {
               case BoardsStatus.loading:
-                return const Center(child: CircularProgressIndicator());
+                return Center(
+                  child: CircularProgressIndicator(
+                    semanticsLabel: l10n.commonLoading,
+                  ),
+                );
               case BoardsStatus.error:
                 return _CenteredMessage(
                   title: l10n.boardsLoadError,
@@ -230,7 +234,8 @@ class _BoardTile extends StatelessWidget {
         onTap: onOpen,
         trailing: editing
             ? PopupMenuButton<_BoardAction>(
-                tooltip: l10n.boardMoreOptions,
+                // Com o nome: o leitor de tela distingue o menu de cada prancha.
+                tooltip: l10n.boardMoreOptionsFor(board.name),
                 onSelected: (action) {
                   switch (action) {
                     case _BoardAction.edit:

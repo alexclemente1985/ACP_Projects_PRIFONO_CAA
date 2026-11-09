@@ -141,5 +141,19 @@
   "pinForgotQuestion": "To unlock editing, solve this: what is {a} × {b}?",
   "pinForgotAnswer": "Answer",
   "pinForgotWrong": "Wrong answer. Here is another problem.",
-  "pinForgotConfirm": "Unlock"
+  "pinForgotConfirm": "Unlock",
+    "commonLoading": "Loading",
+  "editLockTapHint": "see how to unlock",
+  "editLockLongPressHint": "unlock editing",
+  "editModeOnAnnounce": "Edit mode on.",
+  "editModeOffAnnounce": "Edit mode off.",
+  "boardMoreOptionsFor": "More options for {name}",
+  "@boardMoreOptionsFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "splashSkipHint": "Tap to skip the intro."
 }

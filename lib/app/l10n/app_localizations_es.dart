@@ -508,4 +508,27 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get pinForgotConfirm => 'Desbloquear';
+
+  @override
+  String get commonLoading => 'Cargando';
+
+  @override
+  String get editLockTapHint => 'ver cómo desbloquear';
+
+  @override
+  String get editLockLongPressHint => 'desbloquear la edición';
+
+  @override
+  String get editModeOnAnnounce => 'Modo de edición activado.';
+
+  @override
+  String get editModeOffAnnounce => 'Modo de edición desactivado.';
+
+  @override
+  String boardMoreOptionsFor(String name) {
+    return 'Más opciones de $name';
+  }
+
+  @override
+  String get splashSkipHint => 'Toca para omitir la introducción.';
 }

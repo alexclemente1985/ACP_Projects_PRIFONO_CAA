@@ -1,0 +1,252 @@
+00:00 +0: loading /Users/alexandre/Development/ACPProjects/ACPProjects-Mobile-projs/PRIFONO_CAA/ACP_Projects_PRIFONO_CAA/test/a11y/accessibility_audit_test.dart
+00:00 +0: lista de pranchas (uso) | telefone | texto 100%
+00:00 +1: lista de pranchas (edição) | telefone | texto 100%
+00:00 +2: prancha 4×3 (uso) | telefone | texto 100%
+00:00 +3: prancha 4×3 (edição) | telefone | texto 100%
+00:01 +4: prancha 8×3 (uso) | telefone | texto 100%
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+[Tappable objects should be at least Size(48.0, 48.0)]
+SemanticsNode#24(Rect.fromLTRB(16.0, 140.0, 53.8, 364.0), actions: [focus, tap], flags: [isButton,
+isFocusable], label: "Eu", textDirection: ltr): expected tap target size of at least Size(48.0,
+48.0), but found Size(37.8, 224.0)
+See also: https://support.google.com/accessibility/android/answer/7101858?hl=en
+SemanticsNode#25(Rect.fromLTRB(61.8, 140.0, 99.5, 364.0), actions: [focus, tap], flags: [isButton,
+isFocusable], label: "Quero", textDirection: ltr): expected tap target size of at least Size(48.0,
+48.0), but found Size(37.8, 224.0)
+See also: https://support.google.com/accessibility/android/answer/7101858?hl=en
+SemanticsNode#26(Rect.fromLTRB(107.5, 140.0, 145.3, 364.0), actions: [focus, tap], flags: [isButton,
+isFocusable], label: "Água", textDirection: ltr): expected tap target size of at least Size(48.0,
+48.0), but found Size(37.8, 224.0)
+See also: https://support.google.com/accessibility/android/answer/7101858?hl=en
+SemanticsNode#27(Rect.fromLTRB(153.3, 140.0, 191.0, 364.0), actions: [focus, tap], flags: [isButton,
+isFocusable], label: "Grande", textDirection: ltr): expected tap target size of at least Size(48.0,
+48.0), but found Size(37.8, 224.0)
+See also: https://support.google.com/accessibility/android/answer/7101858?hl=en
+SemanticsNode#28(Rect.fromLTRB(199.0, 140.0, 236.8, 364.0), actions: [focus, tap], flags: [isButton,
+isFocusable], label: "Em", textDirection: ltr): expected tap target size of at least Size(48.0,
+48.0), but found Size(37.8, 224.0)
+See also: https://support.google.com/accessibility/android/answer/7101858?hl=en
+SemanticsNode#29(Rect.fromLTRB(244.8, 140.0, 282.5, 364.0), actions: [focus, tap], flags: [isButton,
+isFocusable], label: "O quê?", textDirection: ltr): expected tap target size of at least Size(48.0,
+48.0), but found Size(37.8, 224.0)
+See also: https://support.google.com/accessibility/android/answer/7101858?hl=en
+SemanticsNode#30(Rect.fromLTRB(290.5, 140.0, 328.3, 364.0), actions: [focus, tap], flags: [isButton,
+isFocusable], label: "Não", textDirection: ltr): expected tap target size of at least Size(48.0,
+48.0), but found Size(37.8, 224.0)
+See also: https://support.google.com/accessibility/android/answer/7101858?hl=en
+SemanticsNode#31(Rect.fromLTRB(336.3, 140.0, 374.0, 364.0), actions: [focus, tap], flags: [isButton,
+isFocusable], label: "Muito", textDirection: ltr): expected tap target size of at least Size(48.0,
+48.0), but found Size(37.8, 224.0)
+See also: https://support.google.com/accessibility/android/answer/7101858?hl=en
+
+
+[Tappable objects should be at least Size(44.0, 44.0)]
+SemanticsNode#24(Rect.fromLTRB(16.0, 140.0, 53.8, 364.0), actions: [focus, tap], flags: [isButton,
+isFocusable], label: "Eu", textDirection: ltr): expected tap target size of at least Size(44.0,
+44.0), but found Size(37.8, 224.0)
+See also:
+https://developer.apple.com/design/human-interface-guidelines/ios/visual-design/adaptivity-and-layout/
+SemanticsNode#25(Rect.fromLTRB(61.8, 140.0, 99.5, 364.0), actions: [focus, tap], flags: [isButton,
+isFocusable], label: "Quero", textDirection: ltr): expected tap target size of at least Size(44.0,
+44.0), but found Size(37.8, 224.0)
+See also:
+https://developer.apple.com/design/human-interface-guidelines/ios/visual-design/adaptivity-and-layout/
+SemanticsNode#26(Rect.fromLTRB(107.5, 140.0, 145.3, 364.0), actions: [focus, tap], flags: [isButton,
+isFocusable], label: "Água", textDirection: ltr): expected tap target size of at least Size(44.0,
+44.0), but found Size(37.8, 224.0)
+See also:
+https://developer.apple.com/design/human-interface-guidelines/ios/visual-design/adaptivity-and-layout/
+SemanticsNode#27(Rect.fromLTRB(153.3, 140.0, 191.0, 364.0), actions: [focus, tap], flags: [isButton,
+isFocusable], label: "Grande", textDirection: ltr): expected tap target size of at least Size(44.0,
+44.0), but found Size(37.8, 224.0)
+See also:
+https://developer.apple.com/design/human-interface-guidelines/ios/visual-design/adaptivity-and-layout/
+SemanticsNode#28(Rect.fromLTRB(199.0, 140.0, 236.8, 364.0), actions: [focus, tap], flags: [isButton,
+isFocusable], label: "Em", textDirection: ltr): expected tap target size of at least Size(44.0,
+44.0), but found Size(37.8, 224.0)
+See also:
+https://developer.apple.com/design/human-interface-guidelines/ios/visual-design/adaptivity-and-layout/
+SemanticsNode#29(Rect.fromLTRB(244.8, 140.0, 282.5, 364.0), actions: [focus, tap], flags: [isButton,
+isFocusable], label: "O quê?", textDirection: ltr): expected tap target size of at least Size(44.0,
+44.0), but found Size(37.8, 224.0)
+See also:
+https://developer.apple.com/design/human-interface-guidelines/ios/visual-design/adaptivity-and-layout/
+SemanticsNode#30(Rect.fromLTRB(290.5, 140.0, 328.3, 364.0), actions: [focus, tap], flags: [isButton,
+isFocusable], label: "Não", textDirection: ltr): expected tap target size of at least Size(44.0,
+44.0), but found Size(37.8, 224.0)
+See also:
+https://developer.apple.com/design/human-interface-guidelines/ios/visual-design/adaptivity-and-layout/
+SemanticsNode#31(Rect.fromLTRB(336.3, 140.0, 374.0, 364.0), actions: [focus, tap], flags: [isButton,
+isFocusable], label: "Muito", textDirection: ltr): expected tap target size of at least Size(44.0,
+44.0), but found Size(37.8, 224.0)
+See also:
+https://developer.apple.com/design/human-interface-guidelines/ios/visual-design/adaptivity-and-layout/
+
+When the exception was thrown, this was the stack:
+#0      fail (package:matcher/src/expect/expect.dart:187:31)
+#1      main.<anonymous closure> (file:///Users/alexandre/Development/ACPProjects/ACPProjects-Mobile-projs/PRIFONO_CAA/ACP_Projects_PRIFONO_CAA/test/a11y/accessibility_audit_test.dart:248:15)
+<asynchronous suspension>
+#2      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#3      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  prancha 8×3 (uso) | telefone | texto 100%
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +4 -1: prancha 8×3 (uso) | telefone | texto 100% [E]
+  Test failed. See exception logs above.
+  The test description was: prancha 8×3 (uso) | telefone | texto 100%
+  
+00:01 +4 -1: editor de card (início) | telefone | texto 100%
+00:01 +5 -1: editor de card (página inteira) | telefone | texto 100%
+00:01 +6 -1: busca de pictogramas | telefone | texto 100%
+00:02 +7 -1: formulário de prancha | telefone | texto 100%
+00:02 +8 -1: ajustes (início) | telefone | texto 100%
+00:02 +9 -1: ajustes (página inteira) | telefone | texto 100%
+00:02 +10 -1: sobre e créditos | telefone | texto 100%
+00:02 +11 -1: pedido de PIN | telefone | texto 100%
+00:02 +12 -1: lista de pranchas (uso) | telefone | texto 200%
+00:02 +13 -1: lista de pranchas (edição) | telefone | texto 200%
+00:02 +14 -1: prancha 4×3 (uso) | telefone | texto 200%
+00:02 +15 -1: prancha 4×3 (edição) | telefone | texto 200%
+00:02 +16 -1: prancha 8×3 (uso) | telefone | texto 200%
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+[Tappable objects should be at least Size(48.0, 48.0)]
+SemanticsNode#24(Rect.fromLTRB(16.0, 175.0, 53.8, 387.3), actions: [focus, tap], flags: [isButton,
+isFocusable], label: "Eu", textDirection: ltr): expected tap target size of at least Size(48.0,
+48.0), but found Size(37.8, 212.3)
+See also: https://support.google.com/accessibility/android/answer/7101858?hl=en
+SemanticsNode#25(Rect.fromLTRB(61.8, 175.0, 99.5, 387.3), actions: [focus, tap], flags: [isButton,
+isFocusable], label: "Quero", textDirection: ltr): expected tap target size of at least Size(48.0,
+48.0), but found Size(37.8, 212.3)
+See also: https://support.google.com/accessibility/android/answer/7101858?hl=en
+SemanticsNode#26(Rect.fromLTRB(107.5, 175.0, 145.3, 387.3), actions: [focus, tap], flags: [isButton,
+isFocusable], label: "Água", textDirection: ltr): expected tap target size of at least Size(48.0,
+48.0), but found Size(37.8, 212.3)
+See also: https://support.google.com/accessibility/android/answer/7101858?hl=en
+SemanticsNode#27(Rect.fromLTRB(153.3, 175.0, 191.0, 387.3), actions: [focus, tap], flags: [isButton,
+isFocusable], label: "Grande", textDirection: ltr): expected tap target size of at least Size(48.0,
+48.0), but found Size(37.8, 212.3)
+See also: https://support.google.com/accessibility/android/answer/7101858?hl=en
+SemanticsNode#28(Rect.fromLTRB(199.0, 175.0, 236.8, 387.3), actions: [focus, tap], flags: [isButton,
+isFocusable], label: "Em", textDirection: ltr): expected tap target size of at least Size(48.0,
+48.0), but found Size(37.8, 212.3)
+See also: https://support.google.com/accessibility/android/answer/7101858?hl=en
+SemanticsNode#29(Rect.fromLTRB(244.8, 175.0, 282.5, 387.3), actions: [focus, tap], flags: [isButton,
+isFocusable], label: "O quê?", textDirection: ltr): expected tap target size of at least Size(48.0,
+48.0), but found Size(37.8, 212.3)
+See also: https://support.google.com/accessibility/android/answer/7101858?hl=en
+SemanticsNode#30(Rect.fromLTRB(290.5, 175.0, 328.3, 387.3), actions: [focus, tap], flags: [isButton,
+isFocusable], label: "Não", textDirection: ltr): expected tap target size of at least Size(48.0,
+48.0), but found Size(37.8, 212.3)
+See also: https://support.google.com/accessibility/android/answer/7101858?hl=en
+SemanticsNode#31(Rect.fromLTRB(336.3, 175.0, 374.0, 387.3), actions: [focus, tap], flags: [isButton,
+isFocusable], label: "Muito", textDirection: ltr): expected tap target size of at least Size(48.0,
+48.0), but found Size(37.8, 212.3)
+See also: https://support.google.com/accessibility/android/answer/7101858?hl=en
+
+
+[Tappable objects should be at least Size(44.0, 44.0)]
+SemanticsNode#24(Rect.fromLTRB(16.0, 175.0, 53.8, 387.3), actions: [focus, tap], flags: [isButton,
+isFocusable], label: "Eu", textDirection: ltr): expected tap target size of at least Size(44.0,
+44.0), but found Size(37.8, 212.3)
+See also:
+https://developer.apple.com/design/human-interface-guidelines/ios/visual-design/adaptivity-and-layout/
+SemanticsNode#25(Rect.fromLTRB(61.8, 175.0, 99.5, 387.3), actions: [focus, tap], flags: [isButton,
+isFocusable], label: "Quero", textDirection: ltr): expected tap target size of at least Size(44.0,
+44.0), but found Size(37.8, 212.3)
+See also:
+https://developer.apple.com/design/human-interface-guidelines/ios/visual-design/adaptivity-and-layout/
+SemanticsNode#26(Rect.fromLTRB(107.5, 175.0, 145.3, 387.3), actions: [focus, tap], flags: [isButton,
+isFocusable], label: "Água", textDirection: ltr): expected tap target size of at least Size(44.0,
+44.0), but found Size(37.8, 212.3)
+See also:
+https://developer.apple.com/design/human-interface-guidelines/ios/visual-design/adaptivity-and-layout/
+SemanticsNode#27(Rect.fromLTRB(153.3, 175.0, 191.0, 387.3), actions: [focus, tap], flags: [isButton,
+isFocusable], label: "Grande", textDirection: ltr): expected tap target size of at least Size(44.0,
+44.0), but found Size(37.8, 212.3)
+See also:
+https://developer.apple.com/design/human-interface-guidelines/ios/visual-design/adaptivity-and-layout/
+SemanticsNode#28(Rect.fromLTRB(199.0, 175.0, 236.8, 387.3), actions: [focus, tap], flags: [isButton,
+isFocusable], label: "Em", textDirection: ltr): expected tap target size of at least Size(44.0,
+44.0), but found Size(37.8, 212.3)
+See also:
+https://developer.apple.com/design/human-interface-guidelines/ios/visual-design/adaptivity-and-layout/
+SemanticsNode#29(Rect.fromLTRB(244.8, 175.0, 282.5, 387.3), actions: [focus, tap], flags: [isButton,
+isFocusable], label: "O quê?", textDirection: ltr): expected tap target size of at least Size(44.0,
+44.0), but found Size(37.8, 212.3)
+See also:
+https://developer.apple.com/design/human-interface-guidelines/ios/visual-design/adaptivity-and-layout/
+SemanticsNode#30(Rect.fromLTRB(290.5, 175.0, 328.3, 387.3), actions: [focus, tap], flags: [isButton,
+isFocusable], label: "Não", textDirection: ltr): expected tap target size of at least Size(44.0,
+44.0), but found Size(37.8, 212.3)
+See also:
+https://developer.apple.com/design/human-interface-guidelines/ios/visual-design/adaptivity-and-layout/
+SemanticsNode#31(Rect.fromLTRB(336.3, 175.0, 374.0, 387.3), actions: [focus, tap], flags: [isButton,
+isFocusable], label: "Muito", textDirection: ltr): expected tap target size of at least Size(44.0,
+44.0), but found Size(37.8, 212.3)
+See also:
+https://developer.apple.com/design/human-interface-guidelines/ios/visual-design/adaptivity-and-layout/
+
+When the exception was thrown, this was the stack:
+#0      fail (package:matcher/src/expect/expect.dart:187:31)
+#1      main.<anonymous closure> (file:///Users/alexandre/Development/ACPProjects/ACPProjects-Mobile-projs/PRIFONO_CAA/ACP_Projects_PRIFONO_CAA/test/a11y/accessibility_audit_test.dart:248:15)
+<asynchronous suspension>
+#2      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#3      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  prancha 8×3 (uso) | telefone | texto 200%
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:03 +16 -2: prancha 8×3 (uso) | telefone | texto 200% [E]
+  Test failed. See exception logs above.
+  The test description was: prancha 8×3 (uso) | telefone | texto 200%
+  
+00:03 +16 -2: editor de card (início) | telefone | texto 200%
+00:03 +17 -2: editor de card (página inteira) | telefone | texto 200%
+00:03 +18 -2: busca de pictogramas | telefone | texto 200%
+00:03 +19 -2: formulário de prancha | telefone | texto 200%
+00:03 +20 -2: ajustes (início) | telefone | texto 200%
+00:03 +21 -2: ajustes (página inteira) | telefone | texto 200%
+00:03 +22 -2: sobre e créditos | telefone | texto 200%
+00:03 +23 -2: pedido de PIN | telefone | texto 200%
+00:03 +24 -2: lista de pranchas (uso) | tablet | texto 100%
+00:03 +25 -2: lista de pranchas (edição) | tablet | texto 100%
+00:03 +26 -2: prancha 4×3 (uso) | tablet | texto 100%
+00:03 +27 -2: prancha 4×3 (edição) | tablet | texto 100%
+00:03 +28 -2: prancha 8×3 (uso) | tablet | texto 100%
+00:04 +29 -2: editor de card (início) | tablet | texto 100%
+00:04 +30 -2: editor de card (página inteira) | tablet | texto 100%
+00:04 +31 -2: busca de pictogramas | tablet | texto 100%
+00:04 +32 -2: formulário de prancha | tablet | texto 100%
+00:04 +33 -2: ajustes (início) | tablet | texto 100%
+00:04 +34 -2: ajustes (página inteira) | tablet | texto 100%
+00:04 +35 -2: sobre e créditos | tablet | texto 100%
+00:04 +36 -2: pedido de PIN | tablet | texto 100%
+00:04 +37 -2: lista de pranchas (uso) | tablet | texto 200%
+00:04 +38 -2: lista de pranchas (edição) | tablet | texto 200%
+00:04 +39 -2: prancha 4×3 (uso) | tablet | texto 200%
+00:04 +40 -2: prancha 4×3 (edição) | tablet | texto 200%
+00:04 +41 -2: prancha 8×3 (uso) | tablet | texto 200%
+00:04 +42 -2: editor de card (início) | tablet | texto 200%
+00:05 +43 -2: editor de card (página inteira) | tablet | texto 200%
+00:05 +44 -2: busca de pictogramas | tablet | texto 200%
+00:05 +45 -2: formulário de prancha | tablet | texto 200%
+00:05 +46 -2: ajustes (início) | tablet | texto 200%
+00:05 +47 -2: ajustes (página inteira) | tablet | texto 200%
+00:05 +48 -2: sobre e créditos | tablet | texto 200%
+00:05 +49 -2: pedido de PIN | tablet | texto 200%
+00:05 +50 -2: Some tests failed.
+
+Failing tests:
+  /Users/alexandre/Development/ACPProjects/ACPProjects-Mobile-projs/PRIFONO_CAA/ACP_Projects_PRIFONO_CAA/test/a11y/accessibility_audit_test.dart: prancha 8×3 (uso) | telefone | texto 100%
+  /Users/alexandre/Development/ACPProjects/ACPProjects-Mobile-projs/PRIFONO_CAA/ACP_Projects_PRIFONO_CAA/test/a11y/accessibility_audit_test.dart: prancha 8×3 (uso) | telefone | texto 200%

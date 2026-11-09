@@ -14,22 +14,71 @@ import 'package:prifono_caa/features/pin/presentation/pin_flows.dart';
 ///
 /// Usa `Listener` (eventos brutos) e não `GestureDetector`/`Tooltip`: o
 /// reconhecedor de toque longo do Tooltip cancelaria a contagem aos 500 ms.
-class EditLockButton extends StatelessWidget {
+///
+/// Com leitor de tela ligado, entrar e sair da edição é ANUNCIADO (E6-2): uma
+/// `SnackBar` (que o Flutter já trata como região viva) diz o novo estado. Sem
+/// leitor de tela nada muda: a tela já mostra o estado.
+class EditLockButton extends StatefulWidget {
   const EditLockButton({super.key});
 
   @override
+  State<EditLockButton> createState() => _EditLockButtonState();
+}
+
+class _EditLockButtonState extends State<EditLockButton> {
+  // `AppScope.of` usa getInheritedWidgetOfExactType, que pode ser chamado no
+  // initState.
+  late final _editMode = AppScope.of(context).editMode;
+  late bool _wasEditing;
+
+  @override
+  void initState() {
+    super.initState();
+    _wasEditing = _editMode.isEditing;
+    _editMode.addListener(_onEditModeChanged);
+  }
+
+  @override
+  void dispose() {
+    _editMode.removeListener(_onEditModeChanged);
+    super.dispose();
+  }
+
+  void _onEditModeChanged() {
+    final editing = _editMode.isEditing;
+    if (editing == _wasEditing) return;
+    _wasEditing = editing;
+    if (!mounted) return;
+    // Só a tela do topo anuncia (há um cadeado em cada tela da pilha) e só
+    // quando há leitor de tela.
+    if (!(ModalRoute.of(context)?.isCurrent ?? false)) return;
+    if (!MediaQuery.accessibleNavigationOf(context)) return;
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    if (messenger == null) return;
+    final l10n = AppLocalizations.of(context);
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(
+            editing ? l10n.editModeOnAnnounce : l10n.editModeOffAnnounce,
+          ),
+        ),
+      );
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final editMode = AppScope.of(context).editMode;
     final l10n = AppLocalizations.of(context);
 
     return ListenableBuilder(
-      listenable: editMode,
+      listenable: _editMode,
       builder: (context, _) {
-        if (editMode.isEditing) {
+        if (_editMode.isEditing) {
           return IconButton(
             tooltip: l10n.editLockLeave,
             icon: const Icon(Icons.lock_open_outlined),
-            onPressed: editMode.lock,
+            onPressed: _editMode.lock,
           );
         }
         return const HoldToUnlock();
@@ -128,10 +177,15 @@ class _HoldToUnlockState extends State<HoldToUnlock>
     final l10n = AppLocalizations.of(context);
 
     return Semantics(
+      container: true,
       button: true,
       label: l10n.editLockEnter,
       onTap: _showHint,
+      // Os "hints" dizem o que cada gesto FAZ: o leitor de tela fala, por
+      // exemplo, "toque duas vezes e segure para destravar a edição".
+      onTapHint: l10n.editLockTapHint,
       onLongPress: _unlockForAccessibility,
+      onLongPressHint: l10n.editLockLongPressHint,
       child: Listener(
         behavior: HitTestBehavior.opaque,
         onPointerDown: _onDown,

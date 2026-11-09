@@ -114,7 +114,7 @@ void main() {
       expect(app.editMode.isEditing, isFalse);
       expect(_lockClosed, findsOneWidget);
       expect(find.text('Nova prancha'), findsNothing);
-      expect(find.byTooltip('Mais opções'), findsNothing);
+      expect(find.byTooltip('Mais opções de Casa'), findsNothing);
       // Abrir a prancha continua livre.
       expect(find.text('Casa'), findsOneWidget);
     });
@@ -140,7 +140,7 @@ void main() {
       expect(app.editMode.isEditing, isTrue);
       expect(find.byIcon(Icons.lock_open_outlined), findsOneWidget);
       expect(find.text('Nova prancha'), findsOneWidget);
-      expect(find.byTooltip('Mais opções'), findsOneWidget);
+      expect(find.byTooltip('Mais opções de Casa'), findsOneWidget);
     });
 
     testWidgets('soltar antes de 1,5 s não destrava e mostra a dica', (
@@ -241,7 +241,7 @@ void main() {
 
       await _back(tester);
       expect(find.text('Nova prancha'), findsNothing);
-      expect(find.byTooltip('Mais opções'), findsNothing);
+      expect(find.byTooltip('Mais opções de Casa'), findsNothing);
     });
   });
 

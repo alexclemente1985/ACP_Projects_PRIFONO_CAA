@@ -212,6 +212,14 @@ class _SentenceStrip extends StatelessWidget {
                               _showChipOptions(context, controller, index),
                             ),
                             onRemove: () => controller.removeAt(index),
+                            // Ações diretas para o leitor de tela (alternativa
+                            // ao arrastar, ADR-039/041). Só onde fazem sentido.
+                            onMoveLeft: index > 0
+                                ? () => controller.move(index, index - 1)
+                                : null,
+                            onMoveRight: index < entries.length - 1
+                                ? () => controller.move(index, index + 1)
+                                : null,
                           ),
                         ),
                       ),
@@ -314,11 +322,17 @@ class _SentenceChip extends StatelessWidget {
     required this.item,
     required this.onTap,
     required this.onRemove,
+    required this.onMoveLeft,
+    required this.onMoveRight,
   });
 
   final SentenceItem item;
   final VoidCallback onTap;
   final VoidCallback onRemove;
+
+  /// Nulos na primeira / na última ficha.
+  final VoidCallback? onMoveLeft;
+  final VoidCallback? onMoveRight;
 
   static const double _imageSize = 36;
 
@@ -342,13 +356,15 @@ class _SentenceChip extends StatelessWidget {
             .fileFor(symbol, size: SymbolImageSize.medium);
 
     // Semantics (rótulo + botão) e o gesto do InkWell viram UM nó, como no
-    // card da prancha. "Remover" também é uma ação de acessibilidade direta.
+    // card da prancha. Remover e mover são ações de acessibilidade diretas.
     return Semantics(
       button: true,
       label: item.label.isEmpty ? l10n.sentenceChipUntitled : item.label,
       hint: l10n.sentenceChipHint,
       customSemanticsActions: {
         CustomSemanticsAction(label: l10n.sentenceRemoveWord): onRemove,
+        CustomSemanticsAction(label: l10n.sentenceMoveLeft): ?onMoveLeft,
+        CustomSemanticsAction(label: l10n.sentenceMoveRight): ?onMoveRight,
       },
       child: ConstrainedBox(
         constraints: const BoxConstraints(

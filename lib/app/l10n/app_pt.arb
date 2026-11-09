@@ -228,5 +228,19 @@
   },
   "pinForgotAnswer": "Resposta",
   "pinForgotWrong": "Resposta errada. Esta é outra conta.",
-  "pinForgotConfirm": "Liberar"
+  "pinForgotConfirm": "Liberar",
+  "commonLoading": "Carregando",
+  "editLockTapHint": "ver como destravar",
+  "editLockLongPressHint": "destravar a edição",
+  "editModeOnAnnounce": "Modo de edição ativado.",
+  "editModeOffAnnounce": "Modo de edição desativado.",
+  "boardMoreOptionsFor": "Mais opções de {name}",
+  "@boardMoreOptionsFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "splashSkipHint": "Toque para pular a abertura."
 }

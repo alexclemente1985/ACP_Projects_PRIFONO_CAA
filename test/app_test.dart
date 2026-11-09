@@ -130,7 +130,7 @@ void main() {
       await _pumpToBoards(tester, boards: repository);
       await unlockEditMode(tester);
 
-      await tester.tap(find.byTooltip('Mais opções'));
+      await tester.tap(find.byTooltip('Mais opções de Casa'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Editar'));
       await tester.pumpAndSettle();
@@ -149,7 +149,7 @@ void main() {
       await _pumpToBoards(tester, boards: repository);
       await unlockEditMode(tester);
 
-      await tester.tap(find.byTooltip('Mais opções'));
+      await tester.tap(find.byTooltip('Mais opções de Casa'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Excluir'));
       await tester.pumpAndSettle();
@@ -168,7 +168,7 @@ void main() {
       await _pumpToBoards(tester, boards: repository);
       await unlockEditMode(tester);
 
-      await tester.tap(find.byTooltip('Mais opções'));
+      await tester.tap(find.byTooltip('Mais opções de Casa'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Excluir'));
       await tester.pumpAndSettle();
@@ -215,7 +215,7 @@ void main() {
       await _pumpToBoards(tester, boards: repository);
       await unlockEditMode(tester);
 
-      await tester.tap(find.byTooltip('Mais opções'));
+      await tester.tap(find.byTooltip('Mais opções de Casa'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Editar'));
       await tester.pumpAndSettle();
@@ -242,7 +242,7 @@ void main() {
       await _pumpToBoards(tester, boards: repository);
       await unlockEditMode(tester);
 
-      await tester.tap(find.byTooltip('Mais opções'));
+      await tester.tap(find.byTooltip('Mais opções de Casa'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Editar'));
       await tester.pumpAndSettle();
