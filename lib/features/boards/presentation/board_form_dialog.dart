@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:prifono_caa/app/l10n/app_localizations.dart';
 import 'package:prifono_caa/features/boards/domain/board.dart';
 import 'package:prifono_caa/features/boards/domain/board_capacity.dart';
+import 'package:prifono_caa/features/boards/domain/board_cell_size.dart';
 
 /// Dados confirmados no formulário de prancha.
 final class BoardFormResult {
@@ -87,6 +88,14 @@ class _BoardFormDialogState extends State<_BoardFormDialog> {
     final textTheme = Theme.of(context).textTheme;
     final isEditing = widget.board != null;
 
+    // Aviso (não bloqueio, ADR-041 decisão 3): com tantas colunas, na largura
+    // desta tela, cada célula fica menor que o alvo de toque confortável.
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final cellTooSmall = BoardCellSize.isTooSmall(
+      screenWidth: screenWidth,
+      columns: _columns,
+    );
+
     return AlertDialog(
       title: Text(isEditing ? l10n.boardFormEditTitle : l10n.boardFormNewTitle),
       content: SingleChildScrollView(
@@ -131,6 +140,19 @@ class _BoardFormDialogState extends State<_BoardFormDialog> {
                 canDecrease: _canDecreaseRows,
                 onChanged: (value) => setState(() => _rows = value),
               ),
+              if (cellTooSmall) ...[
+                const SizedBox(height: 12),
+                // liveRegion: o leitor de tela avisa quando o texto aparece.
+                Semantics(
+                  liveRegion: true,
+                  child: Text(
+                    l10n.boardFormCellTooSmall(
+                      BoardCellSize.maxColumnsFor(screenWidth),
+                    ),
+                    style: textTheme.bodyMedium,
+                  ),
+                ),
+              ],
               if (_shrinkBlocked) ...[
                 const SizedBox(height: 12),
                 // liveRegion: o leitor de tela avisa quando o texto aparece.

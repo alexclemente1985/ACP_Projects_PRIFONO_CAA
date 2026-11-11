@@ -155,5 +155,13 @@
       }
     }
   },
-  "splashSkipHint": "Toca para omitir la introducción."
+  "splashSkipHint": "Toca para omitir la introducción.",
+   "boardFormCellTooSmall": "En este dispositivo, con más de {max, plural, =1{1 columna} other{{max} columnas}} las tarjetas quedan demasiado pequeñas para tocarlas con facilidad. Considera usar menos columnas.",
+  "@boardFormCellTooSmall": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  }
 }

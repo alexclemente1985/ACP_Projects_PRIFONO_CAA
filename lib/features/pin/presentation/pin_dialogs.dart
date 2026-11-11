@@ -8,6 +8,39 @@ import 'package:prifono_caa/app/l10n/app_localizations.dart';
 import 'package:prifono_caa/features/pin/domain/pin.dart';
 import 'package:prifono_caa/features/pin/presentation/pin_keypad.dart';
 
+/// Mensagem de erro dos diálogos de PIN (E6-3, ADR-041).
+///
+/// O espaço da mensagem fica SEMPRE reservado (`maintainSize`), com a altura
+/// que ela ocupa na escala de fonte atual (uma linha a 100%, várias a 200%).
+/// Assim o teclado não muda de lugar quando o erro aparece, e a mensagem
+/// nunca é cortada por uma caixa de altura fixa. Enquanto escondida, ela não
+/// entra na semântica: o leitor de tela só a anuncia quando o erro aparece.
+class _PinMessage extends StatelessWidget {
+  const _PinMessage({required this.text, required this.visible});
+
+  final String text;
+  final bool visible;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Visibility(
+      visible: visible,
+      maintainSize: true,
+      maintainAnimation: true,
+      maintainState: true,
+      child: Semantics(
+        liveRegion: true,
+        child: Text(
+          text,
+          textAlign: TextAlign.center,
+          style: TextStyle(color: scheme.error),
+        ),
+      ),
+    );
+  }
+}
+
 /// Pede o PIN. Fecha com `true` se acertou (ou se resolveu a conta do "Esqueci
 /// o PIN"); fecha com `false`/`null` se a pessoa cancelou.
 class PinVerifyDialog extends StatefulWidget {
@@ -61,7 +94,6 @@ class _PinVerifyDialogState extends State<PinVerifyDialog> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final scheme = Theme.of(context).colorScheme;
 
     return AlertDialog(
       scrollable: true,
@@ -71,18 +103,7 @@ class _PinVerifyDialogState extends State<PinVerifyDialog> {
         children: [
           PinDots(filled: _entered.length),
           const SizedBox(height: 8),
-          SizedBox(
-            height: 24,
-            child: _wrong
-                ? Semantics(
-                    liveRegion: true,
-                    child: Text(
-                      l10n.pinWrong,
-                      style: TextStyle(color: scheme.error),
-                    ),
-                  )
-                : null,
-          ),
+          _PinMessage(text: l10n.pinWrong, visible: _wrong),
           const SizedBox(height: 8),
           PinKeypad(onDigit: _onDigit, onBackspace: _onBackspace),
         ],
@@ -155,7 +176,6 @@ class _PinSetupDialogState extends State<PinSetupDialog> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final scheme = Theme.of(context).colorScheme;
     final confirming = _first != null;
 
     return AlertDialog(
@@ -173,18 +193,7 @@ class _PinSetupDialogState extends State<PinSetupDialog> {
           ],
           PinDots(filled: _entered.length),
           const SizedBox(height: 8),
-          SizedBox(
-            height: 24,
-            child: _mismatch
-                ? Semantics(
-                    liveRegion: true,
-                    child: Text(
-                      l10n.pinMismatch,
-                      style: TextStyle(color: scheme.error),
-                    ),
-                  )
-                : null,
-          ),
+          _PinMessage(text: l10n.pinMismatch, visible: _mismatch),
           const SizedBox(height: 8),
           PinKeypad(onDigit: _onDigit, onBackspace: _onBackspace),
         ],

@@ -526,4 +526,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get splashSkipHint => 'Tap to skip the intro.';
+
+  @override
+  String boardFormCellTooSmall(int max) {
+    String _temp0 = intl.Intl.pluralLogic(
+      max,
+      locale: localeName,
+      other: '$max columns',
+      one: '1 column',
+    );
+    return 'On this device, with more than $_temp0 the cards get too small to tap easily. Consider using fewer columns.';
+  }
 }

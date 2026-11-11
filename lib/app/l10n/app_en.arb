@@ -155,5 +155,13 @@
       }
     }
   },
-  "splashSkipHint": "Tap to skip the intro."
+  "splashSkipHint": "Tap to skip the intro.",
+  "boardFormCellTooSmall": "On this device, with more than {max, plural, =1{1 column} other{{max} columns}} the cards get too small to tap easily. Consider using fewer columns.",
+  "@boardFormCellTooSmall": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  }
 }

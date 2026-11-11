@@ -993,6 +993,12 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Toque para pular a abertura.'**
   String get splashSkipHint;
+
+  /// No description provided for @boardFormCellTooSmall.
+  ///
+  /// In pt, this message translates to:
+  /// **'Neste aparelho, com mais de {max, plural, =1{1 coluna} other{{max} colunas}} os cards ficam pequenos demais para tocar com facilidade. Considere usar menos colunas.'**
+  String boardFormCellTooSmall(int max);
 }
 
 class _AppLocalizationsDelegate

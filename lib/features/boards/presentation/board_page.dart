@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:prifono_caa/app/app_scope.dart';
@@ -7,9 +8,11 @@ import 'package:prifono_caa/app/l10n/app_localizations.dart';
 import 'package:prifono_caa/app/theme/brand_tokens.dart';
 import 'package:prifono_caa/features/boards/domain/board.dart';
 import 'package:prifono_caa/features/boards/domain/board_card.dart';
+import 'package:prifono_caa/features/boards/domain/board_cell_size.dart';
 import 'package:prifono_caa/features/boards/presentation/board_cards_controller.dart';
 import 'package:prifono_caa/features/boards/presentation/card_colors.dart';
 import 'package:prifono_caa/features/boards/presentation/card_editor_page.dart';
+import 'package:prifono_caa/features/boards/presentation/card_label_fit.dart';
 import 'package:prifono_caa/features/boards/presentation/word_class_text.dart';
 import 'package:prifono_caa/features/editing/presentation/edit_lock_button.dart';
 import 'package:prifono_caa/features/sentence/domain/sentence_item.dart';
@@ -29,6 +32,10 @@ class BoardPage extends StatefulWidget {
 }
 
 class _BoardPageState extends State<BoardPage> {
+  /// A mensagem de estado ocupa no máximo esta fração da área útil; passando
+  /// disso (texto ampliado), ela rola por dentro (ADR-041, A6).
+  static const double _messageMaxHeightFactor = 0.2;
+
   late final BoardCardsController _controller = BoardCardsController(
     AppScope.of(context).boards,
     board: widget.board,
@@ -163,36 +170,68 @@ class _BoardPageState extends State<BoardPage> {
   }) {
     final message = _statusMessage(l10n, editing: editing);
     return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          SentenceBar(controller: AppScope.of(context).sentence),
-          const SizedBox(height: 12),
-          // Texto ACIMA da grade (convenção do projeto para testes e leitura).
-          if (message != null) ...[
-            // Região viva: o leitor de tela avisa quando a mensagem aparece ou
-            // muda (entrar na edição, prancha cheia, prancha vazia).
-            Semantics(
-              liveRegion: true,
-              child: Text(
-                message,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyLarge,
+      padding: const EdgeInsets.all(BoardCellSize.pagePadding),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return Column(
+            children: [
+              SentenceBar(controller: AppScope.of(context).sentence),
+              const SizedBox(height: 12),
+              // Texto ACIMA da grade (convenção do projeto para testes e
+              // leitura).
+              if (message != null) ...[
+                _StatusMessage(
+                  message: message,
+                  maxHeight: constraints.maxHeight * _messageMaxHeightFactor,
+                ),
+                const SizedBox(height: 12),
+              ],
+              Expanded(
+                child: _BoardGrid(
+                  board: widget.board,
+                  cards: _controller.cards,
+                  editing: editing,
+                  onAdd: _addCard,
+                  onUse: _useCard,
+                  onEdit: _editCard,
+                ),
               ),
-            ),
-            const SizedBox(height: 12),
-          ],
-          Expanded(
-            child: _BoardGrid(
-              board: widget.board,
-              cards: _controller.cards,
-              editing: editing,
-              onAdd: _addCard,
-              onUse: _useCard,
-              onEdit: _editCard,
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+/// Mensagem de estado acima da grade. Com texto ampliado ela pode ficar longa:
+/// a altura é limitada e o que passar disso rola por dentro (a grade não
+/// perde linhas). Região viva: o leitor de tela avisa quando a mensagem
+/// aparece ou muda (entrar na edição, prancha cheia, prancha vazia). A região
+/// viva fica DENTRO da rolagem, junto do texto, para o aviso levar a frase.
+class _StatusMessage extends StatelessWidget {
+  const _StatusMessage({required this.message, required this.maxHeight});
+
+  final String message;
+  final double maxHeight;
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxHeight: maxHeight),
+      child: SingleChildScrollView(
+        primary: false,
+        child: SizedBox(
+          width: double.infinity,
+          child: Semantics(
+            liveRegion: true,
+            child: Text(
+              message,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyLarge,
             ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -220,8 +259,6 @@ class _BoardGrid extends StatelessWidget {
   final ValueChanged<BoardCard> onUse;
   final ValueChanged<BoardCard> onEdit;
 
-  static const double _gap = 8;
-
   @override
   Widget build(BuildContext context) {
     final store = AppScope.of(context).symbolImages;
@@ -248,12 +285,12 @@ class _BoardGrid extends StatelessWidget {
     return Column(
       children: [
         for (var r = 0; r < rows; r++) ...[
-          if (r > 0) const SizedBox(height: _gap),
+          if (r > 0) const SizedBox(height: BoardCellSize.gap),
           Expanded(
             child: Row(
               children: [
                 for (var c = 0; c < columns; c++) ...[
-                  if (c > 0) const SizedBox(width: _gap),
+                  if (c > 0) const SizedBox(width: BoardCellSize.gap),
                   Expanded(child: cellAt(r * columns + c)),
                 ],
               ],
@@ -294,7 +331,6 @@ class _CardTile extends StatelessWidget {
     final background = palette.background;
     final foreground = palette.foreground;
     final label = card.content.label;
-    final file = imageFile;
     final l10n = AppLocalizations.of(context);
     final wordClass = card.content.wordClass;
 
@@ -317,37 +353,111 @@ class _CardTile extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           child: ExcludeSemantics(
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(6),
-                  child: Column(
-                    children: [
-                      if (file != null)
-                        Expanded(flex: 3, child: _CardImage(file: file)),
-                      Expanded(
-                        flex: file != null ? 2 : 1,
-                        child: _CardLabel(label: label, color: foreground),
-                      ),
-                    ],
-                  ),
-                ),
-                if (linked)
-                  Positioned(
-                    top: 4,
-                    right: 4,
-                    child: Icon(
-                      Icons.folder_outlined,
-                      size: 22,
-                      color: foreground,
-                    ),
-                  ),
-              ],
+            child: _CardContent(
+              label: label,
+              foreground: foreground,
+              imageFile: imageFile,
+              linked: linked,
             ),
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Estilo do rótulo do card, já mesclado com o estilo padrão do Material (a
+/// medição do `CardLabelFit` e o `Text` usam exatamente o mesmo estilo).
+TextStyle _cardLabelStyle(BuildContext context, Color color) {
+  final title = Theme.of(context).textTheme.titleMedium;
+  return DefaultTextStyle.of(context).style.merge(
+        title?.copyWith(color: color, fontWeight: FontWeight.w600),
+      );
+}
+
+/// Miolo do card: imagem (se houver) e rótulo. O tamanho-base do rótulo vem
+/// da célula (cresce no tablet) e o rótulo nunca fica sem espaço para duas
+/// linhas no piso (ADR-041, decisão 2).
+class _CardContent extends StatelessWidget {
+  const _CardContent({
+    required this.label,
+    required this.foreground,
+    required this.imageFile,
+    required this.linked,
+  });
+
+  final String label;
+  final Color foreground;
+  final File? imageFile;
+  final bool linked;
+
+  static const double _padding = 6;
+
+  /// Com imagem, o rótulo ganha pelo menos esta fração da altura útil e no
+  /// máximo [_labelMaxShare].
+  static const double _labelMinShare = 0.4;
+  static const double _labelMaxShare = 0.6;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = _cardLabelStyle(context, foreground);
+    final scaler = MediaQuery.textScalerOf(context);
+    final direction = Directionality.of(context);
+    final image = imageFile;
+
+    return LayoutBuilder(
+      builder: (context, box) {
+        final baseSize = CardLabelFit.baseSizeFor(
+          math.min(box.maxWidth, box.maxHeight),
+        );
+        final innerHeight = math.max(0.0, box.maxHeight - 2 * _padding);
+
+        final Widget body;
+        if (image == null) {
+          body = _CardLabel(label: label, style: style, baseSize: baseSize);
+        } else {
+          final twoLines = CardLabelFit.twoLinesHeight(
+            style: style,
+            baseSize: baseSize,
+            textScaler: scaler,
+            textDirection: direction,
+          );
+          final labelHeight = math.max(
+            innerHeight * _labelMinShare,
+            math.min(twoLines, innerHeight * _labelMaxShare),
+          );
+          body = Column(
+            children: [
+              Expanded(child: _CardImage(file: image)),
+              SizedBox(
+                height: labelHeight,
+                child: _CardLabel(
+                  label: label,
+                  style: style,
+                  baseSize: baseSize,
+                ),
+              ),
+            ],
+          );
+        }
+
+        return Stack(
+          fit: StackFit.expand,
+          children: [
+            Padding(padding: const EdgeInsets.all(_padding), child: body),
+            if (linked)
+              Positioned(
+                top: 4,
+                right: 4,
+                child: Icon(
+                  Icons.folder_outlined,
+                  size: 22,
+                  color: foreground,
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 }
@@ -383,28 +493,42 @@ class _CardImage extends StatelessWidget {
   }
 }
 
-/// Rótulo: quebra em linhas e só encolhe se não couber na célula.
+/// Rótulo: acompanha a escala de fonte; encolhe só até o piso (75% do
+/// tamanho-base), sem quebrar palavras antes disso; no piso quebra em até duas
+/// linhas e termina com reticências (`CardLabelFit`).
 class _CardLabel extends StatelessWidget {
-  const _CardLabel({required this.label, required this.color});
+  const _CardLabel({
+    required this.label,
+    required this.style,
+    required this.baseSize,
+  });
 
   final String label;
-  final Color color;
+  final TextStyle style;
+  final double baseSize;
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).textTheme.titleMedium?.copyWith(
-          color: color,
-          fontWeight: FontWeight.w600,
-        );
+    final scaler = MediaQuery.textScalerOf(context);
+    final direction = Directionality.of(context);
     return LayoutBuilder(
       builder: (context, constraints) {
+        final size = CardLabelFit.fitSize(
+          label: label,
+          style: style,
+          textScaler: scaler,
+          textDirection: direction,
+          maxWidth: constraints.maxWidth,
+          maxHeight: constraints.maxHeight,
+          baseSize: baseSize,
+        );
         return Center(
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: SizedBox(
-              width: constraints.maxWidth,
-              child: Text(label, textAlign: TextAlign.center, style: style),
-            ),
+          child: Text(
+            label,
+            textAlign: TextAlign.center,
+            maxLines: CardLabelFit.maxLines,
+            overflow: TextOverflow.ellipsis,
+            style: style.copyWith(fontSize: size),
           ),
         );
       },

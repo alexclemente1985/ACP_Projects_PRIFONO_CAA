@@ -242,5 +242,13 @@
       }
     }
   },
-  "splashSkipHint": "Toque para pular a abertura."
+  "splashSkipHint": "Toque para pular a abertura.",
+   "boardFormCellTooSmall": "Neste aparelho, com mais de {max, plural, =1{1 coluna} other{{max} colunas}} os cards ficam pequenos demais para tocar com facilidade. Considere usar menos colunas.",
+  "@boardFormCellTooSmall": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  }
 }

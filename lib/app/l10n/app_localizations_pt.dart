@@ -529,4 +529,15 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get splashSkipHint => 'Toque para pular a abertura.';
+
+  @override
+  String boardFormCellTooSmall(int max) {
+    String _temp0 = intl.Intl.pluralLogic(
+      max,
+      locale: localeName,
+      other: '$max colunas',
+      one: '1 coluna',
+    );
+    return 'Neste aparelho, com mais de $_temp0 os cards ficam pequenos demais para tocar com facilidade. Considere usar menos colunas.';
+  }
 }
