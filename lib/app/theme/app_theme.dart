@@ -5,6 +5,13 @@ import 'package:prifono_caa/app/theme/brand_tokens.dart';
 /// motricidade reduzida se beneficiam de alvos maiores.
 const double kMinTouchTarget = 56;
 
+/// Espessura (dp) da borda de um chip NÃO selecionado e de um selecionado
+/// (ADR-041, E6-4.2). A seleção é marcada pela borda grossa (e pela cor), não
+/// por ícone de check. As fichas de classe gramatical do editor usam os mesmos
+/// valores.
+const double kChipBorderWidth = 1.5;
+const double kChipSelectedBorderWidth = 4;
+
 abstract final class AppTheme {
   static const ColorScheme lightScheme = ColorScheme(
     brightness: Brightness.light,
@@ -57,10 +64,12 @@ abstract final class AppTheme {
       _build(darkScheme, BrandColors.fundoEscuro, action: darkScheme.primary);
 
   /// [action] é a cor de TEXTO e ícone de botões sem preenchimento
-  /// (TextButton, OutlinedButton) e de indicadores de progresso. No tema claro
-  /// o `primary` é o azul da marca (#56B2CB), que dá só ~2,4:1 sobre branco e
-  /// bege: não serve como texto (ADR-007 e ADR-041, achado A7). Por isso o
-  /// tema claro usa o azul forte (7,17:1 sobre branco).
+  /// (TextButton, OutlinedButton) e de indicadores de progresso (inclusive o
+  /// anel e a barra do cadeado, E6-4.1). No tema claro o `primary` é o azul da
+  /// marca (#56B2CB), que dá só ~2,4:1 sobre branco e bege: não serve como texto
+  /// (ADR-007 e ADR-041, achado A7). Por isso o tema claro usa o azul forte
+  /// (7,17:1 sobre branco). No escuro o azul forte não serve (cerca de 1,6:1
+  /// sobre a superfície azul-noite, conta do Claude): lá a cor é o bege.
   static ThemeData _build(
     ColorScheme scheme,
     Color scaffoldBackground, {
@@ -111,9 +120,17 @@ abstract final class AppTheme {
       ),
       progressIndicatorTheme: ProgressIndicatorThemeData(color: action),
       // Cores do chip vêm dos padrões do Material 3: selecionado usa
-      // secondaryContainer/onSecondaryContainer (pares testados no contrast_test).
+      // secondaryContainer/onSecondaryContainer (pares testados no
+      // contrast_test). A SELEÇÃO é marcada pela borda (E6-4.2): grossa e na
+      // cor do texto quando selecionado, fina e na cor da borda quando não.
       chipTheme: ChipThemeData(
-        side: BorderSide(color: scheme.outline),
+        side: WidgetStateBorderSide.resolveWith((states) {
+          final selected = states.contains(WidgetState.selected);
+          return BorderSide(
+            color: selected ? scheme.onSurface : scheme.outline,
+            width: selected ? kChipSelectedBorderWidth : kChipBorderWidth,
+          );
+        }),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       ),
     );

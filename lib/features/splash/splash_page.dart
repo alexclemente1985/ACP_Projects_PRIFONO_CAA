@@ -23,7 +23,13 @@ class _SplashPageState extends State<SplashPage>
   static const Interval _textInterval =
       Interval(0.7, 1, curve: Curves.easeIn);
 
-  late final AnimationController _controller = AnimationController(vsync: this);
+  // `preserve`: com "reduzir movimento" a splash dura 800 ms de propósito
+  // (marca completa e parada). O padrão (`normal`) encurtaria esses 800 ms
+  // para uma fração e a splash sumiria num piscar.
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    animationBehavior: AnimationBehavior.preserve,
+  );
 
   bool _started = false;
   bool _navigated = false;

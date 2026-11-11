@@ -43,6 +43,9 @@ class SettingsPage extends StatelessWidget {
                       ChoiceChip(
                         label: Text(label),
                         selected: settings.themeMode == mode,
+                        // A seleção é a borda grossa do tema (E6-4.2), não o
+                        // check que o ChoiceChip desenha por padrão.
+                        showCheckmark: false,
                         onSelected: (_) =>
                             unawaited(settings.setThemeMode(mode)),
                       ),
@@ -112,6 +115,7 @@ class SettingsPage extends StatelessWidget {
                       ChoiceChip(
                         label: Text(label),
                         selected: settings.language == language,
+                        showCheckmark: false,
                         onSelected: (_) =>
                             unawaited(settings.setLanguage(language)),
                       ),

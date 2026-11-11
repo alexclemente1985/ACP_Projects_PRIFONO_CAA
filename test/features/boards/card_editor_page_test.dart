@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:prifono_caa/app/app_scope.dart';
 import 'package:prifono_caa/app/l10n/app_localizations.dart';
+import 'package:prifono_caa/app/theme/app_theme.dart';
 import 'package:prifono_caa/features/boards/data/in_memory_board_repository.dart';
 import 'package:prifono_caa/features/boards/domain/board_card.dart';
 import 'package:prifono_caa/features/boards/domain/word_class.dart';
@@ -70,6 +71,37 @@ Future<void> _openEditor(
   await tester.pumpAndSettle();
 }
 
+/// Nomes das fichas de classe, na ordem da tela: "Nenhuma" + as dez classes.
+const List<String> _classChipNames = [
+  'Nenhuma',
+  'Pronome',
+  'Verbo',
+  'Substantivo',
+  'Adjetivo',
+  'Preposição ou palavra social',
+  'Pergunta',
+  'Negação ou urgência',
+  'Advérbio',
+  'Conjunção',
+  'Determinante',
+];
+
+/// Espessura da borda da ficha [name]. A ficha é um `Material` com
+/// `RoundedRectangleBorder`; o `Material` mais próximo do texto é o dela (o
+/// `find.ancestor` devolve do pai para cima, então o `.first` é o mais perto).
+double _borderOf(WidgetTester tester, String name) {
+  final material = tester.widget<Material>(
+    find.ancestor(of: find.text(name), matching: find.byType(Material)).first,
+  );
+  return (material.shape! as RoundedRectangleBorder).side.width;
+}
+
+/// Nomes das fichas hoje marcadas: as de borda grossa (ADR-041, E6-4.2).
+List<String> _selectedChips(WidgetTester tester) => [
+  for (final name in _classChipNames)
+    if (_borderOf(tester, name) == kChipSelectedBorderWidth) name,
+];
+
 void main() {
   group('CardEditorPage', () {
     testWidgets('texto vazio mostra o erro e não salva', (tester) async {
@@ -119,6 +151,7 @@ void main() {
       await tester.ensureVisible(find.text('Verbo'));
       await tester.tap(find.text('Verbo'));
       await tester.pump();
+      expect(_selectedChips(tester), ['Verbo']);
       await tester.tap(find.text('Salvar'));
       await tester.pumpAndSettle();
 
@@ -131,23 +164,15 @@ void main() {
     ) async {
       await _openEditor(tester, onSave: (_) async {});
 
-      for (final name in [
-        'Nenhuma',
-        'Pronome',
-        'Verbo',
-        'Substantivo',
-        'Adjetivo',
-        'Preposição ou palavra social',
-        'Pergunta',
-        'Negação ou urgência',
-        'Advérbio',
-        'Conjunção',
-        'Determinante',
-      ]) {
+      for (final name in _classChipNames) {
         expect(find.text(name), findsOneWidget, reason: name);
       }
-      // Card novo: só "Nenhuma" está marcada (um único visto).
-      expect(find.byIcon(Icons.check), findsOneWidget);
+      // Card novo: só "Nenhuma" está marcada (borda grossa), as outras têm a
+      // borda normal e a tela não tem nenhum visto (E6-4.2).
+      expect(_selectedChips(tester), ['Nenhuma']);
+      expect(_borderOf(tester, 'Nenhuma'), kChipSelectedBorderWidth);
+      expect(_borderOf(tester, 'Verbo'), kChipBorderWidth);
+      expect(find.byIcon(Icons.check), findsNothing);
     });
 
     testWidgets('card com classe abre com ela marcada e mantém ao salvar', (
@@ -162,15 +187,9 @@ void main() {
         },
       );
 
-      expect(find.byIcon(Icons.check), findsOneWidget);
-      // O visto está DENTRO da ficha "Pergunta" (o Material mais próximo).
-      final check = find.descendant(
-        of: find
-            .ancestor(of: find.text('Pergunta'), matching: find.byType(Material))
-            .first,
-        matching: find.byIcon(Icons.check),
-      );
-      expect(check, findsOneWidget);
+      // A marcada é a ficha "Pergunta" (borda grossa); nenhuma outra, e sem visto.
+      expect(_selectedChips(tester), ['Pergunta']);
+      expect(find.byIcon(Icons.check), findsNothing);
 
       await tester.tap(find.text('Salvar'));
       await tester.pumpAndSettle();
@@ -190,12 +209,12 @@ void main() {
         },
       );
       // Cor livre antiga: nenhuma ficha marcada ainda.
-      expect(find.byIcon(Icons.check), findsNothing);
+        expect(_selectedChips(tester), isEmpty);
 
       await tester.ensureVisible(find.text('Nenhuma'));
       await tester.tap(find.text('Nenhuma'));
       await tester.pump();
-      expect(find.byIcon(Icons.check), findsOneWidget);
+        expect(_selectedChips(tester), ['Nenhuma']);
       await tester.tap(find.text('Salvar'));
       await tester.pumpAndSettle();
 

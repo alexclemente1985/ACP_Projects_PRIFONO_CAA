@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:prifono_caa/app/app_scope.dart';
 import 'package:prifono_caa/app/l10n/app_localizations.dart';
+import 'package:prifono_caa/app/theme/app_theme.dart';
 import 'package:prifono_caa/app/theme/brand_tokens.dart';
 import 'package:prifono_caa/features/boards/domain/board.dart';
 import 'package:prifono_caa/features/boards/domain/board_capacity.dart';
@@ -749,6 +750,8 @@ class _WordClassChip extends StatelessWidget {
 
     // As fichas de classe são uma escolha única: `inMutuallyExclusiveGroup`
     // faz o leitor de tela anunciá-las como opções de um grupo (ADR-041).
+    // Visualmente, a ficha marcada é a de BORDA MAIS GROSSA, sem ícone de visto
+    // (ADR-041, E6-4.2); as espessuras vêm do tema, como nos chips de Ajustes.
     return Semantics(
       button: true,
       selected: selected,
@@ -761,7 +764,7 @@ class _WordClassChip extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           side: BorderSide(
             color: scheme.onSurface,
-            width: selected ? 4 : 1.5,
+            width: selected ? kChipSelectedBorderWidth : kChipBorderWidth,
           ),
         ),
         child: InkWell(
@@ -774,16 +777,7 @@ class _WordClassChip extends StatelessWidget {
                   horizontal: 12,
                   vertical: 8,
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (selected) ...[
-                      Icon(Icons.check, color: foreground, size: 22),
-                      const SizedBox(width: 6),
-                    ],
-                    Flexible(child: Text(name, style: textStyle)),
-                  ],
-                ),
+                child: Text(name, style: textStyle),
               ),
             ),
           ),
