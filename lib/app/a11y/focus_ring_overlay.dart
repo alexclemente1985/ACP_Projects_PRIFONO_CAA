@@ -27,6 +27,12 @@ import 'package:flutter/material.dart';
 /// ([trackingWindow]) mantém o repintar ligado depois de cada evento (foco,
 /// rolagem, tamanho da janela), para cobrir animações de diálogos e menus. Não há
 /// relógio permanente: sem eventos, nenhum quadro é agendado.
+///
+/// E6-5c: o nó em foco pode ter sido REMOVIDO da árvore no quadro atual (por
+/// exemplo, o cadeado troca de widget ao destravar). Até o fim do quadro o
+/// elemento fica "inativo": `mounted` ainda é verdadeiro, mas `findRenderObject`
+/// e as buscas por ancestral lançam erro (em debug). Por isso o anel só é
+/// calculado para elementos ativos ([_isLive]).
 class FocusRingOverlay extends StatefulWidget {
   const FocusRingOverlay({required this.child, super.key});
 
@@ -147,11 +153,20 @@ class _FocusRingOverlayState extends State<FocusRingOverlay>
     unawaited(_tracking.forward(from: 0));
   }
 
+  /// O contexto ainda faz parte da árvore ATIVA? `mounted` não basta: um
+  /// elemento removido neste quadro fica "inativo" até o fim do quadro (ainda
+  /// `mounted`), e nele `findRenderObject` e as buscas por ancestral lançam
+  /// erro em debug (E6-5c).
+  static bool _isLive(BuildContext target) {
+    if (!target.mounted) return false;
+    return target is! Element || target.debugIsActive;
+  }
+
   /// Escopos de foco (telas, diálogos) e campos de texto não ganham anel.
   FocusNode? _eligible(FocusNode? node) {
     if (node == null || node is FocusScopeNode) return null;
     final nodeContext = node.context;
-    if (nodeContext == null || !nodeContext.mounted) return null;
+    if (nodeContext == null || !_isLive(nodeContext)) return null;
     if (nodeContext.findAncestorWidgetOfExactType<EditableText>() != null) {
       return null;
     }
@@ -168,7 +183,7 @@ class _FocusRingOverlayState extends State<FocusRingOverlay>
     final nodeContext = node?.context;
     if (node == null ||
         nodeContext == null ||
-        !nodeContext.mounted ||
+        !_isLive(nodeContext) ||
         !node.hasPrimaryFocus) {
       return null;
     }

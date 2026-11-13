@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:prifono_caa/app/a11y/focus_ring_overlay.dart';
 import 'package:prifono_caa/features/editing/presentation/edit_lock_button.dart';
 import 'package:prifono_caa/features/pin/presentation/pin_dialogs.dart';
 
@@ -103,36 +104,37 @@ void main() {
       expect(app.editMode.isEditing, isTrue);
     });
 
-    testWidgets('o foco por teclado desenha um anel no cadeado', (
+    // E6-5c: desde o E6-5b o anel é o GLOBAL (FocusRingOverlay), não mais um
+    // círculo dentro do cadeado.
+    testWidgets('o foco por teclado desenha o anel global no cadeado', (
       tester,
     ) async {
+      FocusManager.instance.highlightStrategy =
+          FocusHighlightStrategy.alwaysTraditional;
+      addTearDown(
+        () => FocusManager.instance.highlightStrategy =
+            FocusHighlightStrategy.automatic,
+      );
       await pumpEditingApp(tester, boards: {'Casa': const []});
-      final ringsBefore = _focusRings(tester);
+      expect(_focusRing(tester), isNull);
 
       Focus.of(tester.element(_lockClosed)).requestFocus();
-      await tester.pump();
-      // Só mostra o anel no modo de foco por teclado (e não por toque).
-      await tester.sendKeyEvent(LogicalKeyboardKey.shiftLeft);
-      await tester.pump();
+      await tester.pumpAndSettle();
 
-      expect(_focusRings(tester), ringsBefore + 1);
+      final ring = _focusRing(tester);
+      expect(ring, isNotNull);
+      expect(ring!.contains(tester.getCenter(_lockClosed)), isTrue);
+      expect(ring.width, greaterThanOrEqualTo(48));
+      expect(ring.height, greaterThanOrEqualTo(48));
     });
   });
 }
 
-/// Quantos círculos com borda aparecem dentro do cadeado de segurar.
-int _focusRings(WidgetTester tester) {
-  return tester
-      .widgetList<DecoratedBox>(
-        find.descendant(
-          of: find.byType(HoldToUnlock),
-          matching: find.byType(DecoratedBox),
-        ),
-      )
-      .where((box) {
-    final decoration = box.decoration;
-    return decoration is BoxDecoration &&
-        decoration.shape == BoxShape.circle &&
-        decoration.border != null;
-  }).length;
+/// O último retângulo desenhado pelo anel de foco global (null = sem anel).
+Rect? _focusRing(WidgetTester tester) {
+  final paint = tester.widget<CustomPaint>(
+    find.byKey(FocusRingOverlay.paintKey),
+  );
+  final painter = paint.foregroundPainter;
+  return painter is FocusRingPainter ? painter.lastRing : null;
 }
