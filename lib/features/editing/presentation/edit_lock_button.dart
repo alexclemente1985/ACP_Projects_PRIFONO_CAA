@@ -139,7 +139,9 @@ class _TapToUnlockState extends State<TapToUnlock> {
 /// - uma vibração leve quando a contagem começa e outra, média, quando termina.
 ///
 /// Só existe SEM PIN (com PIN o cadeado é o [TapToUnlock]). Com teclado externo
-/// o cadeado recebe foco e Enter ou Espaço destravam direto (E6-5).
+/// o cadeado recebe foco e Enter ou Espaço destravam direto (E6-5). O anel de
+/// FOCO do teclado é o global (`FocusRingOverlay`, E6-5b); este widget não
+/// desenha um anel próprio.
 class HoldToUnlock extends StatefulWidget {
   const HoldToUnlock({super.key});
 
@@ -182,9 +184,6 @@ class _HoldToUnlockState extends State<HoldToUnlock>
 
   /// Já há um pedido de PIN na tela? (segurar de novo não abre outro).
   bool _asking = false;
-
-  /// Mostra o anel de foco (só com teclado externo).
-  bool _focusVisible = false;
 
   @override
   void dispose() {
@@ -330,10 +329,9 @@ class _HoldToUnlockState extends State<HoldToUnlock>
         onLongPress: _unlockForAccessibility,
         onLongPressHint: l10n.editLockLongPressHint,
         // Teclado externo (tablet): o cadeado recebe foco e Enter ou Espaço
-        // destravam, já que não há como "segurar" uma tecla (E6-5).
+        // destravam, já que não há como "segurar" uma tecla (E6-5). O anel de
+        // foco é desenhado pelo FocusRingOverlay (E6-5b).
         child: FocusableActionDetector(
-          onShowFocusHighlight: (visible) =>
-              setState(() => _focusVisible = visible),
           actions: <Type, Action<Intent>>{
             ActivateIntent: CallbackAction<ActivateIntent>(
               onInvoke: (_) {
@@ -350,35 +348,25 @@ class _HoldToUnlockState extends State<HoldToUnlock>
             child: ExcludeSemantics(
               child: SizedBox.square(
                 dimension: 48,
-                child: DecoratedBox(
-                  position: DecorationPosition.foreground,
-                  // Anel de foco: só aparece com teclado (onShowFocusHighlight).
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: _focusVisible
-                        ? Border.all(color: scheme.onSurface, width: 3)
-                        : null,
-                  ),
-                  child: AnimatedBuilder(
-                    animation: _hold,
-                    builder: (context, _) {
-                      return Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          if (_hold.value > 0)
-                            SizedBox.square(
-                              dimension: 40,
-                              child: CircularProgressIndicator(
-                                value: _hold.value,
-                                strokeWidth: 3,
-                                color: progressColor,
-                              ),
+                child: AnimatedBuilder(
+                  animation: _hold,
+                  builder: (context, _) {
+                    return Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        if (_hold.value > 0)
+                          SizedBox.square(
+                            dimension: 40,
+                            child: CircularProgressIndicator(
+                              value: _hold.value,
+                              strokeWidth: 3,
+                              color: progressColor,
                             ),
-                          const Icon(Icons.lock_outline),
-                        ],
-                      );
-                    },
-                  ),
+                          ),
+                        const Icon(Icons.lock_outline),
+                      ],
+                    );
+                  },
                 ),
               ),
             ),

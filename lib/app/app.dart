@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prifono_caa/app/a11y/focus_ring_overlay.dart';
 import 'package:prifono_caa/app/app_scope.dart';
 import 'package:prifono_caa/app/l10n/app_localizations.dart';
 import 'package:prifono_caa/app/theme/app_theme.dart';
@@ -57,9 +58,13 @@ class _PrifonoAppState extends State<PrifonoApp> with WidgetsBindingObserver {
           darkTheme: AppTheme.dark,
           themeMode: settings.themeMode,
           navigatorKey: _navigatorKey,
-          builder: (context, child) => EditIdleGuard(
-            navigatorKey: _navigatorKey,
-            child: child ?? const SizedBox.shrink(),
+          // De fora para dentro: o anel de foco (E6-5b) desenha por cima de
+          // tudo; o vigia da edição fica logo abaixo dele.
+          builder: (context, child) => FocusRingOverlay(
+            child: EditIdleGuard(
+              navigatorKey: _navigatorKey,
+              child: child ?? const SizedBox.shrink(),
+            ),
           ),
           home: const SplashPage(),
         );

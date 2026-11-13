@@ -64,12 +64,13 @@ abstract final class AppTheme {
       _build(darkScheme, BrandColors.fundoEscuro, action: darkScheme.primary);
 
   /// [action] é a cor de TEXTO e ícone de botões sem preenchimento
-  /// (TextButton, OutlinedButton) e de indicadores de progresso (inclusive o
-  /// anel e a barra do cadeado, E6-4.1). No tema claro o `primary` é o azul da
-  /// marca (#56B2CB), que dá só ~2,4:1 sobre branco e bege: não serve como texto
-  /// (ADR-007 e ADR-041, achado A7). Por isso o tema claro usa o azul forte
-  /// (7,17:1 sobre branco). No escuro o azul forte não serve (cerca de 1,6:1
-  /// sobre a superfície azul-noite, conta do Claude): lá a cor é o bege.
+  /// (TextButton, OutlinedButton), de indicadores de progresso (inclusive o
+  /// anel e a barra do cadeado, E6-4.1) e, desde o E6-5b, da borda e do rótulo
+  /// de um campo de texto em foco. No tema claro o `primary` é o azul da marca
+  /// (#56B2CB), que dá só ~2,4:1 sobre branco e bege: não serve como texto nem
+  /// como traço fino (ADR-007 e ADR-041, achado A7). Por isso o tema claro usa o
+  /// azul forte (7,17:1 sobre branco). No escuro o azul forte não serve (cerca de
+  /// 1,6:1 sobre a superfície azul-noite, conta do Claude): lá a cor é o bege.
   static ThemeData _build(
     ColorScheme scheme,
     Color scaffoldBackground, {
@@ -119,6 +120,21 @@ abstract final class AppTheme {
         style: TextButton.styleFrom(foregroundColor: action),
       ),
       progressIndicatorTheme: ProgressIndicatorThemeData(color: action),
+      // Campos de texto (E6-5b): em foco, a borda e o rótulo flutuante usavam
+      // `primary` (no claro, o azul da marca, ~2,4:1 sobre branco). O anel de
+      // foco global (FocusRingOverlay) NÃO cobre campos de texto: é esta borda
+      // que mostra o foco. Rótulo em erro mantém a cor de erro do Material.
+      inputDecorationTheme: InputDecorationThemeData(
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: action, width: 2),
+        ),
+        floatingLabelStyle: WidgetStateTextStyle.resolveWith((states) {
+          if (states.contains(WidgetState.error)) return const TextStyle();
+          return states.contains(WidgetState.focused)
+              ? TextStyle(color: action)
+              : const TextStyle();
+        }),
+      ),
       // Cores do chip vêm dos padrões do Material 3: selecionado usa
       // secondaryContainer/onSecondaryContainer (pares testados no
       // contrast_test). A SELEÇÃO é marcada pela borda (E6-4.2): grossa e na
