@@ -232,7 +232,8 @@ void main() {
 
       await tester.tap(find.text('Casa'));
       await tester.pumpAndSettle();
-      expect(find.byTooltip('Adicionar card'), findsOneWidget);
+      // Prancha 4 × 4 com 1 card: um "+" em cada uma das 15 posições livres.
+      expect(find.byTooltip('Adicionar card'), findsNWidgets(15));
 
       await tester.tap(find.byTooltip('Sair do modo de edição'));
       await tester.pumpAndSettle();
@@ -266,7 +267,8 @@ void main() {
       await tester.tap(find.text('Casa'));
       await tester.pumpAndSettle();
       await unlockEditMode(tester);
-      expect(find.byTooltip('Adicionar card'), findsOneWidget);
+      // Prancha 4 × 4 com 1 card: um "+" em cada uma das 15 posições livres.
+      expect(find.byTooltip('Adicionar card'), findsNWidgets(15));
 
       await _sendToBackgroundAndBack(tester);
 

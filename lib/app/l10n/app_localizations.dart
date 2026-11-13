@@ -259,7 +259,7 @@ abstract class AppLocalizations {
   /// No description provided for @boardFull.
   ///
   /// In pt, this message translates to:
-  /// **'Prancha cheia: {count, plural, =1{1 card} other{{count} cards}}. Aumente a grade ou remova cards para adicionar mais.'**
+  /// **'Prancha cheia: {count, plural, =1{a única posição está ocupada} other{todas as {count} posições estão ocupadas}}. Aumente a grade ou libere posições para adicionar mais.'**
   String boardFull(int count);
 
   /// No description provided for @boardCardsLoadError.
@@ -273,6 +273,12 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Adicionar card'**
   String get cardAdd;
+
+  /// No description provided for @cardAddAt.
+  ///
+  /// In pt, this message translates to:
+  /// **'Adicionar card na linha {row}, coluna {column}'**
+  String cardAddAt(int row, int column);
 
   /// No description provided for @cardEditorNewTitle.
   ///
@@ -511,7 +517,7 @@ abstract class AppLocalizations {
   /// No description provided for @boardFormShrinkBlocked.
   ///
   /// In pt, this message translates to:
-  /// **'Esta prancha tem {count, plural, =1{1 card} other{{count} cards}}. Para reduzir mais a grade, remova cards antes.'**
+  /// **'Há {count, plural, =1{1 card} other{{count} cards}} na última coluna ou linha. Para reduzir mais a grade, esvazie esse espaço antes.'**
   String boardFormShrinkBlocked(int count);
 
   /// No description provided for @boardDeleteTitle.

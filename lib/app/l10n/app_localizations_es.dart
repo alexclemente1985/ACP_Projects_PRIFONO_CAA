@@ -116,10 +116,10 @@ class AppLocalizationsEs extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count tarjetas',
-      one: '1 tarjeta',
+      other: 'las $count posiciones están ocupadas',
+      one: 'la única posición está ocupada',
     );
-    return 'Tablero lleno: $_temp0. Aumenta la cuadrícula o quita tarjetas para añadir más.';
+    return 'Tablero lleno: $_temp0. Aumenta la cuadrícula o libera posiciones para añadir más.';
   }
 
   @override
@@ -127,6 +127,11 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get cardAdd => 'Añadir tarjeta';
+
+  @override
+  String cardAddAt(int row, int column) {
+    return 'Añadir tarjeta en la fila $row, columna $column';
+  }
 
   @override
   String get cardEditorNewTitle => 'Nueva tarjeta';
@@ -258,7 +263,7 @@ class AppLocalizationsEs extends AppLocalizations {
       other: '$count tarjetas',
       one: '1 tarjeta',
     );
-    return 'Este tablero tiene $_temp0. Para reducir más la cuadrícula, quita tarjetas antes.';
+    return 'Hay $_temp0 en la última columna o fila. Para reducir más la cuadrícula, vacía ese espacio antes.';
   }
 
   @override

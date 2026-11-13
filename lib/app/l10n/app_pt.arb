@@ -43,7 +43,7 @@
     }
   },
   "boardEmptyHint": "Toque no + para adicionar o primeiro card.",
-  "boardFull": "Prancha cheia: {count, plural, =1{1 card} other{{count} cards}}. Aumente a grade ou remova cards para adicionar mais.",
+  "boardFull": "Prancha cheia: {count, plural, =1{a única posição está ocupada} other{todas as {count} posições estão ocupadas}}. Aumente a grade ou libere posições para adicionar mais.",
   "@boardFull": {
     "placeholders": {
       "count": {
@@ -53,6 +53,17 @@
   },
   "boardCardsLoadError": "Não foi possível carregar os cards.",
   "cardAdd": "Adicionar card",
+  "cardAddAt": "Adicionar card na linha {row}, coluna {column}",
+  "@cardAddAt": {
+    "placeholders": {
+      "row": {
+        "type": "int"
+      },
+      "column": {
+        "type": "int"
+      }
+    }
+  },
   "cardEditorNewTitle": "Novo card",
   "cardEditorEditTitle": "Editar card",
   "cardLabelLabel": "Texto do card",
@@ -99,7 +110,7 @@
   "boardColumnsIncrease": "Aumentar colunas",
   "boardRowsDecrease": "Diminuir linhas",
   "boardRowsIncrease": "Aumentar linhas",
-  "boardFormShrinkBlocked": "Esta prancha tem {count, plural, =1{1 card} other{{count} cards}}. Para reduzir mais a grade, remova cards antes.",
+  "boardFormShrinkBlocked": "Há {count, plural, =1{1 card} other{{count} cards}} na última coluna ou linha. Para reduzir mais a grade, esvazie esse espaço antes.",
   "@boardFormShrinkBlocked": {
     "placeholders": {
       "count": {

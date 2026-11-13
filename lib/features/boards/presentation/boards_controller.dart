@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:prifono_caa/features/boards/domain/board.dart';
 import 'package:prifono_caa/features/boards/domain/board_capacity.dart';
+import 'package:prifono_caa/features/boards/domain/board_card.dart';
 import 'package:prifono_caa/features/boards/domain/board_layout.dart';
 import 'package:prifono_caa/features/boards/domain/board_repository.dart';
 
@@ -33,10 +34,17 @@ class BoardsController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Quantos cards a prancha tem hoje (usado pelo formulário de edição).
+  /// Quantos cards a prancha tem hoje.
   Future<int> cardCount(int boardId) async {
     final cards = await _repository.listCards(boardId);
     return cards.length;
+  }
+
+  /// Onde estão os cards da prancha hoje (usado pelo formulário de edição
+  /// para saber se uma grade menor ainda os comporta, ADR-042 regra f).
+  Future<List<CardPlacement>> cardPlacements(int boardId) async {
+    final cards = await _repository.listCards(boardId);
+    return [for (final card in cards) card.placement];
   }
 
   /// Operações de escrita: erros (Exception) sobem para a tela avisar o

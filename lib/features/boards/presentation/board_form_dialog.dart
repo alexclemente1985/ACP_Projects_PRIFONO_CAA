@@ -1,8 +1,11 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:prifono_caa/app/l10n/app_localizations.dart';
 import 'package:prifono_caa/features/boards/domain/board.dart';
-import 'package:prifono_caa/features/boards/domain/board_capacity.dart';
+import 'package:prifono_caa/features/boards/domain/board_card.dart';
 import 'package:prifono_caa/features/boards/domain/board_cell_size.dart';
+import 'package:prifono_caa/features/boards/domain/board_layout.dart';
 
 /// Dados confirmados no formulário de prancha.
 final class BoardFormResult {
@@ -18,24 +21,25 @@ final class BoardFormResult {
 }
 
 /// Abre o formulário de prancha. Com [board], edita; sem, cria.
-/// [cardCount] é quantos cards a prancha já tem: a grade não pode ficar
-/// menor que isso (ADR-025). Devolve null se o usuário cancelar.
+/// [placements] são as posições dos cards que a prancha já tem: a grade não
+/// pode ficar menor do que um card precisa para caber INTEIRO (ADR-042,
+/// regra f). Devolve null se o usuário cancelar.
 Future<BoardFormResult?> showBoardFormDialog(
   BuildContext context, {
   Board? board,
-  int cardCount = 0,
+  List<CardPlacement> placements = const [],
 }) {
   return showDialog<BoardFormResult>(
     context: context,
-    builder: (_) => _BoardFormDialog(board: board, cardCount: cardCount),
+    builder: (_) => _BoardFormDialog(board: board, placements: placements),
   );
 }
 
 class _BoardFormDialog extends StatefulWidget {
-  const _BoardFormDialog({required this.cardCount, this.board});
+  const _BoardFormDialog({required this.placements, this.board});
 
   final Board? board;
-  final int cardCount;
+  final List<CardPlacement> placements;
 
   @override
   State<_BoardFormDialog> createState() => _BoardFormDialogState();
@@ -54,26 +58,32 @@ class _BoardFormDialogState extends State<_BoardFormDialog> {
     super.dispose();
   }
 
-  /// Os cards atuais cabem numa grade de [columns] × [rows]?
-  bool _fits(int columns, int rows) {
-    return BoardCapacity.overflowAfterResize(
-          cardCount: widget.cardCount,
-          columns: columns,
-          rows: rows,
-        ) ==
-        0;
+  /// Quantos cards NÃO ficariam inteiros numa grade de [columns] × [rows].
+  int _outside(int columns, int rows) {
+    return BoardLayout.cardsOutside(
+      widget.placements,
+      columns: columns,
+      rows: rows,
+    );
   }
 
+  /// Cards que sairiam da grade ao tirar uma coluna (0 se não há como tirar).
+  int get _outsideIfFewerColumns =>
+      _columns > Board.minGrid ? _outside(_columns - 1, _rows) : 0;
+
+  /// Cards que sairiam da grade ao tirar uma linha (0 se não há como tirar).
+  int get _outsideIfFewerRows =>
+      _rows > Board.minGrid ? _outside(_columns, _rows - 1) : 0;
+
   bool get _canDecreaseColumns =>
-      _columns > Board.minGrid && _fits(_columns - 1, _rows);
+      _columns > Board.minGrid && _outsideIfFewerColumns == 0;
 
   bool get _canDecreaseRows =>
-      _rows > Board.minGrid && _fits(_columns, _rows - 1);
+      _rows > Board.minGrid && _outsideIfFewerRows == 0;
 
   /// Algum "−" está desativado só por causa dos cards (não pelo mínimo)?
   bool get _shrinkBlocked =>
-      (_columns > Board.minGrid && !_canDecreaseColumns) ||
-      (_rows > Board.minGrid && !_canDecreaseRows);
+      _outsideIfFewerColumns > 0 || _outsideIfFewerRows > 0;
 
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
@@ -159,7 +169,9 @@ class _BoardFormDialogState extends State<_BoardFormDialog> {
                 Semantics(
                   liveRegion: true,
                   child: Text(
-                    l10n.boardFormShrinkBlocked(widget.cardCount),
+                    l10n.boardFormShrinkBlocked(
+                      math.max(_outsideIfFewerColumns, _outsideIfFewerRows),
+                    ),
                     style: textTheme.bodyMedium,
                   ),
                 ),

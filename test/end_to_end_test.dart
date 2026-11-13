@@ -207,10 +207,11 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.text('Casa'), findsOneWidget);
 
-        // 2) Abrir a prancha (a edição continua ligada) e tocar no "+".
+        // 2) Abrir a prancha (a edição continua ligada) e tocar no "+" (há um
+        // em cada posição em branco, ADR-042; o primeiro é o da posição 1,1).
         await tester.tap(find.text('Casa'));
         await tester.pumpAndSettle();
-        await tester.tap(find.byTooltip('Adicionar card'));
+        await tester.tap(find.byTooltip('Adicionar card').first);
         await tester.pumpAndSettle();
         expect(find.text('Novo card'), findsOneWidget);
 
@@ -354,7 +355,8 @@ void main() {
         await _typePin(tester, '1234');
         expect(find.byType(PinVerifyDialog), findsNothing);
         expect(app.editMode.isEditing, isTrue);
-        expect(find.byTooltip('Adicionar card'), findsOneWidget);
+        // Prancha 4 × 4 com 1 card: 15 posições em branco, um "+" em cada.
+        expect(find.byTooltip('Adicionar card'), findsNWidgets(15));
 
         // Editar o card: abre o editor, troca o texto e salva.
         await tester.tap(find.text('Água'));

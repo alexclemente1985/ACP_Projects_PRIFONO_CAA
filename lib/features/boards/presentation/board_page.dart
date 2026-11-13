@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:prifono_caa/app/app_scope.dart';
 import 'package:prifono_caa/app/l10n/app_localizations.dart';
 import 'package:prifono_caa/app/theme/brand_tokens.dart';
@@ -10,6 +11,7 @@ import 'package:prifono_caa/features/boards/domain/board.dart';
 import 'package:prifono_caa/features/boards/domain/board_card.dart';
 import 'package:prifono_caa/features/boards/domain/board_cell_size.dart';
 import 'package:prifono_caa/features/boards/presentation/board_cards_controller.dart';
+import 'package:prifono_caa/features/boards/presentation/board_grid_geometry.dart';
 import 'package:prifono_caa/features/boards/presentation/card_colors.dart';
 import 'package:prifono_caa/features/boards/presentation/card_editor_page.dart';
 import 'package:prifono_caa/features/boards/presentation/card_label_fit.dart';
@@ -20,12 +22,19 @@ import 'package:prifono_caa/features/sentence/presentation/sentence_bar.dart';
 import 'package:prifono_caa/features/speech/presentation/speak_with_feedback.dart';
 import 'package:prifono_caa/features/symbols/domain/symbol_provider.dart';
 
-/// Tela da prancha: grade de cards em ordem de leitura (ADR-026), sem
-/// rolagem (ADR-025). A grade ocupa toda a área livre da tela.
+/// Tela da prancha: cards em posições da grade (ADR-042), sem rolagem
+/// (ADR-025). A grade ocupa toda a área livre da tela e toda posição sem card
+/// continua visível: em uso fica apagada; em edição vira um "+".
 class BoardPage extends StatefulWidget {
   const BoardPage({required this.board, super.key});
 
   final Board board;
+
+  /// Chave da posição em branco ([col], [row]) (para testes).
+  static Key blankCellKey(int col, int row) => ValueKey('blank-$col-$row');
+
+  /// Chave do card de id [cardId] (para testes).
+  static Key cardKey(int cardId) => ValueKey('card-$cardId');
 
   @override
   State<BoardPage> createState() => _BoardPageState();
@@ -55,12 +64,14 @@ class _BoardPageState extends State<BoardPage> {
 
   // --- Ações de EDIÇÃO (ADR-027): só no modo de edição (E5-3). ---
 
-  Future<void> _addCard() {
+  /// Abre o editor para um card novo EXATAMENTE na posição em branco
+  /// [placement] (a que o usuário tocou).
+  Future<void> _addCard(CardPlacement placement) {
     return Navigator.of(context).push<void>(
       MaterialPageRoute<void>(
         builder: (_) => CardEditorPage(
           currentBoardId: widget.board.id,
-          onSave: _controller.add,
+          onSave: (content) => _controller.add(content, placement: placement),
         ),
       ),
     );
@@ -237,9 +248,12 @@ class _StatusMessage extends StatelessWidget {
   }
 }
 
-/// Grade colunas × linhas. Célula i recebe o card de índice i (ordem de
-/// leitura); a primeira célula livre é o único "+" (ADR-026), que só
-/// aparece no modo de edição.
+/// Grade colunas × linhas desenhada por COORDENADAS (ADR-042): cada card fica
+/// no retângulo da sua posição e as posições sem card são sempre desenhadas
+/// (em edição, cada uma é um "+" que cria o card ali).
+///
+/// Acessibilidade: a grade é UM grupo, lido em ordem de leitura (linha e,
+/// dentro da linha, coluna), inclusive com cards que ocupam várias células.
 class _BoardGrid extends StatelessWidget {
   const _BoardGrid({
     required this.board,
@@ -253,9 +267,10 @@ class _BoardGrid extends StatelessWidget {
   final Board board;
   final List<BoardCard> cards;
 
-  /// Modo de edição: o "+" aparece e tocar no card abre o editor.
+  /// Modo de edição: as posições em branco viram "+" e tocar no card abre o
+  /// editor.
   final bool editing;
-  final VoidCallback onAdd;
+  final ValueChanged<CardPlacement> onAdd;
   final ValueChanged<BoardCard> onUse;
   final ValueChanged<BoardCard> onEdit;
 
@@ -264,40 +279,65 @@ class _BoardGrid extends StatelessWidget {
     final store = AppScope.of(context).symbolImages;
     final columns = board.gridColumns;
     final rows = board.gridRows;
+    final blanks = BoardGridGeometry.blankCells(
+      columns: columns,
+      rows: rows,
+      placements: [for (final card in cards) card.placement],
+    );
 
-    Widget cellAt(int index) {
-      if (index < cards.length) {
-        final card = cards[index];
-        final symbol = card.content.symbol;
-        return _CardTile(
-          card: card,
-          imageFile: symbol == null
-              ? null
-              : store.fileFor(symbol, size: SymbolImageSize.medium),
-          linked: card.content.linkBoardId != null,
-          onTap: () => editing ? onEdit(card) : onUse(card),
-        );
-      }
-      if (editing && index == cards.length) return _AddTile(onPressed: onAdd);
-      return const _EmptyCell();
+    File? imageOf(BoardCard card) {
+      final symbol = card.content.symbol;
+      if (symbol == null) return null;
+      return store.fileFor(symbol, size: SymbolImageSize.medium);
     }
 
-    return Column(
-      children: [
-        for (var r = 0; r < rows; r++) ...[
-          if (r > 0) const SizedBox(height: BoardCellSize.gap),
-          Expanded(
-            child: Row(
-              children: [
-                for (var c = 0; c < columns; c++) ...[
-                  if (c > 0) const SizedBox(width: BoardCellSize.gap),
-                  Expanded(child: cellAt(r * columns + c)),
-                ],
-              ],
-            ),
-          ),
-        ],
-      ],
+    return Semantics(
+      container: true,
+      explicitChildNodes: true,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          Rect rectOf(CardPlacement placement) {
+            return BoardGridGeometry.rectFor(
+              placement,
+              width: constraints.maxWidth,
+              height: constraints.maxHeight,
+              columns: columns,
+              rows: rows,
+              gap: BoardCellSize.gap,
+            );
+          }
+
+          return Stack(
+            fit: StackFit.expand,
+            children: [
+              for (final blank in blanks)
+                Positioned.fromRect(
+                  key: BoardPage.blankCellKey(blank.col, blank.row),
+                  rect: rectOf(blank),
+                  child: editing
+                      ? _AddTile(
+                          placement: blank,
+                          order: blank.row * columns + blank.col,
+                          onPressed: () => onAdd(blank),
+                        )
+                      : const _BlankCell(),
+                ),
+              for (final card in cards)
+                Positioned.fromRect(
+                  key: BoardPage.cardKey(card.id),
+                  rect: rectOf(card.placement),
+                  child: _CardTile(
+                    card: card,
+                    order: card.placement.row * columns + card.placement.col,
+                    imageFile: imageOf(card),
+                    linked: card.content.linkBoardId != null,
+                    onTap: () => editing ? onEdit(card) : onUse(card),
+                  ),
+                ),
+            ],
+          );
+        },
+      ),
     );
   }
 }
@@ -305,12 +345,17 @@ class _BoardGrid extends StatelessWidget {
 class _CardTile extends StatelessWidget {
   const _CardTile({
     required this.card,
+    required this.order,
     required this.imageFile,
     required this.linked,
     required this.onTap,
   });
 
   final BoardCard card;
+
+  /// Posição na ordem de leitura da grade (linha × colunas + coluna): é a
+  /// ordem em que o leitor de tela percorre os cards.
+  final int order;
   final File? imageFile;
 
   /// O card abre outra prancha: mostra um ícone de pasta (E5-4).
@@ -339,6 +384,7 @@ class _CardTile extends StatelessWidget {
     // gramatical entra como VALOR ("Água, Substantivo"): a cor sozinha não
     // diz nada a quem não enxerga (ADR-041).
     return Semantics(
+      sortKey: OrdinalSortKey(order.toDouble()),
       button: true,
       label: label,
       value: wordClass == null ? null : wordClassName(l10n, wordClass),
@@ -536,9 +582,20 @@ class _CardLabel extends StatelessWidget {
   }
 }
 
+/// "+" de UMA posição em branco (só no modo de edição). O texto visível do
+/// tooltip é o mesmo em todas ("Adicionar card"); para quem usa leitor de
+/// tela, cada "+" diz a própria posição ("linha 2, coluna 3").
 class _AddTile extends StatelessWidget {
-  const _AddTile({required this.onPressed});
+  const _AddTile({
+    required this.placement,
+    required this.order,
+    required this.onPressed,
+  });
 
+  final CardPlacement placement;
+
+  /// Posição na ordem de leitura da grade (ver [_CardTile.order]).
+  final int order;
   final VoidCallback onPressed;
 
   @override
@@ -550,8 +607,9 @@ class _AddTile extends StatelessWidget {
       message: l10n.cardAdd,
       excludeFromSemantics: true,
       child: Semantics(
+        sortKey: OrdinalSortKey(order.toDouble()),
         button: true,
-        label: l10n.cardAdd,
+        label: l10n.cardAddAt(placement.row + 1, placement.col + 1),
         child: Material(
           color: Colors.transparent,
           clipBehavior: Clip.antiAlias,
@@ -573,9 +631,10 @@ class _AddTile extends StatelessWidget {
   }
 }
 
-/// Célula livre além do "+": só uma moldura discreta.
-class _EmptyCell extends StatelessWidget {
-  const _EmptyCell();
+/// Posição em branco no modo de USO: apagada, sem toque e fora da leitura de
+/// tela (não há nada a dizer sobre um espaço vazio).
+class _BlankCell extends StatelessWidget {
+  const _BlankCell();
 
   @override
   Widget build(BuildContext context) {
@@ -583,6 +642,7 @@ class _EmptyCell extends StatelessWidget {
     return ExcludeSemantics(
       child: DecoratedBox(
         decoration: BoxDecoration(
+          color: scheme.surfaceContainerHighest.withValues(alpha: 0.4),
           border: Border.all(color: scheme.outlineVariant),
           borderRadius: BorderRadius.circular(12),
         ),

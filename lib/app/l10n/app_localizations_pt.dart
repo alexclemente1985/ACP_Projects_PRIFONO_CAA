@@ -117,10 +117,10 @@ class AppLocalizationsPt extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count cards',
-      one: '1 card',
+      other: 'todas as $count posições estão ocupadas',
+      one: 'a única posição está ocupada',
     );
-    return 'Prancha cheia: $_temp0. Aumente a grade ou remova cards para adicionar mais.';
+    return 'Prancha cheia: $_temp0. Aumente a grade ou libere posições para adicionar mais.';
   }
 
   @override
@@ -128,6 +128,11 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get cardAdd => 'Adicionar card';
+
+  @override
+  String cardAddAt(int row, int column) {
+    return 'Adicionar card na linha $row, coluna $column';
+  }
 
   @override
   String get cardEditorNewTitle => 'Novo card';
@@ -258,7 +263,7 @@ class AppLocalizationsPt extends AppLocalizations {
       other: '$count cards',
       one: '1 card',
     );
-    return 'Esta prancha tem $_temp0. Para reduzir mais a grade, remova cards antes.';
+    return 'Há $_temp0 na última coluna ou linha. Para reduzir mais a grade, esvazie esse espaço antes.';
   }
 
   @override

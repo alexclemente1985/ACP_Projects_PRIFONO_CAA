@@ -197,7 +197,8 @@ void main() {
         find.text('Toque no + para adicionar o primeiro card.'),
         findsOneWidget,
       );
-      expect(find.byTooltip('Adicionar card'), findsOneWidget);
+      // ADR-042: um "+" em CADA posição em branco (prancha 4 × 4 vazia).
+      expect(find.byTooltip('Adicionar card'), findsNWidgets(16));
     });
 
     testWidgets('não deixa reduzir a grade abaixo da quantidade de cards', (
@@ -224,7 +225,11 @@ void main() {
         find.widgetWithIcon(IconButton, Icons.remove).first,
       );
       expect(decreaseColumns.onPressed, isNull);
-      expect(find.textContaining('Esta prancha tem 4 cards'), findsOneWidget);
+      // Reduzir 2 × 2 para 1 × 2 (ou 2 × 1) deixaria 2 cards de fora.
+      expect(
+        find.textContaining('Há 2 cards na última coluna ou linha'),
+        findsOneWidget,
+      );
     });
 
     testWidgets('permite reduzir até o limite dos cards e salva', (
@@ -276,7 +281,7 @@ void main() {
   });
 
   group('cards na prancha', () {
-    testWidgets('mostra os cards em ordem de leitura e um único "+"', (
+    testWidgets('mostra os cards em ordem e um "+" por posição livre', (
       tester,
     ) async {
       final repository = InMemoryBoardRepository();
@@ -296,7 +301,9 @@ void main() {
 
       expect(find.text('Água'), findsOneWidget);
       expect(find.text('Comer'), findsOneWidget);
-      expect(find.byTooltip('Adicionar card'), findsOneWidget);
+      // Prancha 3 × 2 com 2 cards: sobram 4 posições em branco, cada uma com
+      // o seu "+".
+      expect(find.byTooltip('Adicionar card'), findsNWidgets(4));
       final agua = tester.getTopLeft(find.text('Água'));
       final comer = tester.getTopLeft(find.text('Comer'));
       expect(agua.dx, lessThan(comer.dx));
@@ -359,7 +366,7 @@ void main() {
       await tester.pumpAndSettle();
       await unlockEditMode(tester);
 
-      await tester.tap(find.byTooltip('Adicionar card'));
+      await tester.tap(find.byTooltip('Adicionar card').first);
       await tester.pumpAndSettle();
       expect(find.text('Novo card'), findsOneWidget);
       await tester.enterText(find.byType(TextFormField).first, 'Água');

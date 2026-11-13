@@ -15,11 +15,11 @@ import 'package:prifono_caa/features/symbols/data/symbol_image_store.dart';
 
 import '../support/unlock_edit_mode.dart';
 
-// AUDITORIA DE ACESSIBILIDADE (E6-1, ADR-041). Versão 4 (09/11/2026).
+// AUDITORIA DE ACESSIBILIDADE (E6-1, ADR-041). Versão 5 (E6b-2, ADR-042).
 //
 // Roda os guidelines oficiais do `flutter_test` (alvo de toque Android 48 dp,
 // alvo de toque iOS 44 dp, rótulo em todo alvo tocável e contraste de texto
-// WCAG AA) em 13 telas, em telefone (390×844) e tablet (1280×800), com texto a
+// WCAG AA) em 15 telas, em telefone (390×844) e tablet (1280×800), com texto a
 // 100% e a 200%.
 //
 // Cada teste junta TODOS os achados da tela numa mensagem só (em vez de parar
@@ -40,6 +40,10 @@ import '../support/unlock_edit_mode.dart';
 //   decisão 3 do ADR-041 é AVISAR no formulário da prancha, não bloquear, então
 //   a prancha continua desenhando a grade pedida. O aviso é coberto por
 //   `test/a11y/text_scale_test.dart`. No tablet (1280 dp) a mesma prancha passa.
+// - v5 (E6b-2, ADR-042): a prancha "Temática" tem um card 2×2 e posições em
+//   branco, e entra em dois cenários novos (uso e edição). Em edição cada
+//   posição em branco é um "+" com rótulo próprio ("linha 2, coluna 3") e
+//   precisa passar nos mesmos guidelines de alvo de toque e de rótulo.
 
 /// Palavras da prancha "Casa": uma de cada classe gramatical e uma sem classe.
 const List<(String, WordClass?)> _words = [
@@ -133,6 +137,15 @@ final List<_Scenario> _scenarios = [
     (tester) => _openBoard(tester, 'Larga'),
     exceptDevices: {'telefone'},
   ),
+  // Card 2×2 e posições em branco (ADR-042). Em edição: um "+" por posição.
+  _Scenario(
+    'prancha com buracos (uso)',
+    (tester) => _openBoard(tester, 'Temática'),
+  ),
+  _Scenario('prancha com buracos (edição)', (tester) async {
+    await _openBoard(tester, 'Temática');
+    await unlockEditMode(tester);
+  }),
   _Scenario('editor de card (início)', _openCardEditor),
   _Scenario('editor de card (página inteira)', _openCardEditor, tall: true),
   _Scenario('busca de pictogramas', (tester) async {
@@ -185,6 +198,28 @@ Future<InMemoryBoardRepository> _seed() async {
     await repository.addCard(
       larga.id,
       CardContent(label: label, wordClass: wordClass),
+    );
+  }
+  // Card grande (2×2) e dois pequenos, com posições em branco em volta.
+  final tematica = await repository.createBoard(
+    name: 'Temática',
+    gridColumns: 4,
+    gridRows: 3,
+  );
+  const themed = [
+    (
+      'Brincar',
+      WordClass.verb,
+      CardPlacement(col: 0, row: 0, colSpan: 2, rowSpan: 2),
+    ),
+    ('Bola', WordClass.noun, CardPlacement(col: 3, row: 1)),
+    ('Parque', WordClass.noun, CardPlacement(col: 1, row: 2)),
+  ];
+  for (final (label, wordClass, placement) in themed) {
+    await repository.addCard(
+      tematica.id,
+      CardContent(label: label, wordClass: wordClass),
+      placement: placement,
     );
   }
   return repository;

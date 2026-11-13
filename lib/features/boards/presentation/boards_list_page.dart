@@ -70,12 +70,12 @@ class _BoardsListPageState extends State<BoardsListPage> {
 
   Future<void> _edit(Board board) async {
     await _run(() async {
-      final cardCount = await _controller.cardCount(board.id);
+      final placements = await _controller.cardPlacements(board.id);
       if (!mounted) return;
       final result = await showBoardFormDialog(
         context,
         board: board,
-        cardCount: cardCount,
+        placements: placements,
       );
       if (result == null) return;
       await _controller.update(

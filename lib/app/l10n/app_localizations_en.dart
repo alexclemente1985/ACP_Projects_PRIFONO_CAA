@@ -116,10 +116,10 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count cards',
-      one: '1 card',
+      other: 'all $count positions are taken',
+      one: 'the only position is taken',
     );
-    return 'Board full: $_temp0. Enlarge the grid or remove cards to add more.';
+    return 'Board full: $_temp0. Enlarge the grid or free up positions to add more.';
   }
 
   @override
@@ -127,6 +127,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cardAdd => 'Add card';
+
+  @override
+  String cardAddAt(int row, int column) {
+    return 'Add card in row $row, column $column';
+  }
 
   @override
   String get cardEditorNewTitle => 'New card';
@@ -254,10 +259,10 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count cards',
-      one: '1 card',
+      other: 'are $count cards',
+      one: 'is 1 card',
     );
-    return 'This board has $_temp0. To make the grid smaller, remove cards first.';
+    return 'There $_temp0 in the last column or row. To make the grid smaller, clear that space first.';
   }
 
   @override
