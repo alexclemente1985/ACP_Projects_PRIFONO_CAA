@@ -120,6 +120,26 @@ abstract final class AppTheme {
         style: TextButton.styleFrom(foregroundColor: action),
       ),
       progressIndicatorTheme: ProgressIndicatorThemeData(color: action),
+      // Switch ligado (E6-6a): o trilho padrão usa `primary` (no claro, o azul
+      // da marca, ~2,35:1 sobre o fundo; ADR-041, achado lateral do E6-5).
+      // Trilho na cor de ação; polegar com contraste sobre ela (branco no
+      // claro, onde a `onPrimary` é a tinta e daria ~2,4:1). Desligado e
+      // desativado seguem o padrão do Material (devolver null).
+      switchTheme: SwitchThemeData(
+        trackColor: WidgetStateProperty.resolveWith<Color?>((states) {
+          if (states.contains(WidgetState.disabled)) return null;
+          return states.contains(WidgetState.selected) ? action : null;
+        }),
+        thumbColor: WidgetStateProperty.resolveWith<Color?>((states) {
+          if (states.contains(WidgetState.disabled) ||
+              !states.contains(WidgetState.selected)) {
+            return null;
+          }
+          return ThemeData.estimateBrightnessForColor(action) == Brightness.dark
+              ? BrandColors.branco
+              : scheme.onPrimary;
+        }),
+      ),
       // Campos de texto (E6-5b): em foco, a borda e o rótulo flutuante usavam
       // `primary` (no claro, o azul da marca, ~2,4:1 sobre branco). O anel de
       // foco global (FocusRingOverlay) NÃO cobre campos de texto: é esta borda
