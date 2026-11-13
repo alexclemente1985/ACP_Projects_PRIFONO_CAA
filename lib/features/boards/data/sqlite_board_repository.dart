@@ -1,6 +1,8 @@
 import 'package:prifono_caa/core/errors/not_found_exception.dart';
 import 'package:prifono_caa/features/boards/domain/board.dart';
+import 'package:prifono_caa/features/boards/domain/board_capacity.dart';
 import 'package:prifono_caa/features/boards/domain/board_card.dart';
+import 'package:prifono_caa/features/boards/domain/board_layout.dart';
 import 'package:prifono_caa/features/boards/domain/board_repository.dart';
 import 'package:prifono_caa/features/boards/domain/word_class.dart';
 import 'package:prifono_caa/features/symbols/domain/symbol_ref.dart';
@@ -86,22 +88,44 @@ class SqliteBoardRepository implements BoardRepository {
   // ----------------------------------------------------------------- cards
 
   @override
-  Future<List<BoardCard>> listCards(int boardId) async {
-    final rows = await _db.query(
-      'cards',
-      where: 'board_id = ?',
-      whereArgs: [boardId],
-      orderBy: 'position ASC, id ASC',
-    );
-    return rows.map(_cardFromRow).toList();
-  }
+  Future<List<BoardCard>> listCards(int boardId) => _cardsOf(_db, boardId);
 
   @override
-  Future<BoardCard> addCard(int boardId, CardContent content) {
+  Future<BoardCard> addCard(
+    int boardId,
+    CardContent content, {
+    CardPlacement? placement,
+  }) {
     return _db.transaction<BoardCard>((txn) async {
-      if (await _boardById(txn, boardId) == null) {
-        throw NotFoundException('board', boardId);
+      final board = await _boardById(txn, boardId);
+      if (board == null) throw NotFoundException('board', boardId);
+
+      final others = _placementsOf(await _cardsOf(txn, boardId));
+      final CardPlacement target;
+      if (placement == null) {
+        final free = BoardLayout.firstFree(
+          columns: board.gridColumns,
+          rows: board.gridRows,
+          others: others,
+        );
+        if (free == null) {
+          throw BoardFullException(
+            BoardCapacity.of(board.gridColumns, board.gridRows),
+          );
+        }
+        target = free;
+      } else {
+        BoardLayout.requirePlaceable(
+          placement,
+          columns: board.gridColumns,
+          rows: board.gridRows,
+          others: others,
+        );
+        target = placement;
       }
+
+      // `position` é LEGADO (ADR-042): o app não a lê mais, mas a coluna é
+      // NOT NULL sem valor padrão, então segue recebendo um número sequencial.
       final position = Sqflite.firstIntValue(
             await txn.rawQuery(
               'SELECT COALESCE(MAX(position), -1) + 1 '
@@ -113,6 +137,7 @@ class SqliteBoardRepository implements BoardRepository {
       final stamp = _stamp();
       final id = await txn.insert('cards', {
         ..._contentToRow(content),
+        ..._placementToRow(target),
         'board_id': boardId,
         'position': position,
         'created_at': stamp,
@@ -140,37 +165,102 @@ class SqliteBoardRepository implements BoardRepository {
   }
 
   @override
-  Future<void> reorderCards(int boardId, List<int> orderedCardIds) {
-    return _db.transaction<void>((txn) async {
-      final rows = await txn.query(
-        'cards',
-        columns: ['id'],
-        where: 'board_id = ?',
-        whereArgs: [boardId],
+  Future<BoardCard> moveCard(
+    int cardId, {
+    required int col,
+    required int row,
+  }) {
+    return _db.transaction<BoardCard>((txn) async {
+      final card = await _cardById(txn, cardId);
+      if (card == null) throw NotFoundException('card', cardId);
+      // O card existe, então a prancha existe (FK com cascata).
+      final board = (await _boardById(txn, card.boardId))!;
+      final others = _placementsOf(
+        await _cardsOf(txn, card.boardId),
+        except: {cardId},
       );
-      final existing = rows.map((r) => r['id']! as int).toSet();
-      final requested = orderedCardIds.toSet();
-      if (requested.length != orderedCardIds.length ||
-          requested.length != existing.length ||
-          !existing.containsAll(requested)) {
+
+      final target = card.placement.copyWith(col: col, row: row);
+      BoardLayout.requirePlaceable(
+        target,
+        columns: board.gridColumns,
+        rows: board.gridRows,
+        others: others,
+      );
+
+      await _writePlacement(txn, cardId, target, _stamp());
+      return (await _cardById(txn, cardId))!;
+    });
+  }
+
+  @override
+  Future<void> swapCards(int cardIdA, int cardIdB) {
+    return _db.transaction<void>((txn) async {
+      if (cardIdA == cardIdB) {
         throw ArgumentError.value(
-          orderedCardIds,
-          'orderedCardIds',
-          'deve conter exatamente os cards da prancha $boardId, sem repetir',
+          cardIdB,
+          'cardIdB',
+          'precisa ser outro card',
         );
+      }
+      final a = await _cardById(txn, cardIdA);
+      if (a == null) throw NotFoundException('card', cardIdA);
+      final b = await _cardById(txn, cardIdB);
+      if (b == null) throw NotFoundException('card', cardIdB);
+      if (a.boardId != b.boardId) {
+        throw ArgumentError('os cards são de pranchas diferentes');
+      }
+      final board = (await _boardById(txn, a.boardId))!;
+      final others = _placementsOf(
+        await _cardsOf(txn, a.boardId),
+        except: {cardIdA, cardIdB},
+      );
+
+      final swapped = BoardLayout.swap(
+        a.placement,
+        b.placement,
+        columns: board.gridColumns,
+        rows: board.gridRows,
+        others: others,
+      );
+      if (swapped == null) {
+        throw ArgumentError('os cards não cabem nas posições trocadas');
       }
 
-      // Batch: várias escritas enviadas juntas ao banco.
-      final batch = txn.batch();
-      for (var i = 0; i < orderedCardIds.length; i++) {
-        batch.update(
-          'cards',
-          {'position': i},
-          where: 'id = ? AND board_id = ?',
-          whereArgs: [orderedCardIds[i], boardId],
-        );
-      }
-      await batch.commit(noResult: true);
+      final stamp = _stamp();
+      await _writePlacement(txn, cardIdA, swapped.$1, stamp);
+      await _writePlacement(txn, cardIdB, swapped.$2, stamp);
+    });
+  }
+
+  @override
+  Future<BoardCard> resizeCard(
+    int cardId, {
+    required int colSpan,
+    required int rowSpan,
+  }) {
+    return _db.transaction<BoardCard>((txn) async {
+      final card = await _cardById(txn, cardId);
+      if (card == null) throw NotFoundException('card', cardId);
+      final board = (await _boardById(txn, card.boardId))!;
+      final others = _placementsOf(
+        await _cardsOf(txn, card.boardId),
+        except: {cardId},
+      );
+
+      final target = card.placement.copyWith(
+        colSpan: colSpan,
+        rowSpan: rowSpan,
+      );
+      BoardLayout.requirePlaceable(
+        target,
+        columns: board.gridColumns,
+        rows: board.gridRows,
+        others: others,
+      );
+
+      await _writePlacement(txn, cardId, target, _stamp());
+      return (await _cardById(txn, cardId))!;
     });
   }
 
@@ -194,6 +284,45 @@ class SqliteBoardRepository implements BoardRepository {
       limit: 1,
     );
     return rows.isEmpty ? null : _cardFromRow(rows.first);
+  }
+
+  /// Cards da prancha em ordem de leitura (linha, coluna, id).
+  Future<List<BoardCard>> _cardsOf(
+    DatabaseExecutor executor,
+    int boardId,
+  ) async {
+    final rows = await executor.query(
+      'cards',
+      where: 'board_id = ?',
+      whereArgs: [boardId],
+      orderBy: 'grid_row ASC, grid_col ASC, id ASC',
+    );
+    return rows.map(_cardFromRow).toList();
+  }
+
+  /// Posições dos [cards], sem os ids de [except].
+  static List<CardPlacement> _placementsOf(
+    List<BoardCard> cards, {
+    Set<int> except = const {},
+  }) {
+    return [
+      for (final card in cards)
+        if (!except.contains(card.id)) card.placement,
+    ];
+  }
+
+  Future<void> _writePlacement(
+    DatabaseExecutor executor,
+    int cardId,
+    CardPlacement placement,
+    int stamp,
+  ) async {
+    await executor.update(
+      'cards',
+      {..._placementToRow(placement), 'updated_at': stamp},
+      where: 'id = ?',
+      whereArgs: [cardId],
+    );
   }
 
   static DateTime _dateFromMs(int ms) =>
@@ -225,7 +354,12 @@ class SqliteBoardRepository implements BoardRepository {
     return BoardCard(
       id: row['id']! as int,
       boardId: row['board_id']! as int,
-      position: row['position']! as int,
+      placement: CardPlacement(
+        col: row['grid_col']! as int,
+        row: row['grid_row']! as int,
+        colSpan: row['col_span']! as int,
+        rowSpan: row['row_span']! as int,
+      ),
       content: CardContent(
         label: row['label']! as String,
         speechText: row['speech_text'] as String?,
@@ -251,6 +385,15 @@ class SqliteBoardRepository implements BoardRepository {
       'background_color': content.backgroundColor,
       'link_board_id': content.linkBoardId,
       'word_class': content.wordClass?.key,
+    };
+  }
+
+  static Map<String, Object?> _placementToRow(CardPlacement placement) {
+    return {
+      'grid_col': placement.col,
+      'grid_row': placement.row,
+      'col_span': placement.colSpan,
+      'row_span': placement.rowSpan,
     };
   }
 }

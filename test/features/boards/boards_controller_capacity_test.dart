@@ -32,6 +32,35 @@ void main() {
       expect(saved.gridColumns, 2);
     });
 
+    test('update bloqueia quando um card ocupa a linha que sairia, mesmo com células de sobra', () async {
+      final repository = InMemoryBoardRepository();
+      final board = await repository.createBoard(
+        name: 'Casa',
+        gridColumns: 2,
+        gridRows: 2,
+      );
+      for (final label in ['A', 'B', 'C', 'D']) {
+        await repository.addCard(board.id, CardContent(label: label));
+      }
+      final controller = BoardsController(repository);
+      addTearDown(controller.dispose);
+      await controller.load();
+
+      // 4 × 1 = 4 células, mas C e D estão na linha 1, que deixaria de existir
+      // (ADR-042, regra f: os cards não são reorganizados).
+      await expectLater(
+        controller.update(board.copyWith(gridColumns: 4, gridRows: 1)),
+        throwsA(
+          isA<BoardGridTooSmallException>()
+              .having((e) => e.cardsToRemove, 'cardsToRemove', 2),
+        ),
+      );
+
+      final saved = (await repository.listBoards()).single;
+      expect(saved.gridColumns, 2);
+      expect(saved.gridRows, 2);
+    });
+
     test('update permite mudar a grade quando os cards cabem', () async {
       final repository = InMemoryBoardRepository();
       final board = await repository.createBoard(
@@ -46,10 +75,29 @@ void main() {
       addTearDown(controller.dispose);
       await controller.load();
 
-      // 4 × 1 = 4 células: os 4 cards cabem.
-      await controller.update(board.copyWith(gridColumns: 4, gridRows: 1));
+      // 4 × 2: todos os cards continuam inteiros dentro da grade.
+      await controller.update(board.copyWith(gridColumns: 4, gridRows: 2));
 
       expect(controller.boards.single.gridColumns, 4);
+      expect(controller.boards.single.gridRows, 2);
+    });
+
+    test('update permite reduzir quando a linha que sai está em branco', () async {
+      final repository = InMemoryBoardRepository();
+      final board = await repository.createBoard(
+        name: 'Casa',
+        gridColumns: 2,
+        gridRows: 2,
+      );
+      // Só a linha 0 está ocupada; a linha 1 está toda em branco.
+      await repository.addCard(board.id, const CardContent(label: 'A'));
+      await repository.addCard(board.id, const CardContent(label: 'B'));
+      final controller = BoardsController(repository);
+      addTearDown(controller.dispose);
+      await controller.load();
+
+      await controller.update(board.copyWith(gridRows: 1));
+
       expect(controller.boards.single.gridRows, 1);
     });
 

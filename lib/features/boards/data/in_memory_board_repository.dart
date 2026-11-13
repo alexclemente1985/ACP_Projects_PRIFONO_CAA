@@ -2,7 +2,9 @@ import 'dart:math' as math;
 
 import 'package:prifono_caa/core/errors/not_found_exception.dart';
 import 'package:prifono_caa/features/boards/domain/board.dart';
+import 'package:prifono_caa/features/boards/domain/board_capacity.dart';
 import 'package:prifono_caa/features/boards/domain/board_card.dart';
+import 'package:prifono_caa/features/boards/domain/board_layout.dart';
 import 'package:prifono_caa/features/boards/domain/board_repository.dart';
 
 /// Implementação em memória do [BoardRepository]. Serve para testes de widget
@@ -105,24 +107,51 @@ class InMemoryBoardRepository implements BoardRepository {
   Future<List<BoardCard>> listCards(int boardId) async {
     return _cards.where((c) => c.boardId == boardId).toList()
       ..sort((a, b) {
-        final byPosition = a.position.compareTo(b.position);
-        return byPosition != 0 ? byPosition : a.id.compareTo(b.id);
+        final byRow = a.placement.row.compareTo(b.placement.row);
+        if (byRow != 0) return byRow;
+        final byCol = a.placement.col.compareTo(b.placement.col);
+        return byCol != 0 ? byCol : a.id.compareTo(b.id);
       });
   }
 
   @override
-  Future<BoardCard> addCard(int boardId, CardContent content) async {
-    if (await getBoard(boardId) == null) {
-      throw NotFoundException('board', boardId);
+  Future<BoardCard> addCard(
+    int boardId,
+    CardContent content, {
+    CardPlacement? placement,
+  }) async {
+    final board = await getBoard(boardId);
+    if (board == null) throw NotFoundException('board', boardId);
+
+    final others = _placementsOf(boardId);
+    final CardPlacement target;
+    if (placement == null) {
+      final free = BoardLayout.firstFree(
+        columns: board.gridColumns,
+        rows: board.gridRows,
+        others: others,
+      );
+      if (free == null) {
+        throw BoardFullException(
+          BoardCapacity.of(board.gridColumns, board.gridRows),
+        );
+      }
+      target = free;
+    } else {
+      BoardLayout.requirePlaceable(
+        placement,
+        columns: board.gridColumns,
+        rows: board.gridRows,
+        others: others,
+      );
+      target = placement;
     }
-    final positions =
-        _cards.where((c) => c.boardId == boardId).map((c) => c.position);
-    final position = positions.isEmpty ? 0 : positions.reduce(math.max) + 1;
+
     final stamp = _stamp();
     final card = BoardCard(
       id: _nextCardId++,
       boardId: boardId,
-      position: position,
+      placement: target,
       content: content,
       createdAt: stamp,
       updatedAt: stamp,
@@ -147,35 +176,110 @@ class InMemoryBoardRepository implements BoardRepository {
   }
 
   @override
-  Future<void> reorderCards(int boardId, List<int> orderedCardIds) async {
-    final existing =
-        _cards.where((c) => c.boardId == boardId).map((c) => c.id).toSet();
-    final requested = orderedCardIds.toSet();
-    if (requested.length != orderedCardIds.length ||
-        requested.length != existing.length ||
-        !existing.containsAll(requested)) {
-      throw ArgumentError.value(
-        orderedCardIds,
-        'orderedCardIds',
-        'deve conter exatamente os cards da prancha $boardId, sem repetir',
-      );
+  Future<BoardCard> moveCard(
+    int cardId, {
+    required int col,
+    required int row,
+  }) async {
+    final index = _cards.indexWhere((c) => c.id == cardId);
+    if (index < 0) throw NotFoundException('card', cardId);
+    final card = _cards[index];
+    final board = _boardOf(card.boardId);
+
+    final target = card.placement.copyWith(col: col, row: row);
+    BoardLayout.requirePlaceable(
+      target,
+      columns: board.gridColumns,
+      rows: board.gridRows,
+      others: _placementsOf(card.boardId, except: {cardId}),
+    );
+
+    final updated = _copyCard(card, placement: target, updatedAt: _stamp());
+    _cards[index] = updated;
+    return updated;
+  }
+
+  @override
+  Future<void> swapCards(int cardIdA, int cardIdB) async {
+    if (cardIdA == cardIdB) {
+      throw ArgumentError.value(cardIdB, 'cardIdB', 'precisa ser outro card');
     }
-    for (var position = 0; position < orderedCardIds.length; position++) {
-      final index = _cards.indexWhere((c) => c.id == orderedCardIds[position]);
-      _cards[index] = _copyCard(_cards[index], position: position);
+    final indexA = _cards.indexWhere((c) => c.id == cardIdA);
+    if (indexA < 0) throw NotFoundException('card', cardIdA);
+    final indexB = _cards.indexWhere((c) => c.id == cardIdB);
+    if (indexB < 0) throw NotFoundException('card', cardIdB);
+    final a = _cards[indexA];
+    final b = _cards[indexB];
+    if (a.boardId != b.boardId) {
+      throw ArgumentError('os cards são de pranchas diferentes');
     }
+    final board = _boardOf(a.boardId);
+
+    final swapped = BoardLayout.swap(
+      a.placement,
+      b.placement,
+      columns: board.gridColumns,
+      rows: board.gridRows,
+      others: _placementsOf(a.boardId, except: {cardIdA, cardIdB}),
+    );
+    if (swapped == null) {
+      throw ArgumentError('os cards não cabem nas posições trocadas');
+    }
+
+    final stamp = _stamp();
+    _cards[indexA] = _copyCard(a, placement: swapped.$1, updatedAt: stamp);
+    _cards[indexB] = _copyCard(b, placement: swapped.$2, updatedAt: stamp);
+  }
+
+  @override
+  Future<BoardCard> resizeCard(
+    int cardId, {
+    required int colSpan,
+    required int rowSpan,
+  }) async {
+    final index = _cards.indexWhere((c) => c.id == cardId);
+    if (index < 0) throw NotFoundException('card', cardId);
+    final card = _cards[index];
+    final board = _boardOf(card.boardId);
+
+    final target = card.placement.copyWith(colSpan: colSpan, rowSpan: rowSpan);
+    BoardLayout.requirePlaceable(
+      target,
+      columns: board.gridColumns,
+      rows: board.gridRows,
+      others: _placementsOf(card.boardId, except: {cardId}),
+    );
+
+    final updated = _copyCard(card, placement: target, updatedAt: _stamp());
+    _cards[index] = updated;
+    return updated;
+  }
+
+  /// A prancha de um card que existe sempre existe (a exclusão é em cascata).
+  Board _boardOf(int boardId) => _boards.firstWhere((b) => b.id == boardId);
+
+  /// Posições dos cards da prancha, sem os ids de [except].
+  List<CardPlacement> _placementsOf(
+    int boardId, {
+    Set<int> except = const {},
+  }) {
+    return [
+      for (final card in _cards)
+        if (card.boardId == boardId && !except.contains(card.id))
+          card.placement,
+    ];
   }
 
   BoardCard _copyCard(
     BoardCard card, {
-    int? position,
+    CardPlacement? placement,
     CardContent? content,
     DateTime? updatedAt,
   }) {
     return BoardCard(
       id: card.id,
       boardId: card.boardId,
-      position: position ?? card.position,
+      placement: placement ?? card.placement,
       content: content ?? card.content,
       createdAt: card.createdAt,
       updatedAt: updatedAt ?? card.updatedAt,

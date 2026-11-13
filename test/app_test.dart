@@ -236,8 +236,21 @@ void main() {
         gridColumns: 3,
         gridRows: 2,
       );
-      for (final label in ['A', 'B', 'C', 'D']) {
-        await repository.addCard(board.id, CardContent(label: label));
+      // ADR-042: os cards não são reorganizados ao mudar a grade. Para a
+      // grade poder encolher para 2 × 2, os quatro cards ficam no canto
+      // superior esquerdo e a coluna 2 fica em branco.
+      const corner = [
+        ('A', CardPlacement(col: 0, row: 0)),
+        ('B', CardPlacement(col: 1, row: 0)),
+        ('C', CardPlacement(col: 0, row: 1)),
+        ('D', CardPlacement(col: 1, row: 1)),
+      ];
+      for (final (label, placement) in corner) {
+        await repository.addCard(
+          board.id,
+          CardContent(label: label),
+          placement: placement,
+        );
       }
       await _pumpToBoards(tester, boards: repository);
       await unlockEditMode(tester);

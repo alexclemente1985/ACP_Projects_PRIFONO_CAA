@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:prifono_caa/features/boards/domain/board.dart';
 import 'package:prifono_caa/features/boards/domain/board_capacity.dart';
+import 'package:prifono_caa/features/boards/domain/board_layout.dart';
 import 'package:prifono_caa/features/boards/domain/board_repository.dart';
 
 enum BoardsStatus { loading, ready, error }
@@ -54,16 +55,18 @@ class BoardsController extends ChangeNotifier {
     return board;
   }
 
-  /// Atualiza a prancha. Lança [BoardGridTooSmallException] se a nova grade
-  /// não comportar os cards que a prancha já tem (ADR-025).
+  /// Atualiza a prancha. Lança [BoardGridTooSmallException] se algum card
+  /// deixaria de caber INTEIRO na nova grade (ADR-042, regra f): um card que
+  /// ocupa a linha ou a coluna que sairia bloqueia a mudança, mesmo que a
+  /// grade nova tenha células de sobra. Os cards não são reorganizados.
   Future<void> update(Board board) async {
-    final count = await cardCount(board.id);
-    final overflow = BoardCapacity.overflowAfterResize(
-      cardCount: count,
+    final cards = await _repository.listCards(board.id);
+    final outside = BoardLayout.cardsOutside(
+      [for (final card in cards) card.placement],
       columns: board.gridColumns,
       rows: board.gridRows,
     );
-    if (overflow > 0) throw BoardGridTooSmallException(overflow);
+    if (outside > 0) throw BoardGridTooSmallException(outside);
     await _repository.updateBoard(board);
     await load();
   }

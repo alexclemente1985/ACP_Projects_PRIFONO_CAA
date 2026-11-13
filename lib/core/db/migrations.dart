@@ -5,6 +5,7 @@
 const List<List<String>> kMigrations = [
   _v1,
   _v2,
+  _v3,
 ];
 
 const List<String> _v1 = [
@@ -53,4 +54,39 @@ const List<String> _v1 = [
 /// `WordClass.key`; NULL = sem classe. Cards antigos ficam com NULL.
 const List<String> _v2 = [
   'ALTER TABLE cards ADD COLUMN word_class TEXT',
+];
+
+/// Posição e tamanho do card na grade (ADR-042, E6b-1). Os nomes são
+/// `grid_col` e `grid_row` (e não `col`/`row`) para não depender de `ROW`
+/// ser aceita como nome de coluna em todo SQLite.
+///
+/// Os cards que já existem são posicionados pela ORDEM DE LEITURA que tinham
+/// (`position`, desempate por `id`) na largura da grade da própria prancha,
+/// com tamanho 1×1: a prancha antiga fica idêntica. O índice de leitura de um
+/// card é quantos cards da mesma prancha vêm antes dele. Usa subconsulta
+/// correlacionada (e não `ROW_NUMBER()`) para funcionar em SQLite antigo.
+///
+/// A coluna `position` continua existindo (NOT NULL, sem valor padrão) e o
+/// repositório segue gravando um número nela, mas o app não a lê mais.
+const List<String> _v3 = [
+  'ALTER TABLE cards ADD COLUMN grid_col INTEGER NOT NULL DEFAULT 0',
+  'ALTER TABLE cards ADD COLUMN grid_row INTEGER NOT NULL DEFAULT 0',
+  'ALTER TABLE cards ADD COLUMN col_span INTEGER NOT NULL DEFAULT 1',
+  'ALTER TABLE cards ADD COLUMN row_span INTEGER NOT NULL DEFAULT 1',
+  '''
+  UPDATE cards SET
+    grid_col = (
+      SELECT COUNT(*) FROM cards AS earlier
+      WHERE earlier.board_id = cards.board_id
+        AND (earlier.position < cards.position
+          OR (earlier.position = cards.position AND earlier.id < cards.id))
+    ) % (SELECT grid_columns FROM boards WHERE boards.id = cards.board_id),
+    grid_row = (
+      SELECT COUNT(*) FROM cards AS earlier
+      WHERE earlier.board_id = cards.board_id
+        AND (earlier.position < cards.position
+          OR (earlier.position = cards.position AND earlier.id < cards.id))
+    ) / (SELECT grid_columns FROM boards WHERE boards.id = cards.board_id)
+  ''',
+  'CREATE INDEX idx_cards_board_cell ON cards (board_id, grid_row, grid_col)',
 ];

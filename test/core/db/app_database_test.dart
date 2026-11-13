@@ -122,4 +122,87 @@ void main() {
     );
     expect(updated.content.wordClass, WordClass.adverb);
   });
+
+  test('migração real v2 → v3 posiciona os cards pela ordem de leitura', () async {
+    final dir = Directory.systemTemp.createTempSync('privox_db_v3_');
+    addTearDown(() => dir.deleteSync(recursive: true));
+    final path = p.join(dir.path, 'test.db');
+
+    // "App antigo": só as migrações 1 e 2 (cards com `position`, sem posição
+    // na grade).
+    final oldApp = await AppDatabase.open(
+      factory: databaseFactoryFfi,
+      path: path,
+      migrations: kMigrations.take(2).toList(),
+    );
+    final wide = await oldApp.db.insert('boards', {
+      'name': 'Larga',
+      'grid_columns': 3,
+      'grid_rows': 2,
+      'created_at': 1,
+      'updated_at': 1,
+    });
+    final narrow = await oldApp.db.insert('boards', {
+      'name': 'Estreita',
+      'grid_columns': 2,
+      'grid_rows': 2,
+      'created_at': 1,
+      'updated_at': 1,
+    });
+    Future<int> addOld(int boardId, int position, String label) {
+      return oldApp.db.insert('cards', {
+        'board_id': boardId,
+        'position': position,
+        'label': label,
+        'created_at': 1,
+        'updated_at': 1,
+      });
+    }
+
+    // Inseridos FORA de ordem de propósito: a ordem de leitura vem de
+    // `position`, não da ordem de inserção.
+    await addOld(wide, 3, 'D');
+    await addOld(wide, 0, 'A');
+    await addOld(wide, 2, 'C');
+    await addOld(wide, 1, 'B');
+    // Empate de `position` na outra prancha: desempata pelo id.
+    await addOld(narrow, 0, 'X');
+    await addOld(narrow, 0, 'Y');
+    await oldApp.close();
+
+    // "App novo": todas as migrações de verdade.
+    final newApp = await AppDatabase.open(
+      factory: databaseFactoryFfi,
+      path: path,
+    );
+    addTearDown(newApp.close);
+    expect(await newApp.db.getVersion(), kMigrations.length);
+    expect(kMigrations.length, greaterThanOrEqualTo(3));
+    final repository = SqliteBoardRepository(newApp.db);
+
+    // Prancha de 3 colunas: A B C na linha 0 e D na linha 1; tudo 1×1.
+    final wideCards = await repository.listCards(wide);
+    expect(wideCards.map((c) => c.content.label), ['A', 'B', 'C', 'D']);
+    expect(wideCards.map((c) => c.placement), const [
+      CardPlacement(col: 0, row: 0),
+      CardPlacement(col: 1, row: 0),
+      CardPlacement(col: 2, row: 0),
+      CardPlacement(col: 0, row: 1),
+    ]);
+
+    // Prancha de 2 colunas: cada prancha conta a partir do zero.
+    final narrowCards = await repository.listCards(narrow);
+    expect(narrowCards.map((c) => c.content.label), ['X', 'Y']);
+    expect(narrowCards.map((c) => c.placement), const [
+      CardPlacement(col: 0, row: 0),
+      CardPlacement(col: 1, row: 0),
+    ]);
+
+    // A prancha migrada continua aceitando escritas novas.
+    final added = await repository.addCard(
+      narrow,
+      const CardContent(label: 'Z'),
+    );
+    expect(added.placement, const CardPlacement(col: 0, row: 1));
+  });
 }

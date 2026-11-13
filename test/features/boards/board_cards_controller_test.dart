@@ -23,6 +23,10 @@ class _FlakyRepository extends InMemoryBoardRepository {
   }
 }
 
+CardPlacement _at(int col, int row, [int colSpan = 1, int rowSpan = 1]) {
+  return CardPlacement(col: col, row: row, colSpan: colSpan, rowSpan: rowSpan);
+}
+
 Future<(_FlakyRepository, Board)> _setup({
   int columns = 2,
   int rows = 2,
@@ -176,6 +180,90 @@ void main() {
       controller.dispose();
 
       await pending; // não deve lançar nem notificar depois do dispose
+    });
+
+    test('add sem posição ocupa o buraco deixado por um card excluído',
+        () async {
+      final (repository, board) = await _setup(); // 2×2
+      final controller = BoardCardsController(repository, board: board);
+      addTearDown(controller.dispose);
+      await controller.load();
+      for (final label in ['A', 'B', 'C']) {
+        await controller.add(CardContent(label: label));
+      }
+      await controller.delete(controller.cards[1].id); // B sai: buraco (1,0)
+
+      await controller.add(const CardContent(label: 'D'));
+
+      expect(controller.cards.map((c) => c.content.label), ['A', 'D', 'C']);
+      expect(controller.cards[1].placement, _at(1, 0));
+    });
+
+    test('hasRoom e freeCells contam células livres, não cards', () async {
+      final (repository, board) = await _setup(); // 2×2, capacidade 4
+      final controller = BoardCardsController(repository, board: board);
+      addTearDown(controller.dispose);
+      await controller.load();
+
+      // Um card 2×1 cobre 2 das 4 células.
+      await controller.add(
+        const CardContent(label: 'Grande'),
+        placement: _at(0, 0, 2),
+      );
+      expect(controller.freeCells, 2);
+      expect(controller.hasRoom, isTrue);
+
+      await controller.add(const CardContent(label: 'B'));
+      await controller.add(const CardContent(label: 'C'));
+
+      // Só 3 cards (< capacidade 4), mas não há célula livre.
+      expect(controller.cards, hasLength(3));
+      expect(controller.freeCells, 0);
+      expect(controller.hasRoom, isFalse);
+      await expectLater(
+        controller.add(const CardContent(label: 'D')),
+        throwsA(isA<BoardFullException>()),
+      );
+    });
+
+    test('move, swap e resize gravam e relêem a lista', () async {
+      final (repository, board) = await _setup(columns: 3, rows: 3);
+      final controller = BoardCardsController(repository, board: board);
+      addTearDown(controller.dispose);
+      await controller.load();
+      await controller.add(const CardContent(label: 'A'));
+      await controller.add(const CardContent(label: 'B'));
+      BoardCard byLabel(String label) =>
+          controller.cards.firstWhere((c) => c.content.label == label);
+
+      await controller.move(byLabel('A').id, col: 2, row: 2);
+      expect(byLabel('A').placement, _at(2, 2));
+      expect(byLabel('B').placement, _at(1, 0));
+
+      await controller.swap(byLabel('A').id, byLabel('B').id);
+      expect(byLabel('A').placement, _at(1, 0));
+      expect(byLabel('B').placement, _at(2, 2));
+
+      await controller.resize(byLabel('A').id, colSpan: 2, rowSpan: 1);
+      expect(byLabel('A').placement, _at(1, 0, 2));
+    });
+
+    test('mover para um lugar impossível propaga ArgumentError e mantém o estado',
+        () async {
+      final (repository, board) = await _setup(); // 2×2
+      final controller = BoardCardsController(repository, board: board);
+      addTearDown(controller.dispose);
+      await controller.load();
+      await controller.add(const CardContent(label: 'A'));
+      await controller.add(const CardContent(label: 'B'));
+
+      await expectLater(
+        controller.move(controller.cards.first.id, col: 1, row: 0), // B está lá
+        throwsArgumentError,
+      );
+
+      expect(controller.status, CardsStatus.ready);
+      expect(controller.cards.map((c) => c.placement), [_at(0, 0), _at(1, 0)]);
     });
   });
 }

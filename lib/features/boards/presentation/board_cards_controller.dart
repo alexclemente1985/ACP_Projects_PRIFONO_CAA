@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:prifono_caa/features/boards/domain/board.dart';
 import 'package:prifono_caa/features/boards/domain/board_capacity.dart';
 import 'package:prifono_caa/features/boards/domain/board_card.dart';
+import 'package:prifono_caa/features/boards/domain/board_layout.dart';
 import 'package:prifono_caa/features/boards/domain/board_repository.dart';
 
 enum CardsStatus { loading, ready, error }
@@ -24,21 +25,28 @@ class BoardCardsController extends ChangeNotifier {
   Board get board => _board;
   CardsStatus get status => _status;
 
-  /// Cards em ordem de leitura (ADR-026). Lista não modificável.
+  /// Cards em ordem de leitura: linha e, na mesma linha, coluna (ADR-042).
+  /// Lista não modificável.
   List<BoardCard> get cards => _cards;
 
   int get capacity => BoardCapacity.of(_board.gridColumns, _board.gridRows);
 
-  int get freeCells => BoardCapacity.freeCells(
-        cardCount: _cards.length,
+  List<CardPlacement> get _placements => [
+        for (final card in _cards) card.placement,
+      ];
+
+  /// Células livres da grade (ADR-042: conta células, não cards).
+  int get freeCells => BoardLayout.freeCells(
         columns: _board.gridColumns,
         rows: _board.gridRows,
+        others: _placements,
       );
 
-  bool get hasRoom => BoardCapacity.hasRoom(
-        cardCount: _cards.length,
+  /// Existe ao menos uma célula livre para um card 1×1?
+  bool get hasRoom => BoardLayout.hasRoom(
         columns: _board.gridColumns,
         rows: _board.gridRows,
+        others: _placements,
       );
 
   /// Carrega (ou recarrega) os cards. Nunca lança: falha vira `status == error`.
@@ -48,11 +56,13 @@ class BoardCardsController extends ChangeNotifier {
     await _reload();
   }
 
-  /// Adiciona um card ao final. Lança [BoardFullException] se não houver espaço.
-  Future<void> add(CardContent content) async {
-    if (!hasRoom) throw BoardFullException(capacity);
+  /// Adiciona um card. Sem [placement], vai para a primeira célula livre e
+  /// lança [BoardFullException] se não houver. Com [placement], o repositório
+  /// confere (lança [ArgumentError] se não couber ou cobrir outro card).
+  Future<void> add(CardContent content, {CardPlacement? placement}) async {
+    if (placement == null && !hasRoom) throw BoardFullException(capacity);
     await _write(() async {
-      await _repository.addCard(_board.id, content);
+      await _repository.addCard(_board.id, content, placement: placement);
     });
   }
 
@@ -62,9 +72,40 @@ class BoardCardsController extends ChangeNotifier {
     });
   }
 
+  /// Apaga o card. A posição fica em branco; os outros não se mexem (ADR-042).
   Future<void> delete(int cardId) async {
     await _write(() async {
       await _repository.deleteCard(cardId);
+    });
+  }
+
+  /// Move o card para ([col], [row]). A tela consulta `BoardLayout.canPlace`
+  /// antes, para avisar "Não cabe aí"; o repositório confere de novo.
+  Future<void> move(int cardId, {required int col, required int row}) async {
+    await _write(() async {
+      await _repository.moveCard(cardId, col: col, row: row);
+    });
+  }
+
+  /// Troca de lugar dois cards da prancha (ADR-042, regra a).
+  Future<void> swap(int cardIdA, int cardIdB) async {
+    await _write(() async {
+      await _repository.swapCards(cardIdA, cardIdB);
+    });
+  }
+
+  /// Muda a largura e a altura do card; só consome células em branco.
+  Future<void> resize(
+    int cardId, {
+    required int colSpan,
+    required int rowSpan,
+  }) async {
+    await _write(() async {
+      await _repository.resizeCard(
+        cardId,
+        colSpan: colSpan,
+        rowSpan: rowSpan,
+      );
     });
   }
 
