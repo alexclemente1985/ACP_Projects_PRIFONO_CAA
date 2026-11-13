@@ -542,4 +542,22 @@ class AppLocalizationsEs extends AppLocalizations {
     );
     return 'En este dispositivo, con más de $_temp0 las tarjetas quedan demasiado pequeñas para tocarlas con facilidad. Considera usar menos columnas.';
   }
+
+  @override
+  String get editIdleSectionTitle => 'Bloqueo automático de la edición';
+
+  @override
+  String get editIdleHelp =>
+      'Si pasa este tiempo sin tocar la pantalla, el modo de edición se bloquea solo y la app vuelve al modo de uso.';
+
+  @override
+  String get editIdleOff => 'Nunca';
+
+  @override
+  String editIdleMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String get editIdleLockedNotice => 'Edición bloqueada por inactividad.';
 }

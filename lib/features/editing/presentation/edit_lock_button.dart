@@ -8,10 +8,11 @@ import 'package:prifono_caa/features/pin/presentation/pin_flows.dart';
 
 /// Cadeado da AppBar.
 ///
-/// Em USO: é preciso SEGURAR por [holdDuration] para entrar em edição (um
-/// anel e uma barra mostram o progresso; soltar antes só mostra uma dica); se
-/// houver PIN, ele é pedido em seguida (ADR-040). Em EDIÇÃO: um toque volta ao
-/// modo de uso.
+/// Em USO, SEM PIN: é preciso SEGURAR por [HoldToUnlock.holdDuration] para
+/// entrar em edição (um anel e uma barra mostram o progresso; soltar antes só
+/// mostra uma dica). Em USO, COM PIN: um toque já abre o pedido de PIN, que é a
+/// proteção (ADR-041, decisão 6; ver [TapToUnlock]). Em EDIÇÃO: um toque volta
+/// ao modo de uso.
 ///
 /// Usa `Listener` (eventos brutos) e não `GestureDetector`/`Tooltip`: o
 /// reconhecedor de toque longo do Tooltip cancelaria a contagem aos 500 ms.
@@ -30,6 +31,7 @@ class _EditLockButtonState extends State<EditLockButton> {
   // `AppScope.of` usa getInheritedWidgetOfExactType, que pode ser chamado no
   // initState.
   late final _editMode = AppScope.of(context).editMode;
+  late final _settings = AppScope.of(context).settings;
   late bool _wasEditing;
 
   @override
@@ -72,8 +74,10 @@ class _EditLockButtonState extends State<EditLockButton> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
 
+    // O PIN pode ser ligado ou desligado em Ajustes com esta tela na pilha:
+    // por isso o cadeado também escuta as configurações.
     return ListenableBuilder(
-      listenable: _editMode,
+      listenable: Listenable.merge([_editMode, _settings]),
       builder: (context, _) {
         if (_editMode.isEditing) {
           return IconButton(
@@ -82,8 +86,45 @@ class _EditLockButtonState extends State<EditLockButton> {
             onPressed: _editMode.lock,
           );
         }
-        return const HoldToUnlock();
+        return _settings.hasPin ? const TapToUnlock() : const HoldToUnlock();
       },
+    );
+  }
+}
+
+/// A parte "tocar para destravar" do [EditLockButton], usada quando há PIN
+/// (ADR-041, decisão 6): o PIN já é a proteção, então um toque basta. Segurar o
+/// cadeado também funciona: não há `Tooltip`, cujo toque longo cancelaria o
+/// toque de quem segura por hábito.
+class TapToUnlock extends StatefulWidget {
+  const TapToUnlock({super.key});
+
+  @override
+  State<TapToUnlock> createState() => _TapToUnlockState();
+}
+
+class _TapToUnlockState extends State<TapToUnlock> {
+  /// Já há um pedido de PIN na tela? (outro toque não abre um segundo).
+  bool _asking = false;
+
+  Future<void> _unlock() async {
+    if (_asking) return;
+    _asking = true;
+    try {
+      await requestEditUnlock(context);
+    } finally {
+      _asking = false;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
+    return IconButton(
+      onPressed: () => unawaited(_unlock()),
+      // Sem `tooltip` de propósito; o nome do botão vem do rótulo do ícone.
+      icon: Icon(Icons.lock_outline, semanticLabel: l10n.editLockEnter),
     );
   }
 }
@@ -96,6 +137,9 @@ class _EditLockButtonState extends State<EditLockButton> {
 /// - uma barra no fundo da AppBar que cresce do lado do cadeado (o fim da
 ///   linha) para o lado oposto, longe do dedo;
 /// - uma vibração leve quando a contagem começa e outra, média, quando termina.
+///
+/// Só existe SEM PIN (com PIN o cadeado é o [TapToUnlock]). Com teclado externo
+/// o cadeado recebe foco e Enter ou Espaço destravam direto (E6-5).
 class HoldToUnlock extends StatefulWidget {
   const HoldToUnlock({super.key});
 
@@ -138,6 +182,9 @@ class _HoldToUnlockState extends State<HoldToUnlock>
 
   /// Já há um pedido de PIN na tela? (segurar de novo não abre outro).
   bool _asking = false;
+
+  /// Mostra o anel de foco (só com teclado externo).
+  bool _focusVisible = false;
 
   @override
   void dispose() {
@@ -225,8 +272,10 @@ class _HoldToUnlockState extends State<HoldToUnlock>
       ..showSnackBar(SnackBar(content: Text(l10n.editLockHoldHint)));
   }
 
-  /// Leitores de tela: "tocar e segurar" do TalkBack/VoiceOver é uma ação
-  /// própria, então destrava direto.
+  /// Leitores de tela ("tocar e segurar" do TalkBack/VoiceOver é uma ação
+  /// própria) e teclado externo (Enter ou Espaço no cadeado focado) não têm como
+  /// segurar: destravam direto (ADR-041, E6-5). Com PIN ligado no meio do
+  /// caminho, o pedido de PIN continua sendo a proteção.
   void _unlockForAccessibility() => unawaited(_unlock());
 
   @override
@@ -280,33 +329,57 @@ class _HoldToUnlockState extends State<HoldToUnlock>
         onTapHint: l10n.editLockTapHint,
         onLongPress: _unlockForAccessibility,
         onLongPressHint: l10n.editLockLongPressHint,
-        child: Listener(
-          behavior: HitTestBehavior.opaque,
-          onPointerDown: _onDown,
-          onPointerUp: _onUp,
-          onPointerCancel: _onCancel,
-          child: ExcludeSemantics(
-            child: SizedBox.square(
-              dimension: 48,
-              child: AnimatedBuilder(
-                animation: _hold,
-                builder: (context, _) {
-                  return Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      if (_hold.value > 0)
-                        SizedBox.square(
-                          dimension: 40,
-                          child: CircularProgressIndicator(
-                            value: _hold.value,
-                            strokeWidth: 3,
-                            color: progressColor,
-                          ),
-                        ),
-                      const Icon(Icons.lock_outline),
-                    ],
-                  );
-                },
+        // Teclado externo (tablet): o cadeado recebe foco e Enter ou Espaço
+        // destravam, já que não há como "segurar" uma tecla (E6-5).
+        child: FocusableActionDetector(
+          onShowFocusHighlight: (visible) =>
+              setState(() => _focusVisible = visible),
+          actions: <Type, Action<Intent>>{
+            ActivateIntent: CallbackAction<ActivateIntent>(
+              onInvoke: (_) {
+                _unlockForAccessibility();
+                return null;
+              },
+            ),
+          },
+          child: Listener(
+            behavior: HitTestBehavior.opaque,
+            onPointerDown: _onDown,
+            onPointerUp: _onUp,
+            onPointerCancel: _onCancel,
+            child: ExcludeSemantics(
+              child: SizedBox.square(
+                dimension: 48,
+                child: DecoratedBox(
+                  position: DecorationPosition.foreground,
+                  // Anel de foco: só aparece com teclado (onShowFocusHighlight).
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: _focusVisible
+                        ? Border.all(color: scheme.onSurface, width: 3)
+                        : null,
+                  ),
+                  child: AnimatedBuilder(
+                    animation: _hold,
+                    builder: (context, _) {
+                      return Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          if (_hold.value > 0)
+                            SizedBox.square(
+                              dimension: 40,
+                              child: CircularProgressIndicator(
+                                value: _hold.value,
+                                strokeWidth: 3,
+                                color: progressColor,
+                              ),
+                            ),
+                          const Icon(Icons.lock_outline),
+                        ],
+                      );
+                    },
+                  ),
+                ),
               ),
             ),
           ),

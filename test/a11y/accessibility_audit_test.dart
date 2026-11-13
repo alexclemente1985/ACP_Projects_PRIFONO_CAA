@@ -154,8 +154,11 @@ final List<_Scenario> _scenarios = [
     await tester.tap(find.text('Sobre e créditos'));
     await tester.pumpAndSettle();
   }),
-  // Segurar o cadeado com PIN ligado abre o pedido de PIN.
-  _Scenario('pedido de PIN', unlockEditMode, withPin: true),
+  // Com PIN ligado, um toque no cadeado abre o pedido de PIN (E6-5).
+  _Scenario('pedido de PIN', (tester) async {
+    await tester.tap(find.byIcon(Icons.lock_outline));
+    await tester.pumpAndSettle();
+  }, withPin: true),
 ];
 
 Future<InMemoryBoardRepository> _seed() async {

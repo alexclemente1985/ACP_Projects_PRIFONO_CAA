@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:prifono_caa/features/pin/domain/pin.dart';
 import 'package:prifono_caa/features/settings/data/in_memory_settings_repository.dart';
 import 'package:prifono_caa/features/settings/domain/app_language.dart';
+import 'package:prifono_caa/features/settings/domain/edit_idle_timeout.dart';
 import 'package:prifono_caa/features/settings/domain/settings_repository.dart';
 
 /// Configurações do app. Tema e idioma atualizam a tela primeiro (otimista) e
@@ -29,10 +30,14 @@ class SettingsController extends ChangeNotifier {
   /// PIN do modo de edição em texto (4 dígitos). Vazio = sem PIN.
   static const String editPinKey = 'edit_pin';
 
+  /// Minutos sem toque até a edição travar sozinha (0 = desligado; E6-5).
+  static const String editIdleMinutesKey = 'edit_idle_minutes';
+
   final SettingsRepository _repository;
   final AppLanguage defaultLanguage;
   ThemeMode _themeMode = ThemeMode.system;
   String? _pin;
+  int _editIdleMinutes = EditIdleTimeout.defaultMinutes;
   AppLanguage _language;
   List<Locale> _deviceLocales;
 
@@ -50,6 +55,12 @@ class SettingsController extends ChangeNotifier {
   /// O modo de edição pede PIN?
   bool get hasPin => _pin != null;
 
+  /// Minutos sem toque até a edição travar sozinha; 0 = nunca.
+  int get editIdleMinutes => _editIdleMinutes;
+
+  /// O mesmo valor como tempo de espera; `null` = o bloqueio está desligado.
+  Duration? get editIdleTimeout => EditIdleTimeout.toDuration(_editIdleMinutes);
+
   /// Carrega as preferências salvas. Chamar uma vez, antes do primeiro frame.
   Future<void> load() async {
     final stored = await _repository.read(themeModeKey);
@@ -63,14 +74,19 @@ class SettingsController extends ChangeNotifier {
           await _repository.read(languageKey),
         ) ??
         defaultLanguage;
+    final loadedIdle = EditIdleTimeout.fromStorage(
+      await _repository.read(editIdleMinutesKey),
+    );
     if (loaded == _themeMode &&
         loadedPin == _pin &&
-        loadedLanguage == _language) {
+        loadedLanguage == _language &&
+        loadedIdle == _editIdleMinutes) {
       return;
     }
     _themeMode = loaded;
     _pin = loadedPin;
     _language = loadedLanguage;
+    _editIdleMinutes = loadedIdle;
     notifyListeners();
   }
 
@@ -103,6 +119,22 @@ class SettingsController extends ChangeNotifier {
     } on Exception catch (error) {
       // Não conseguir salvar uma preferência não pode derrubar o app.
       debugPrint('Falha ao salvar o tema: $error');
+    }
+  }
+
+  /// Escolhe em quantos minutos sem toque a edição trava sozinha (0 = nunca).
+  /// Atualiza a tela primeiro e grava depois, como o tema (E6-5).
+  Future<void> setEditIdleMinutes(int minutes) async {
+    if (!EditIdleTimeout.options.contains(minutes)) {
+      throw ArgumentError.value(minutes, 'minutes', 'fora das opções');
+    }
+    if (minutes == _editIdleMinutes) return;
+    _editIdleMinutes = minutes;
+    notifyListeners();
+    try {
+      await _repository.write(editIdleMinutesKey, minutes.toString());
+    } on Exception catch (error) {
+      debugPrint('Falha ao salvar o bloqueio por inatividade: $error');
     }
   }
 

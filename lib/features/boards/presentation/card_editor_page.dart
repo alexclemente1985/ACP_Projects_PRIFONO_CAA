@@ -13,6 +13,7 @@ import 'package:prifono_caa/features/boards/presentation/card_colors.dart';
 import 'package:prifono_caa/features/boards/presentation/card_draft_controller.dart';
 import 'package:prifono_caa/features/boards/presentation/card_label_rule.dart';
 import 'package:prifono_caa/features/boards/presentation/word_class_text.dart';
+import 'package:prifono_caa/features/editing/presentation/edit_mode_controller.dart';
 import 'package:prifono_caa/features/symbols/domain/symbol_pick.dart';
 import 'package:prifono_caa/features/symbols/domain/symbol_ref.dart';
 import 'package:prifono_caa/features/symbols/presentation/symbol_error_text.dart';
@@ -61,8 +62,36 @@ class _CardEditorPageState extends State<CardEditorPage> {
   /// Último rótulo preenchido por um pictograma (ver [labelAfterPick]).
   String? _autoLabel;
 
+  late final EditModeController _editMode = AppScope.of(context).editMode;
+
+  @override
+  void initState() {
+    super.initState();
+    _editMode.addListener(_closeWhenLocked);
+    // Digitar no teclado do sistema não gera toques: cada alteração do texto
+    // conta como atividade para o bloqueio por inatividade (E6-5).
+    _label.addListener(_editMode.registerActivity);
+    _speech.addListener(_editMode.registerActivity);
+  }
+
+  /// O modo de edição travou (cadeado, inatividade ou segundo plano) com este
+  /// editor aberto: ele fecha SEM salvar, junto com o que estiver aberto por
+  /// cima dele (busca de pictogramas, diálogos), para nada ser gravado ou
+  /// excluído com a edição travada (ADR-041, decisão 5).
+  void _closeWhenLocked() {
+    if (_editMode.isEditing || !mounted) return;
+    final route = ModalRoute.of(context);
+    if (route == null || !route.isActive) return;
+    final navigator = Navigator.of(context);
+    navigator.popUntil((candidate) => identical(candidate, route));
+    navigator.pop();
+  }
+
   @override
   void dispose() {
+    _editMode.removeListener(_closeWhenLocked);
+    _label.removeListener(_editMode.registerActivity);
+    _speech.removeListener(_editMode.registerActivity);
     _draft.dispose();
     _label.dispose();
     _speech.dispose();

@@ -537,4 +537,22 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return 'On this device, with more than $_temp0 the cards get too small to tap easily. Consider using fewer columns.';
   }
+
+  @override
+  String get editIdleSectionTitle => 'Automatic edit lock';
+
+  @override
+  String get editIdleHelp =>
+      'After this much time without touching the screen, edit mode locks by itself and the app goes back to use mode.';
+
+  @override
+  String get editIdleOff => 'Never';
+
+  @override
+  String editIdleMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String get editIdleLockedNotice => 'Editing locked due to inactivity.';
 }

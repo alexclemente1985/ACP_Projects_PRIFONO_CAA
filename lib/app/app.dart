@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:prifono_caa/app/app_scope.dart';
 import 'package:prifono_caa/app/l10n/app_localizations.dart';
 import 'package:prifono_caa/app/theme/app_theme.dart';
+import 'package:prifono_caa/features/editing/presentation/edit_idle_guard.dart';
 import 'package:prifono_caa/features/splash/splash_page.dart';
 
 class PrifonoApp extends StatefulWidget {
@@ -12,6 +13,10 @@ class PrifonoApp extends StatefulWidget {
 }
 
 class _PrifonoAppState extends State<PrifonoApp> with WidgetsBindingObserver {
+  /// O vigia da edição (bloqueio por inatividade) precisa fechar menus e
+  /// diálogos pelo Navigator, que fica ABAIXO dele: por isso a chave.
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+
   @override
   void initState() {
     super.initState();
@@ -51,6 +56,11 @@ class _PrifonoAppState extends State<PrifonoApp> with WidgetsBindingObserver {
           theme: AppTheme.light,
           darkTheme: AppTheme.dark,
           themeMode: settings.themeMode,
+          navigatorKey: _navigatorKey,
+          builder: (context, child) => EditIdleGuard(
+            navigatorKey: _navigatorKey,
+            child: child ?? const SizedBox.shrink(),
+          ),
           home: const SplashPage(),
         );
       },

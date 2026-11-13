@@ -1,11 +1,9 @@
 {
   "@@locale": "pt",
   "appName": "Privox",
-
   "commonCancel": "Cancelar",
   "commonSave": "Salvar",
   "commonRetry": "Tentar de novo",
-
   "themeSectionTitle": "Aparência",
   "themeSystem": "Sistema",
   "themeLight": "Claro",
@@ -15,7 +13,6 @@
   "languageAutomatic": "Automático",
   "languageHelp": "O idioma vale para o app, para a busca de pictogramas e para a voz.",
   "creditsButton": "Sobre e créditos",
-
   "boardsTitle": "Pranchas",
   "boardsEmptyTitle": "Nenhuma prancha ainda",
   "boardsEmptyMessage": "Crie a sua primeira prancha de comunicação.",
@@ -45,7 +42,6 @@
       }
     }
   },
-
   "boardEmptyHint": "Toque no + para adicionar o primeiro card.",
   "boardFull": "Prancha cheia: {count, plural, =1{1 card} other{{count} cards}}. Aumente a grade ou remova cards para adicionar mais.",
   "@boardFull": {
@@ -93,7 +89,6 @@
       }
     }
   },
-
   "boardFormNewTitle": "Nova prancha",
   "boardFormEditTitle": "Editar prancha",
   "boardFormNameLabel": "Nome da prancha",
@@ -112,7 +107,6 @@
       }
     }
   },
-
   "boardDeleteTitle": "Excluir prancha?",
   "boardDeleteMessage": "A prancha “{name}” e todos os seus cards serão excluídos. Isso não pode ser desfeito.",
   "@boardDeleteMessage": {
@@ -122,7 +116,6 @@
       }
     }
   },
-
   "searchTitle": "Buscar pictogramas",
   "searchHint": "Digite uma palavra",
   "searchClear": "Limpar busca",
@@ -142,10 +135,8 @@
   "searchErrorGeneric": "Não foi possível ler a resposta do serviço de pictogramas.",
   "searchRetry": "Tentar de novo",
   "imageUnavailable": "Imagem indisponível",
-
   "speechVoiceMissing": "Não há voz em português do Brasil neste aparelho. Instale uma nos ajustes de voz do aparelho.",
   "speechFailed": "Não foi possível falar agora. Tente de novo.",
-
   "attributionShort": "Pictogramas: ARASAAC (Governo de Aragão), licença CC BY-NC-SA. Toque para ver os créditos.",
   "creditsTitle": "Sobre e créditos",
   "creditsArasaacTitle": "Pictogramas",
@@ -154,37 +145,31 @@
   "creditsArasaacTerms": "Os pictogramas são para uso não comercial. Ao compartilhar pictogramas ou pranchas feitas com eles, mantenha a atribuição ao ARASAAC e use a mesma licença (CC BY-NC-SA).",
   "creditsPrivacyTitle": "Privacidade da busca",
   "creditsPrivacyBody": "Ao buscar pictogramas, a palavra digitada e o endereço IP do aparelho são enviados aos servidores do ARASAAC. O app não envia dados pessoais nem usa conta. Os pictogramas que você escolhe ficam salvos no aparelho para funcionar sem internet.",
-
   "aboutTagline": "Pranchas de comunicação gratuitas, sem conta e sem anúncios.",
   "aboutMakersTitle": "Quem faz o Privox",
   "aboutMadeBy": "Desenvolvido por ACP Projects.",
   "aboutClinic": "Em parceria com o consultório PRIFONO, da fonoaudióloga Priscilla de Sá.",
   "aboutPolicyTitle": "Política de privacidade",
   "aboutPolicyBody": "A política de privacidade completa fica neste endereço:",
-
   "sentenceBarLabel": "Frase",
   "sentenceHint": "Toque nos cards para montar uma frase.",
   "sentenceSpeak": "Falar a frase",
   "sentenceDeleteLast": "Apagar a última palavra",
   "sentenceClear": "Limpar a frase",
-
   "editLockEnter": "Entrar no modo de edição. Segure para destravar.",
   "editLockLeave": "Sair do modo de edição",
   "editLockHoldHint": "Segure o cadeado por 1,5 segundo para editar.",
   "editModeHint": "Modo de edição: toque num card para editar.",
   "boardEmptyUseHint": "Esta prancha está vazia. Segure o cadeado por 1,5 segundo para adicionar cards.",
-
   "cardLinkTitle": "Abrir outra prancha ao tocar",
   "cardLinkNone": "Nenhuma (o card só fala)",
   "cardLinkEmpty": "Crie outra prancha para poder ligar este card a ela.",
   "cardOpensBoardHint": "Abre outra prancha",
-
   "sentenceChipHint": "Toque para remover ou mover. Segure e arraste para reorganizar.",
   "sentenceChipUntitled": "Palavra sem texto",
   "sentenceRemoveWord": "Remover da frase",
   "sentenceMoveLeft": "Mover para a esquerda",
   "sentenceMoveRight": "Mover para a direita",
-
   "pinSectionTitle": "Proteção da edição",
   "pinSectionHelp": "Com PIN, entrar no modo de edição exige digitar 4 números. Isso impede que crianças alterem as pranchas.",
   "pinSwitchTitle": "Pedir PIN para editar",
@@ -243,12 +228,24 @@
     }
   },
   "splashSkipHint": "Toque para pular a abertura.",
-   "boardFormCellTooSmall": "Neste aparelho, com mais de {max, plural, =1{1 coluna} other{{max} colunas}} os cards ficam pequenos demais para tocar com facilidade. Considere usar menos colunas.",
+  "boardFormCellTooSmall": "Neste aparelho, com mais de {max, plural, =1{1 coluna} other{{max} colunas}} os cards ficam pequenos demais para tocar com facilidade. Considere usar menos colunas.",
   "@boardFormCellTooSmall": {
     "placeholders": {
       "max": {
         "type": "int"
       }
     }
-  }
+  },
+  "editIdleSectionTitle": "Bloqueio automático da edição",
+  "editIdleHelp": "Depois de ficar esse tempo sem tocar na tela, o modo de edição trava sozinho e o app volta ao modo de uso.",
+  "editIdleOff": "Nunca",
+  "editIdleMinutes": "{minutes} min",
+  "@editIdleMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "editIdleLockedNotice": "Edição bloqueada por inatividade."
 }

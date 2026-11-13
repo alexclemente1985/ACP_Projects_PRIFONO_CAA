@@ -142,7 +142,7 @@
   "pinForgotAnswer": "Answer",
   "pinForgotWrong": "Wrong answer. Here is another problem.",
   "pinForgotConfirm": "Unlock",
-    "commonLoading": "Loading",
+  "commonLoading": "Loading",
   "editLockTapHint": "see how to unlock",
   "editLockLongPressHint": "unlock editing",
   "editModeOnAnnounce": "Edit mode on.",
@@ -163,5 +163,17 @@
         "type": "int"
       }
     }
-  }
+  },
+  "editIdleSectionTitle": "Automatic edit lock",
+  "editIdleHelp": "After this much time without touching the screen, edit mode locks by itself and the app goes back to use mode.",
+  "editIdleOff": "Never",
+  "editIdleMinutes": "{minutes} min",
+  "@editIdleMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "editIdleLockedNotice": "Editing locked due to inactivity."
 }

@@ -61,7 +61,7 @@ void main() {
     final chips = tester
         .widgetList<ChoiceChip>(find.byType(ChoiceChip))
         .toList();
-    expect(chips, hasLength(3 + 1 + AppLanguage.concrete.length));
+    expect(chips, hasLength(3 + 1 + AppLanguage.concrete.length + 4));
     for (final chip in chips) {
       expect(chip.showCheckmark, isFalse);
     }

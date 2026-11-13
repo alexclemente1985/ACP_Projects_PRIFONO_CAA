@@ -142,7 +142,7 @@
   "pinForgotAnswer": "Respuesta",
   "pinForgotWrong": "Respuesta incorrecta. Esta es otra cuenta.",
   "pinForgotConfirm": "Desbloquear",
-    "commonLoading": "Cargando",
+  "commonLoading": "Cargando",
   "editLockTapHint": "ver cómo desbloquear",
   "editLockLongPressHint": "desbloquear la edición",
   "editModeOnAnnounce": "Modo de edición activado.",
@@ -156,12 +156,24 @@
     }
   },
   "splashSkipHint": "Toca para omitir la introducción.",
-   "boardFormCellTooSmall": "En este dispositivo, con más de {max, plural, =1{1 columna} other{{max} columnas}} las tarjetas quedan demasiado pequeñas para tocarlas con facilidad. Considera usar menos columnas.",
+  "boardFormCellTooSmall": "En este dispositivo, con más de {max, plural, =1{1 columna} other{{max} columnas}} las tarjetas quedan demasiado pequeñas para tocarlas con facilidad. Considera usar menos columnas.",
   "@boardFormCellTooSmall": {
     "placeholders": {
       "max": {
         "type": "int"
       }
     }
-  }
+  },
+  "editIdleSectionTitle": "Bloqueo automático de la edición",
+  "editIdleHelp": "Si pasa este tiempo sin tocar la pantalla, el modo de edición se bloquea solo y la app vuelve al modo de uso.",
+  "editIdleOff": "Nunca",
+  "editIdleMinutes": "{minutes} min",
+  "@editIdleMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "editIdleLockedNotice": "Edición bloqueada por inactividad."
 }

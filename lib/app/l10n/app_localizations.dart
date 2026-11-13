@@ -999,6 +999,36 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Neste aparelho, com mais de {max, plural, =1{1 coluna} other{{max} colunas}} os cards ficam pequenos demais para tocar com facilidade. Considere usar menos colunas.'**
   String boardFormCellTooSmall(int max);
+
+  /// No description provided for @editIdleSectionTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Bloqueio automático da edição'**
+  String get editIdleSectionTitle;
+
+  /// No description provided for @editIdleHelp.
+  ///
+  /// In pt, this message translates to:
+  /// **'Depois de ficar esse tempo sem tocar na tela, o modo de edição trava sozinho e o app volta ao modo de uso.'**
+  String get editIdleHelp;
+
+  /// No description provided for @editIdleOff.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nunca'**
+  String get editIdleOff;
+
+  /// No description provided for @editIdleMinutes.
+  ///
+  /// In pt, this message translates to:
+  /// **'{minutes} min'**
+  String editIdleMinutes(int minutes);
+
+  /// No description provided for @editIdleLockedNotice.
+  ///
+  /// In pt, this message translates to:
+  /// **'Edição bloqueada por inatividade.'**
+  String get editIdleLockedNotice;
 }
 
 class _AppLocalizationsDelegate
