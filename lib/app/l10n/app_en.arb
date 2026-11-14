@@ -176,5 +176,20 @@
       }
     }
   },
-  "editIdleLockedNotice": "Editing locked due to inactivity."
+  "editIdleLockedNotice": "Editing locked due to inactivity.",
+  "cardMove": "Move…",
+  "cardMoveTitle": "Move card",
+  "cardMoveRowOf": "Row {row} of {total}",
+  "cardMoveColumnOf": "Column {column} of {total}",
+  "cardMoveRowPrev": "Previous row (up)",
+  "cardMoveRowNext": "Next row (down)",
+  "cardMoveColumnPrev": "Previous column (left)",
+  "cardMoveColumnNext": "Next column (right)",
+  "cardMoveWillMove": "Moves to row {row}, column {column}.",
+  "cardMoveWillSwap": "Swaps places with “{label}”.",
+  "cardMoveBlocked": "It doesn’t fit there.",
+  "cardMoveUnchanged": "Already in this position.",
+  "cardMoveConfirm": "Move",
+  "cardMoveDone": "Card moved.",
+  "cardSwapDone": "Cards swapped."
 }

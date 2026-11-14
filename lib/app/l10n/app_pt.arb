@@ -258,5 +258,57 @@
       }
     }
   },
-  "editIdleLockedNotice": "Edição bloqueada por inatividade."
+  "editIdleLockedNotice": "Edição bloqueada por inatividade.",
+  "cardMove": "Mover…",
+  "cardMoveTitle": "Mover card",
+  "cardMoveRowOf": "Linha {row} de {total}",
+  "@cardMoveRowOf": {
+    "placeholders": {
+      "row": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "cardMoveColumnOf": "Coluna {column} de {total}",
+  "@cardMoveColumnOf": {
+    "placeholders": {
+      "column": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "cardMoveRowPrev": "Linha anterior (para cima)",
+  "cardMoveRowNext": "Próxima linha (para baixo)",
+  "cardMoveColumnPrev": "Coluna anterior (para a esquerda)",
+  "cardMoveColumnNext": "Próxima coluna (para a direita)",
+  "cardMoveWillMove": "Vai para a linha {row}, coluna {column}.",
+  "@cardMoveWillMove": {
+    "placeholders": {
+      "row": {
+        "type": "int"
+      },
+      "column": {
+        "type": "int"
+      }
+    }
+  },
+  "cardMoveWillSwap": "Troca de lugar com “{label}”.",
+  "@cardMoveWillSwap": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "cardMoveBlocked": "Não cabe aí.",
+  "cardMoveUnchanged": "Já está nesta posição.",
+  "cardMoveConfirm": "Mover",
+  "cardMoveDone": "Card movido.",
+  "cardSwapDone": "Cards trocados de lugar."
 }

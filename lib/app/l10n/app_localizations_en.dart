@@ -560,4 +560,57 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get editIdleLockedNotice => 'Editing locked due to inactivity.';
+
+  @override
+  String get cardMove => 'Move…';
+
+  @override
+  String get cardMoveTitle => 'Move card';
+
+  @override
+  String cardMoveRowOf(int row, int total) {
+    return 'Row $row of $total';
+  }
+
+  @override
+  String cardMoveColumnOf(int column, int total) {
+    return 'Column $column of $total';
+  }
+
+  @override
+  String get cardMoveRowPrev => 'Previous row (up)';
+
+  @override
+  String get cardMoveRowNext => 'Next row (down)';
+
+  @override
+  String get cardMoveColumnPrev => 'Previous column (left)';
+
+  @override
+  String get cardMoveColumnNext => 'Next column (right)';
+
+  @override
+  String cardMoveWillMove(int row, int column) {
+    return 'Moves to row $row, column $column.';
+  }
+
+  @override
+  String cardMoveWillSwap(String label) {
+    return 'Swaps places with “$label”.';
+  }
+
+  @override
+  String get cardMoveBlocked => 'It doesn’t fit there.';
+
+  @override
+  String get cardMoveUnchanged => 'Already in this position.';
+
+  @override
+  String get cardMoveConfirm => 'Move';
+
+  @override
+  String get cardMoveDone => 'Card moved.';
+
+  @override
+  String get cardSwapDone => 'Cards swapped.';
 }

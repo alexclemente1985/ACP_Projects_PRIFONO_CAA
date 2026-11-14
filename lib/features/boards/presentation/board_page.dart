@@ -10,11 +10,13 @@ import 'package:prifono_caa/app/theme/brand_tokens.dart';
 import 'package:prifono_caa/features/boards/domain/board.dart';
 import 'package:prifono_caa/features/boards/domain/board_card.dart';
 import 'package:prifono_caa/features/boards/domain/board_cell_size.dart';
+import 'package:prifono_caa/features/boards/domain/board_move.dart';
 import 'package:prifono_caa/features/boards/presentation/board_cards_controller.dart';
 import 'package:prifono_caa/features/boards/presentation/board_grid_geometry.dart';
 import 'package:prifono_caa/features/boards/presentation/card_colors.dart';
 import 'package:prifono_caa/features/boards/presentation/card_editor_page.dart';
 import 'package:prifono_caa/features/boards/presentation/card_label_fit.dart';
+import 'package:prifono_caa/features/boards/presentation/card_move_dialog.dart';
 import 'package:prifono_caa/features/boards/presentation/word_class_text.dart';
 import 'package:prifono_caa/features/editing/presentation/edit_lock_button.dart';
 import 'package:prifono_caa/features/sentence/domain/sentence_item.dart';
@@ -85,6 +87,7 @@ class _BoardPageState extends State<BoardPage> {
           initial: card.content,
           onSave: (content) => _controller.update(card.id, content),
           onDelete: () => _controller.delete(card.id),
+          onMove: () => _moveWithDialog(card.id),
         ),
       ),
     );
@@ -126,6 +129,100 @@ class _BoardPageState extends State<BoardPage> {
     await navigator.push<void>(
       MaterialPageRoute<void>(builder: (_) => BoardPage(board: destination)),
     );
+  }
+
+  // --- Mover cards (ADR-042, E6b-3): só no modo de edição. ---
+
+  BoardCard? _cardById(int id) {
+    for (final card in _controller.cards) {
+      if (card.id == id) return card;
+    }
+    return null;
+  }
+
+  /// "Mover…" (editor e ação de leitor de tela): escolhe a posição num diálogo
+  /// e aplica na hora. O card é relido pelo id porque ele pode ter mudado de
+  /// lugar desde que o editor abriu.
+  Future<void> _moveWithDialog(int cardId) async {
+    final card = _cardById(cardId);
+    if (card == null) return;
+    final plan = await showCardMoveDialog(
+      context,
+      card: card,
+      cards: _controller.cards,
+      columns: widget.board.gridColumns,
+      rows: widget.board.gridRows,
+    );
+    if (plan == null || !mounted) return;
+    await _applyMove(card, plan, announce: true);
+  }
+
+  /// Um card foi SOLTO numa posição em branco (arrastar).
+  void _dropOnCell(int draggedId, CardPlacement blank) {
+    final dragged = _cardById(draggedId);
+    if (dragged == null) return;
+    final plan = BoardMove.toCell(
+      dragged,
+      col: blank.col,
+      row: blank.row,
+      cards: _controller.cards,
+      columns: widget.board.gridColumns,
+      rows: widget.board.gridRows,
+    );
+    unawaited(_applyMove(dragged, plan));
+  }
+
+  /// Um card foi SOLTO sobre outro (arrastar): os dois trocam de lugar.
+  void _dropOnCard(int draggedId, BoardCard target) {
+    final dragged = _cardById(draggedId);
+    if (dragged == null) return;
+    final plan = BoardMove.onto(
+      dragged,
+      target,
+      cards: _controller.cards,
+      columns: widget.board.gridColumns,
+      rows: widget.board.gridRows,
+    );
+    unawaited(_applyMove(dragged, plan));
+  }
+
+  /// Grava o [plan]. A tela já consultou o `BoardMove`, então o repositório
+  /// não deve recusar; se recusar (estado mudou no meio), avisa em vez de
+  /// quebrar. [announce]: confirma por escrito (o diálogo não mostra o
+  /// resultado na grade para quem usa leitor de tela); no arrastar, o próprio
+  /// card em outro lugar já é a confirmação.
+  Future<void> _applyMove(
+    BoardCard card,
+    MovePlan plan, {
+    bool announce = false,
+  }) async {
+    // Capturados ANTES do await.
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context);
+    if (plan.kind == MoveKind.unchanged) return;
+    if (plan.kind == MoveKind.blocked) {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.cardMoveBlocked)));
+      return;
+    }
+    final target = plan.target;
+    final other = plan.other;
+    try {
+      if (plan.kind == MoveKind.move && target != null) {
+        await _controller.move(card.id, col: target.col, row: target.row);
+        if (announce) {
+          messenger.showSnackBar(SnackBar(content: Text(l10n.cardMoveDone)));
+        }
+      } else if (plan.kind == MoveKind.swap && other != null) {
+        await _controller.swap(card.id, other.id);
+        if (announce) {
+          messenger.showSnackBar(SnackBar(content: Text(l10n.cardSwapDone)));
+        }
+      }
+    } on Exception {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.boardActionFailed)));
+    } on ArgumentError {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.cardMoveBlocked)));
+    }
   }
 
   String? _statusMessage(AppLocalizations l10n, {required bool editing}) {
@@ -205,6 +302,9 @@ class _BoardPageState extends State<BoardPage> {
                   onAdd: _addCard,
                   onUse: _useCard,
                   onEdit: _editCard,
+                  onMove: (card) => unawaited(_moveWithDialog(card.id)),
+                  onDropOnCell: _dropOnCell,
+                  onDropOnCard: _dropOnCard,
                 ),
               ),
             ],
@@ -252,8 +352,16 @@ class _StatusMessage extends StatelessWidget {
 /// no retângulo da sua posição e as posições sem card são sempre desenhadas
 /// (em edição, cada uma é um "+" que cria o card ali).
 ///
+/// Em EDIÇÃO (E6b-3) cada card pode ser arrastado (segurar e arrastar) e cada
+/// card e cada posição em branco recebe o que for solto: numa posição em
+/// branco o card MOVE; sobre outro card os dois TROCAM de lugar. A decisão (e
+/// o "Não cabe aí") vem do `BoardMove`; aqui só se desenha o contorno que
+/// mostra o que vai acontecer.
+///
 /// Acessibilidade: a grade é UM grupo, lido em ordem de leitura (linha e,
-/// dentro da linha, coluna), inclusive com cards que ocupam várias células.
+/// dentro da linha, coluna), inclusive com cards que ocupam várias células. O
+/// arrastar não tem equivalente para leitor de tela: a alternativa é a ação
+/// "Mover…" do card (e o botão do editor).
 class _BoardGrid extends StatelessWidget {
   const _BoardGrid({
     required this.board,
@@ -262,17 +370,29 @@ class _BoardGrid extends StatelessWidget {
     required this.onAdd,
     required this.onUse,
     required this.onEdit,
+    required this.onMove,
+    required this.onDropOnCell,
+    required this.onDropOnCard,
   });
 
   final Board board;
   final List<BoardCard> cards;
 
-  /// Modo de edição: as posições em branco viram "+" e tocar no card abre o
-  /// editor.
+  /// Modo de edição: as posições em branco viram "+", tocar no card abre o
+  /// editor e os cards podem ser arrastados.
   final bool editing;
   final ValueChanged<CardPlacement> onAdd;
   final ValueChanged<BoardCard> onUse;
   final ValueChanged<BoardCard> onEdit;
+
+  /// Ação "Mover…" do card (leitor de tela e Switch Access), só em edição.
+  final ValueChanged<BoardCard> onMove;
+
+  /// O card de id `draggedId` foi solto numa posição em branco.
+  final void Function(int draggedId, CardPlacement blank) onDropOnCell;
+
+  /// O card de id `draggedId` foi solto sobre `target`.
+  final void Function(int draggedId, BoardCard target) onDropOnCard;
 
   @override
   Widget build(BuildContext context) {
@@ -291,6 +411,13 @@ class _BoardGrid extends StatelessWidget {
       return store.fileFor(symbol, size: SymbolImageSize.medium);
     }
 
+    BoardCard? cardById(int id) {
+      for (final card in cards) {
+        if (card.id == id) return card;
+      }
+      return null;
+    }
+
     return Semantics(
       container: true,
       explicitChildNodes: true,
@@ -307,6 +434,100 @@ class _BoardGrid extends StatelessWidget {
             );
           }
 
+          /// O que acontece se o card que está sendo arrastado (o primeiro de
+          /// [candidates]) for solto aqui; `null` = nada passando por cima.
+          MoveKind? hoverKind(
+            List<int?> candidates,
+            MovePlan Function(BoardCard dragged) planFor,
+          ) {
+            if (candidates.isEmpty) return null;
+            final id = candidates.first;
+            if (id == null) return null;
+            final dragged = cardById(id);
+            if (dragged == null) return null;
+            return planFor(dragged).kind;
+          }
+
+          Widget blankCell(CardPlacement blank) {
+            if (!editing) return const _BlankCell();
+            final tile = _AddTile(
+              placement: blank,
+              order: blank.row * columns + blank.col,
+              onPressed: () => onAdd(blank),
+            );
+            // O DragTarget não tem gesto próprio: o toque no "+" continua
+            // indo para o InkWell dele.
+            return DragTarget<int>(
+              onAcceptWithDetails: (details) =>
+                  onDropOnCell(details.data, blank),
+              builder: (context, candidates, rejected) {
+                return _DropHighlight(
+                  kind: hoverKind(
+                    candidates,
+                    (dragged) => BoardMove.toCell(
+                      dragged,
+                      col: blank.col,
+                      row: blank.row,
+                      cards: cards,
+                      columns: columns,
+                      rows: rows,
+                    ),
+                  ),
+                  child: tile,
+                );
+              },
+            );
+          }
+
+          Widget cardCell(BoardCard card) {
+            final tile = _CardTile(
+              card: card,
+              order: card.placement.row * columns + card.placement.col,
+              imageFile: imageOf(card),
+              linked: card.content.linkBoardId != null,
+              onTap: () => editing ? onEdit(card) : onUse(card),
+              onMove: editing ? () => onMove(card) : null,
+            );
+            if (!editing) return tile;
+            final rect = rectOf(card.placement);
+            // Segurar ~0,5 s e arrastar; um toque curto continua abrindo o
+            // editor. O "fantasma" que acompanha o dedo tem o tamanho do
+            // card e fica fora da leitura de tela.
+            final draggable = LongPressDraggable<int>(
+              data: card.id,
+              feedback: ExcludeSemantics(
+                child: SizedBox(
+                  width: rect.width,
+                  height: rect.height,
+                  child: Opacity(opacity: 0.9, child: tile),
+                ),
+              ),
+              childWhenDragging: Opacity(opacity: 0.3, child: tile),
+              child: tile,
+            );
+            return DragTarget<int>(
+              // Soltar o card em cima dele mesmo não é um alvo.
+              onWillAcceptWithDetails: (details) => details.data != card.id,
+              onAcceptWithDetails: (details) =>
+                  onDropOnCard(details.data, card),
+              builder: (context, candidates, rejected) {
+                return _DropHighlight(
+                  kind: hoverKind(
+                    candidates,
+                    (dragged) => BoardMove.onto(
+                      dragged,
+                      card,
+                      cards: cards,
+                      columns: columns,
+                      rows: rows,
+                    ),
+                  ),
+                  child: draggable,
+                );
+              },
+            );
+          }
+
           return Stack(
             fit: StackFit.expand,
             children: [
@@ -314,30 +535,56 @@ class _BoardGrid extends StatelessWidget {
                 Positioned.fromRect(
                   key: BoardPage.blankCellKey(blank.col, blank.row),
                   rect: rectOf(blank),
-                  child: editing
-                      ? _AddTile(
-                          placement: blank,
-                          order: blank.row * columns + blank.col,
-                          onPressed: () => onAdd(blank),
-                        )
-                      : const _BlankCell(),
+                  child: blankCell(blank),
                 ),
               for (final card in cards)
                 Positioned.fromRect(
                   key: BoardPage.cardKey(card.id),
                   rect: rectOf(card.placement),
-                  child: _CardTile(
-                    card: card,
-                    order: card.placement.row * columns + card.placement.col,
-                    imageFile: imageOf(card),
-                    linked: card.content.linkBoardId != null,
-                    onTap: () => editing ? onEdit(card) : onUse(card),
-                  ),
+                  child: cardCell(card),
                 ),
             ],
           );
         },
       ),
+    );
+  }
+}
+
+/// Contorno que mostra, DURANTE o arrasto, o que acontece se o card for solto
+/// aqui: contorno grosso na cor do texto = vai mover ou trocar; na cor de erro
+/// = "Não cabe aí". Sem nada passando por cima (ou soltando no mesmo lugar),
+/// não desenha nada. Decorativo: não pega toque e fica fora da leitura.
+class _DropHighlight extends StatelessWidget {
+  const _DropHighlight({required this.kind, required this.child});
+
+  final MoveKind? kind;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final showing = kind == MoveKind.move ||
+        kind == MoveKind.swap ||
+        kind == MoveKind.blocked;
+    final color = kind == MoveKind.blocked ? scheme.error : scheme.onSurface;
+
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        child,
+        if (showing)
+          IgnorePointer(
+            child: ExcludeSemantics(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: color, width: 4),
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }
@@ -349,6 +596,7 @@ class _CardTile extends StatelessWidget {
     required this.imageFile,
     required this.linked,
     required this.onTap,
+    this.onMove,
   });
 
   final BoardCard card;
@@ -364,6 +612,10 @@ class _CardTile extends StatelessWidget {
   /// Em uso: fala e adiciona à frase. Em edição: abre o editor.
   final VoidCallback onTap;
 
+  /// Só em edição: ação "Mover…" para leitor de tela e Switch Access (a
+  /// alternativa ao arrastar, ADR-042).
+  final VoidCallback? onMove;
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -378,6 +630,7 @@ class _CardTile extends StatelessWidget {
     final label = card.content.label;
     final l10n = AppLocalizations.of(context);
     final wordClass = card.content.wordClass;
+    final move = onMove;
 
     // Semantics (label + button) e o gesto do InkWell viram UM nó: o leitor
     // de tela lê o rótulo uma vez, sem repetir o conteúdo visual. A classe
@@ -389,6 +642,9 @@ class _CardTile extends StatelessWidget {
       label: label,
       value: wordClass == null ? null : wordClassName(l10n, wordClass),
       hint: linked ? l10n.cardOpensBoardHint : null,
+      customSemanticsActions: move == null
+          ? null
+          : {CustomSemanticsAction(label: l10n.cardMove): move},
       child: Material(
         color: background,
         clipBehavior: Clip.antiAlias,

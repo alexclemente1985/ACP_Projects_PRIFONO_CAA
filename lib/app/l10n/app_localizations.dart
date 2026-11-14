@@ -1035,6 +1035,96 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Edição bloqueada por inatividade.'**
   String get editIdleLockedNotice;
+
+  /// No description provided for @cardMove.
+  ///
+  /// In pt, this message translates to:
+  /// **'Mover…'**
+  String get cardMove;
+
+  /// No description provided for @cardMoveTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Mover card'**
+  String get cardMoveTitle;
+
+  /// No description provided for @cardMoveRowOf.
+  ///
+  /// In pt, this message translates to:
+  /// **'Linha {row} de {total}'**
+  String cardMoveRowOf(int row, int total);
+
+  /// No description provided for @cardMoveColumnOf.
+  ///
+  /// In pt, this message translates to:
+  /// **'Coluna {column} de {total}'**
+  String cardMoveColumnOf(int column, int total);
+
+  /// No description provided for @cardMoveRowPrev.
+  ///
+  /// In pt, this message translates to:
+  /// **'Linha anterior (para cima)'**
+  String get cardMoveRowPrev;
+
+  /// No description provided for @cardMoveRowNext.
+  ///
+  /// In pt, this message translates to:
+  /// **'Próxima linha (para baixo)'**
+  String get cardMoveRowNext;
+
+  /// No description provided for @cardMoveColumnPrev.
+  ///
+  /// In pt, this message translates to:
+  /// **'Coluna anterior (para a esquerda)'**
+  String get cardMoveColumnPrev;
+
+  /// No description provided for @cardMoveColumnNext.
+  ///
+  /// In pt, this message translates to:
+  /// **'Próxima coluna (para a direita)'**
+  String get cardMoveColumnNext;
+
+  /// No description provided for @cardMoveWillMove.
+  ///
+  /// In pt, this message translates to:
+  /// **'Vai para a linha {row}, coluna {column}.'**
+  String cardMoveWillMove(int row, int column);
+
+  /// No description provided for @cardMoveWillSwap.
+  ///
+  /// In pt, this message translates to:
+  /// **'Troca de lugar com “{label}”.'**
+  String cardMoveWillSwap(String label);
+
+  /// No description provided for @cardMoveBlocked.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não cabe aí.'**
+  String get cardMoveBlocked;
+
+  /// No description provided for @cardMoveUnchanged.
+  ///
+  /// In pt, this message translates to:
+  /// **'Já está nesta posição.'**
+  String get cardMoveUnchanged;
+
+  /// No description provided for @cardMoveConfirm.
+  ///
+  /// In pt, this message translates to:
+  /// **'Mover'**
+  String get cardMoveConfirm;
+
+  /// No description provided for @cardMoveDone.
+  ///
+  /// In pt, this message translates to:
+  /// **'Card movido.'**
+  String get cardMoveDone;
+
+  /// No description provided for @cardSwapDone.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cards trocados de lugar.'**
+  String get cardSwapDone;
 }
 
 class _AppLocalizationsDelegate

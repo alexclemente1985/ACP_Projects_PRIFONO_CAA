@@ -15,7 +15,7 @@ import 'package:prifono_caa/features/symbols/data/symbol_image_store.dart';
 
 import '../support/unlock_edit_mode.dart';
 
-// AUDITORIA DE ACESSIBILIDADE (E6-1, ADR-041). Versão 5 (E6b-2, ADR-042).
+// AUDITORIA DE ACESSIBILIDADE (E6-1, ADR-041). Versão 6 (E6b-3, ADR-042).
 //
 // Roda os guidelines oficiais do `flutter_test` (alvo de toque Android 48 dp,
 // alvo de toque iOS 44 dp, rótulo em todo alvo tocável e contraste de texto
@@ -40,6 +40,9 @@ import '../support/unlock_edit_mode.dart';
 //   decisão 3 do ADR-041 é AVISAR no formulário da prancha, não bloquear, então
 //   a prancha continua desenhando a grade pedida. O aviso é coberto por
 //   `test/a11y/text_scale_test.dart`. No tablet (1280 dp) a mesma prancha passa.
+// - v6 (E6b-3, ADR-042): o editor de um card existente ganha o botão
+//   "Mover…" no corpo e o cenário "diálogo Mover…" audita as duas
+//   linhas de passo (Linha/Coluna) e os botões do diálogo.
 // - v5 (E6b-2, ADR-042): a prancha "Temática" tem um card 2×2 e posições em
 //   branco, e entra em dois cenários novos (uso e edição). Em edição cada
 //   posição em branco é um "+" com rótulo próprio ("linha 2, coluna 3") e
@@ -148,6 +151,12 @@ final List<_Scenario> _scenarios = [
   }),
   _Scenario('editor de card (início)', _openCardEditor),
   _Scenario('editor de card (página inteira)', _openCardEditor, tall: true),
+  _Scenario('diálogo Mover…', (tester) async {
+    await _openCardEditor(tester);
+    await _scrollTo(tester, find.text('Mover…'));
+    await tester.tap(find.text('Mover…'));
+    await tester.pumpAndSettle();
+  }),
   _Scenario('busca de pictogramas', (tester) async {
     await _openCardEditor(tester);
     await _scrollTo(tester, find.text('Escolher pictograma'));

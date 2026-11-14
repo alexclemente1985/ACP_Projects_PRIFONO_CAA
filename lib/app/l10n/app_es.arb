@@ -176,5 +176,20 @@
       }
     }
   },
-  "editIdleLockedNotice": "Edición bloqueada por inactividad."
+  "editIdleLockedNotice": "Edición bloqueada por inactividad.",
+  "cardMove": "Mover…",
+  "cardMoveTitle": "Mover tarjeta",
+  "cardMoveRowOf": "Fila {row} de {total}",
+  "cardMoveColumnOf": "Columna {column} de {total}",
+  "cardMoveRowPrev": "Fila anterior (hacia arriba)",
+  "cardMoveRowNext": "Fila siguiente (hacia abajo)",
+  "cardMoveColumnPrev": "Columna anterior (hacia la izquierda)",
+  "cardMoveColumnNext": "Columna siguiente (hacia la derecha)",
+  "cardMoveWillMove": "Va a la fila {row}, columna {column}.",
+  "cardMoveWillSwap": "Intercambia lugar con “{label}”.",
+  "cardMoveBlocked": "No cabe ahí.",
+  "cardMoveUnchanged": "Ya está en esta posición.",
+  "cardMoveConfirm": "Mover",
+  "cardMoveDone": "Tarjeta movida.",
+  "cardSwapDone": "Tarjetas intercambiadas."
 }

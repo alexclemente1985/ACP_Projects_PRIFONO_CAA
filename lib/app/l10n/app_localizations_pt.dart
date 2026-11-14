@@ -563,4 +563,57 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get editIdleLockedNotice => 'Edição bloqueada por inatividade.';
+
+  @override
+  String get cardMove => 'Mover…';
+
+  @override
+  String get cardMoveTitle => 'Mover card';
+
+  @override
+  String cardMoveRowOf(int row, int total) {
+    return 'Linha $row de $total';
+  }
+
+  @override
+  String cardMoveColumnOf(int column, int total) {
+    return 'Coluna $column de $total';
+  }
+
+  @override
+  String get cardMoveRowPrev => 'Linha anterior (para cima)';
+
+  @override
+  String get cardMoveRowNext => 'Próxima linha (para baixo)';
+
+  @override
+  String get cardMoveColumnPrev => 'Coluna anterior (para a esquerda)';
+
+  @override
+  String get cardMoveColumnNext => 'Próxima coluna (para a direita)';
+
+  @override
+  String cardMoveWillMove(int row, int column) {
+    return 'Vai para a linha $row, coluna $column.';
+  }
+
+  @override
+  String cardMoveWillSwap(String label) {
+    return 'Troca de lugar com “$label”.';
+  }
+
+  @override
+  String get cardMoveBlocked => 'Não cabe aí.';
+
+  @override
+  String get cardMoveUnchanged => 'Já está nesta posição.';
+
+  @override
+  String get cardMoveConfirm => 'Mover';
+
+  @override
+  String get cardMoveDone => 'Card movido.';
+
+  @override
+  String get cardSwapDone => 'Cards trocados de lugar.';
 }

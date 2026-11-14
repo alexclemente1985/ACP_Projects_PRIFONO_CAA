@@ -29,6 +29,7 @@ class CardEditorPage extends StatefulWidget {
     required this.onSave,
     this.initial,
     this.onDelete,
+    this.onMove,
     this.currentBoardId,
     super.key,
   });
@@ -39,6 +40,11 @@ class CardEditorPage extends StatefulWidget {
   final int? currentBoardId;
   final Future<void> Function(CardContent content) onSave;
   final Future<void> Function()? onDelete;
+
+  /// "Mover…" (ADR-042, E6b-3): abre a escolha de posição da prancha e
+  /// aplica NA HORA, como o excluir; o editor continua aberto com o que foi
+  /// digitado. `null` em card novo (a posição foi a do "+" tocado).
+  final Future<void> Function()? onMove;
 
   @override
   State<CardEditorPage> createState() => _CardEditorPageState();
@@ -215,6 +221,7 @@ class _CardEditorPageState extends State<CardEditorPage> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final isEditing = widget.initial != null;
+    final onMove = widget.onMove;
 
     return Scaffold(
       appBar: AppBar(
@@ -254,6 +261,18 @@ class _CardEditorPageState extends State<CardEditorPage> {
               ),
             );
             final symbol = _SymbolSection(draft: _draft, onChoose: _pickSymbol);
+            // "Mover…" fica no corpo (não na AppBar): com três ações o título
+            // era espremido no telefone (achado do E6b-3, auditoria).
+            final moveButton = onMove == null
+                ? null
+                : OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(56),
+                    ),
+                    onPressed: _saving ? null : () => unawaited(onMove()),
+                    icon: const Icon(Icons.open_with),
+                    label: Text(l10n.cardMove),
+                  );
             final fields = _buildFields(l10n);
             final wordClass = _WordClassSection(draft: _draft);
             final link = _LinkSection(
@@ -280,6 +299,10 @@ class _CardEditorPageState extends State<CardEditorPage> {
                                       CrossAxisAlignment.stretch,
                                   children: [
                                     preview,
+                                    if (moveButton != null) ...[
+                                      const SizedBox(height: 16),
+                                      moveButton,
+                                    ],
                                     const SizedBox(height: 16),
                                     symbol,
                                   ],
@@ -305,6 +328,10 @@ class _CardEditorPageState extends State<CardEditorPage> {
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               preview,
+                              if (moveButton != null) ...[
+                                const SizedBox(height: 16),
+                                moveButton,
+                              ],
                               const SizedBox(height: 16),
                               symbol,
                               const SizedBox(height: 24),
