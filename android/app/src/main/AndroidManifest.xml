@@ -1,4 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Busca de pictogramas no ARASAAC. Os manifestos de debug/profile já trazem esta
+         permissão; o de release não, por isso ela precisa estar aqui. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
         android:label="Privox"
         android:name="${applicationName}"
