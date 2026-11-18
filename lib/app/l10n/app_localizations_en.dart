@@ -613,4 +613,48 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cardSwapDone => 'Cards swapped.';
+
+  @override
+  String get cardSizeTitle => 'Card size';
+
+  @override
+  String get cardSizeHelp =>
+      'The card grows to the right and downward, only over blank positions. The size applies when you save.';
+
+  @override
+  String cardSizeSummary(int width, int height) {
+    return 'Size: $width × $height positions (width × height).';
+  }
+
+  @override
+  String get cardSizeNoRoomRight => 'There is no room to grow to the right.';
+
+  @override
+  String get cardSizeNoRoomBelow => 'There is no room to grow downward.';
+
+  @override
+  String cardSizeWidthOf(int current, int total) {
+    return 'Width: $current of $total';
+  }
+
+  @override
+  String cardSizeHeightOf(int current, int total) {
+    return 'Height: $current of $total';
+  }
+
+  @override
+  String get cardSizeWidthDecrease => 'Decrease width';
+
+  @override
+  String get cardSizeWidthIncrease => 'Increase width';
+
+  @override
+  String get cardSizeHeightDecrease => 'Decrease height';
+
+  @override
+  String get cardSizeHeightIncrease => 'Increase height';
+
+  @override
+  String get cardSizeNotFit =>
+      'The chosen size no longer fits. Adjust it and save again.';
 }

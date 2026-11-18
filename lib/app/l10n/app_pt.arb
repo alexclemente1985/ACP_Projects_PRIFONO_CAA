@@ -310,5 +310,47 @@
   "cardMoveUnchanged": "Já está nesta posição.",
   "cardMoveConfirm": "Mover",
   "cardMoveDone": "Card movido.",
-  "cardSwapDone": "Cards trocados de lugar."
+  "cardSwapDone": "Cards trocados de lugar.",
+  "cardSizeTitle": "Tamanho do card",
+  "cardSizeHelp": "O card cresce para a direita e para baixo, só sobre posições em branco. O tamanho vale quando você salva.",
+  "cardSizeSummary": "Tamanho: {width} × {height} posições (largura × altura).",
+  "@cardSizeSummary": {
+    "placeholders": {
+      "width": {
+        "type": "int"
+      },
+      "height": {
+        "type": "int"
+      }
+    }
+  },
+  "cardSizeNoRoomRight": "Não há espaço para crescer à direita.",
+  "cardSizeNoRoomBelow": "Não há espaço para crescer para baixo.",
+  "cardSizeWidthOf": "Largura: {current} de {total}",
+  "@cardSizeWidthOf": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "cardSizeHeightOf": "Altura: {current} de {total}",
+  "@cardSizeHeightOf": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "cardSizeWidthDecrease": "Diminuir a largura",
+  "cardSizeWidthIncrease": "Aumentar a largura",
+  "cardSizeHeightDecrease": "Diminuir a altura",
+  "cardSizeHeightIncrease": "Aumentar a altura",
+  "cardSizeNotFit": "O tamanho escolhido não cabe mais. Ajuste e salve de novo."
 }

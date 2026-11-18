@@ -9,6 +9,7 @@ import 'package:prifono_caa/app/l10n/app_localizations.dart';
 import 'package:prifono_caa/app/theme/app_theme.dart';
 import 'package:prifono_caa/features/boards/data/in_memory_board_repository.dart';
 import 'package:prifono_caa/features/boards/domain/board_card.dart';
+import 'package:prifono_caa/features/boards/domain/card_size_rules.dart';
 import 'package:prifono_caa/features/boards/domain/word_class.dart';
 import 'package:prifono_caa/features/boards/presentation/card_editor_page.dart';
 import 'package:prifono_caa/features/settings/settings_controller.dart';
@@ -18,7 +19,7 @@ import 'package:prifono_caa/features/symbols/data/symbol_image_store.dart';
 /// Monta uma tela com um botão "abrir" que empilha o editor (assim o
 /// Navigator.pop do editor tem para onde voltar).
 Widget _buildHost({
-  required Future<void> Function(CardContent content) onSave,
+  required Future<void> Function(CardContent content, CardSize size) onSave,
   Future<void> Function()? onDelete,
   CardContent? initial,
 }) {
@@ -44,6 +45,13 @@ Widget _buildHost({
                 MaterialPageRoute<void>(
                   builder: (_) => CardEditorPage(
                     initial: initial,
+                    // Grade 4×3 só com este card (1×1 em 0,0): sobra espaço.
+                    gridSpace: () => const CardGridSpace(
+                      columns: 4,
+                      rows: 3,
+                      origin: CardPlacement(col: 0, row: 0),
+                      others: [],
+                    ),
                     onSave: onSave,
                     onDelete: onDelete,
                   ),
@@ -60,7 +68,7 @@ Widget _buildHost({
 
 Future<void> _openEditor(
   WidgetTester tester, {
-  required Future<void> Function(CardContent content) onSave,
+  required Future<void> Function(CardContent content, CardSize size) onSave,
   Future<void> Function()? onDelete,
   CardContent? initial,
 }) async {
@@ -106,7 +114,7 @@ void main() {
   group('CardEditorPage', () {
     testWidgets('texto vazio mostra o erro e não salva', (tester) async {
       var saves = 0;
-      await _openEditor(tester, onSave: (_) async => saves++);
+      await _openEditor(tester, onSave: (_, _) async => saves++);
 
       await tester.tap(find.text('Salvar'));
       await tester.pumpAndSettle();
@@ -120,7 +128,7 @@ void main() {
       CardContent? saved;
       await _openEditor(
         tester,
-        onSave: (content) async {
+        onSave: (content, _) async {
           saved = content;
         },
       );
@@ -142,7 +150,7 @@ void main() {
       CardContent? saved;
       await _openEditor(
         tester,
-        onSave: (content) async {
+        onSave: (content, _) async {
           saved = content;
         },
       );
@@ -162,7 +170,7 @@ void main() {
     testWidgets('mostra as dez classes e "Nenhuma", cada uma com o nome', (
       tester,
     ) async {
-      await _openEditor(tester, onSave: (_) async {});
+      await _openEditor(tester, onSave: (_, _) async {});
 
       for (final name in _classChipNames) {
         expect(find.text(name), findsOneWidget, reason: name);
@@ -182,7 +190,7 @@ void main() {
       await _openEditor(
         tester,
         initial: const CardContent(label: 'Quem', wordClass: WordClass.question),
-        onSave: (content) async {
+        onSave: (content, _) async {
           saved = content;
         },
       );
@@ -204,17 +212,17 @@ void main() {
       await _openEditor(
         tester,
         initial: const CardContent(label: 'Sim', backgroundColor: 0xFFFBB7C4),
-        onSave: (content) async {
+        onSave: (content, _) async {
           saved = content;
         },
       );
       // Cor livre antiga: nenhuma ficha marcada ainda.
-        expect(_selectedChips(tester), isEmpty);
+      expect(_selectedChips(tester), isEmpty);
 
       await tester.ensureVisible(find.text('Nenhuma'));
       await tester.tap(find.text('Nenhuma'));
       await tester.pump();
-        expect(_selectedChips(tester), ['Nenhuma']);
+      expect(_selectedChips(tester), ['Nenhuma']);
       await tester.tap(find.text('Salvar'));
       await tester.pumpAndSettle();
 
@@ -225,7 +233,7 @@ void main() {
     testWidgets('falha ao salvar mantém a tela, o texto e avisa', (tester) async {
       await _openEditor(
         tester,
-        onSave: (_) async {
+        onSave: (_, _) async {
           throw Exception('disco cheio');
         },
       );
@@ -243,7 +251,7 @@ void main() {
     });
 
     testWidgets('card novo não tem o botão de excluir', (tester) async {
-      await _openEditor(tester, onSave: (_) async {});
+      await _openEditor(tester, onSave: (_, _) async {});
 
       expect(find.byTooltip('Excluir card'), findsNothing);
     });
@@ -253,7 +261,7 @@ void main() {
       await _openEditor(
         tester,
         initial: const CardContent(label: 'Água'),
-        onSave: (_) async {},
+        onSave: (_, _) async {},
         onDelete: () async {
           deletes++;
         },
@@ -277,7 +285,7 @@ void main() {
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
 
-      await _openEditor(tester, onSave: (_) async {});
+      await _openEditor(tester, onSave: (_, _) async {});
 
       expect(tester.takeException(), isNull);
       expect(find.text('Classe gramatical'), findsOneWidget);
@@ -299,7 +307,7 @@ void main() {
           label: 'Quero beber água agora',
           backgroundColor: 0xFF122A30,
         ),
-        onSave: (_) async {},
+        onSave: (_, _) async {},
         onDelete: () async {},
       );
 

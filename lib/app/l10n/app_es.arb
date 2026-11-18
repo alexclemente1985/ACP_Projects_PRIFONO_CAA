@@ -191,5 +191,17 @@
   "cardMoveUnchanged": "Ya está en esta posición.",
   "cardMoveConfirm": "Mover",
   "cardMoveDone": "Tarjeta movida.",
-  "cardSwapDone": "Tarjetas intercambiadas."
+  "cardSwapDone": "Tarjetas intercambiadas.",
+  "cardSizeTitle": "Tamaño de la tarjeta",
+  "cardSizeHelp": "La tarjeta crece hacia la derecha y hacia abajo, solo sobre posiciones en blanco. El tamaño vale al guardar.",
+  "cardSizeSummary": "Tamaño: {width} × {height} posiciones (ancho × alto).",
+  "cardSizeNoRoomRight": "No hay espacio para crecer a la derecha.",
+  "cardSizeNoRoomBelow": "No hay espacio para crecer hacia abajo.",
+  "cardSizeWidthOf": "Ancho: {current} de {total}",
+  "cardSizeHeightOf": "Alto: {current} de {total}",
+  "cardSizeWidthDecrease": "Reducir el ancho",
+  "cardSizeWidthIncrease": "Aumentar el ancho",
+  "cardSizeHeightDecrease": "Reducir el alto",
+  "cardSizeHeightIncrease": "Aumentar el alto",
+  "cardSizeNotFit": "El tamaño elegido ya no cabe. Ajústalo y guarda de nuevo."
 }

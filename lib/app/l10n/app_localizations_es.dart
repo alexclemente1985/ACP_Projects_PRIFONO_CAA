@@ -618,4 +618,48 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get cardSwapDone => 'Tarjetas intercambiadas.';
+
+  @override
+  String get cardSizeTitle => 'Tamaño de la tarjeta';
+
+  @override
+  String get cardSizeHelp =>
+      'La tarjeta crece hacia la derecha y hacia abajo, solo sobre posiciones en blanco. El tamaño vale al guardar.';
+
+  @override
+  String cardSizeSummary(int width, int height) {
+    return 'Tamaño: $width × $height posiciones (ancho × alto).';
+  }
+
+  @override
+  String get cardSizeNoRoomRight => 'No hay espacio para crecer a la derecha.';
+
+  @override
+  String get cardSizeNoRoomBelow => 'No hay espacio para crecer hacia abajo.';
+
+  @override
+  String cardSizeWidthOf(int current, int total) {
+    return 'Ancho: $current de $total';
+  }
+
+  @override
+  String cardSizeHeightOf(int current, int total) {
+    return 'Alto: $current de $total';
+  }
+
+  @override
+  String get cardSizeWidthDecrease => 'Reducir el ancho';
+
+  @override
+  String get cardSizeWidthIncrease => 'Aumentar el ancho';
+
+  @override
+  String get cardSizeHeightDecrease => 'Reducir el alto';
+
+  @override
+  String get cardSizeHeightIncrease => 'Aumentar el alto';
+
+  @override
+  String get cardSizeNotFit =>
+      'El tamaño elegido ya no cabe. Ajústalo y guarda de nuevo.';
 }

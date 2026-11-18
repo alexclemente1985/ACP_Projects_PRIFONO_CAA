@@ -1125,6 +1125,78 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Cards trocados de lugar.'**
   String get cardSwapDone;
+
+  /// No description provided for @cardSizeTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Tamanho do card'**
+  String get cardSizeTitle;
+
+  /// No description provided for @cardSizeHelp.
+  ///
+  /// In pt, this message translates to:
+  /// **'O card cresce para a direita e para baixo, só sobre posições em branco. O tamanho vale quando você salva.'**
+  String get cardSizeHelp;
+
+  /// No description provided for @cardSizeSummary.
+  ///
+  /// In pt, this message translates to:
+  /// **'Tamanho: {width} × {height} posições (largura × altura).'**
+  String cardSizeSummary(int width, int height);
+
+  /// No description provided for @cardSizeNoRoomRight.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não há espaço para crescer à direita.'**
+  String get cardSizeNoRoomRight;
+
+  /// No description provided for @cardSizeNoRoomBelow.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não há espaço para crescer para baixo.'**
+  String get cardSizeNoRoomBelow;
+
+  /// No description provided for @cardSizeWidthOf.
+  ///
+  /// In pt, this message translates to:
+  /// **'Largura: {current} de {total}'**
+  String cardSizeWidthOf(int current, int total);
+
+  /// No description provided for @cardSizeHeightOf.
+  ///
+  /// In pt, this message translates to:
+  /// **'Altura: {current} de {total}'**
+  String cardSizeHeightOf(int current, int total);
+
+  /// No description provided for @cardSizeWidthDecrease.
+  ///
+  /// In pt, this message translates to:
+  /// **'Diminuir a largura'**
+  String get cardSizeWidthDecrease;
+
+  /// No description provided for @cardSizeWidthIncrease.
+  ///
+  /// In pt, this message translates to:
+  /// **'Aumentar a largura'**
+  String get cardSizeWidthIncrease;
+
+  /// No description provided for @cardSizeHeightDecrease.
+  ///
+  /// In pt, this message translates to:
+  /// **'Diminuir a altura'**
+  String get cardSizeHeightDecrease;
+
+  /// No description provided for @cardSizeHeightIncrease.
+  ///
+  /// In pt, this message translates to:
+  /// **'Aumentar a altura'**
+  String get cardSizeHeightIncrease;
+
+  /// No description provided for @cardSizeNotFit.
+  ///
+  /// In pt, this message translates to:
+  /// **'O tamanho escolhido não cabe mais. Ajuste e salve de novo.'**
+  String get cardSizeNotFit;
 }
 
 class _AppLocalizationsDelegate

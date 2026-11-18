@@ -8,6 +8,7 @@ import 'package:prifono_caa/app/theme/brand_tokens.dart';
 import 'package:prifono_caa/features/boards/domain/board.dart';
 import 'package:prifono_caa/features/boards/domain/board_capacity.dart';
 import 'package:prifono_caa/features/boards/domain/board_card.dart';
+import 'package:prifono_caa/features/boards/domain/card_size_rules.dart';
 import 'package:prifono_caa/features/boards/domain/word_class.dart';
 import 'package:prifono_caa/features/boards/presentation/card_colors.dart';
 import 'package:prifono_caa/features/boards/presentation/card_draft_controller.dart';
@@ -24,9 +25,16 @@ import 'package:prifono_caa/features/symbols/presentation/symbol_search_page.dar
 /// [onSave] e [onDelete] gravam de verdade (quem chama decide como). A tela
 /// só fecha quando eles terminam sem erro; se falharem, ela continua aberta,
 /// com tudo o que foi digitado, e avisa.
+///
+/// Tamanho (ADR-042, E6b-4): o editor guarda um RASCUNHO de largura e altura
+/// (em posições da grade) e só o entrega ao salvar, junto com o conteúdo; o
+/// "Cancelar" (voltar) descarta tudo. [gridSpace] devolve, a cada chamada, o
+/// retrato ATUAL da grade, porque o "Mover…" age na hora e o card pode ter
+/// mudado de lugar com o editor aberto.
 class CardEditorPage extends StatefulWidget {
   const CardEditorPage({
     required this.onSave,
+    required this.gridSpace,
     this.initial,
     this.onDelete,
     this.onMove,
@@ -38,8 +46,15 @@ class CardEditorPage extends StatefulWidget {
 
   /// Prancha onde o card está (ela não aparece como destino do link).
   final int? currentBoardId;
-  final Future<void> Function(CardContent content) onSave;
+
+  /// Grava o conteúdo e o tamanho escolhido. Pode lançar [BoardFullException]
+  /// ou [ArgumentError] (tamanho que não cabe mais); o editor avisa e fica
+  /// aberto.
+  final Future<void> Function(CardContent content, CardSize size) onSave;
   final Future<void> Function()? onDelete;
+
+  /// Retrato atual da grade para o card (ver [CardGridSpace]).
+  final CardGridSpace Function() gridSpace;
 
   /// "Mover…" (ADR-042, E6b-3): abre a escolha de posição da prancha e
   /// aplica NA HORA, como o excluir; o editor continua aberto com o que foi
@@ -64,6 +79,11 @@ class _CardEditorPageState extends State<CardEditorPage> {
   late final TextEditingController _speech =
       TextEditingController(text: widget.initial?.speechText ?? '');
   bool _saving = false;
+
+  /// Rascunho do tamanho (E6b-4): começa no tamanho salvo do card (1×1 em card
+  /// novo) e só vale depois de salvar.
+  late int _colSpan = widget.gridSpace().origin.colSpan;
+  late int _rowSpan = widget.gridSpace().origin.rowSpan;
 
   /// Último rótulo preenchido por um pictograma (ver [labelAfterPick]).
   String? _autoLabel;
@@ -128,6 +148,58 @@ class _CardEditorPageState extends State<CardEditorPage> {
     );
   }
 
+  /// Aumenta [axis] em uma posição, se houver espaço em branco (E6b-4).
+  void _grow(CardAxis axis) {
+    final canGrow = CardSizeRules.canGrow(
+      widget.gridSpace(),
+      axis,
+      colSpan: _colSpan,
+      rowSpan: _rowSpan,
+    );
+    if (!canGrow) return;
+    setState(() {
+      if (axis == CardAxis.width) {
+        _colSpan++;
+      } else {
+        _rowSpan++;
+      }
+    });
+  }
+
+  /// Diminui [axis] em uma posição (mínimo 1; sempre permitido, E6b-4).
+  void _shrink(CardAxis axis) {
+    final canShrink = CardSizeRules.canShrink(
+      axis,
+      colSpan: _colSpan,
+      rowSpan: _rowSpan,
+    );
+    if (!canShrink) return;
+    setState(() {
+      if (axis == CardAxis.width) {
+        _colSpan--;
+      } else {
+        _rowSpan--;
+      }
+    });
+  }
+
+  /// "Mover…": o card muda de lugar NA HORA; quando termina, o espaço em
+  /// volta é outro. Se o rascunho do tamanho já não cabe na posição nova, ele
+  /// volta ao tamanho salvo (que sempre cabe: o card foi movido com ele).
+  Future<void> _move() async {
+    final onMove = widget.onMove;
+    if (onMove == null) return;
+    await onMove();
+    if (!mounted) return;
+    setState(() {
+      final space = widget.gridSpace();
+      if (!CardSizeRules.fits(space, colSpan: _colSpan, rowSpan: _rowSpan)) {
+        _colSpan = space.origin.colSpan;
+        _rowSpan = space.origin.rowSpan;
+      }
+    });
+  }
+
   Future<void> _save() async {
     if (_saving) return;
     if (!(_formKey.currentState?.validate() ?? false)) return;
@@ -139,13 +211,17 @@ class _CardEditorPageState extends State<CardEditorPage> {
       label: _label.text,
       speechText: _speech.text,
     );
+    final size = (colSpan: _colSpan, rowSpan: _rowSpan);
     setState(() => _saving = true);
     try {
-      await widget.onSave(content);
+      await widget.onSave(content, size);
       if (!mounted) return;
       navigator.pop();
     } on BoardFullException catch (error) {
       _failed(messenger, l10n.boardFull(error.capacity));
+    } on ArgumentError {
+      // O tamanho escolhido já não cabe (o repositório conferiu de novo).
+      _failed(messenger, l10n.cardSizeNotFit);
     } on Exception {
       _failed(messenger, l10n.boardActionFailed);
     }
@@ -221,7 +297,7 @@ class _CardEditorPageState extends State<CardEditorPage> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final isEditing = widget.initial != null;
-    final onMove = widget.onMove;
+    final hasMove = widget.onMove != null;
 
     return Scaffold(
       appBar: AppBar(
@@ -263,13 +339,13 @@ class _CardEditorPageState extends State<CardEditorPage> {
             final symbol = _SymbolSection(draft: _draft, onChoose: _pickSymbol);
             // "Mover…" fica no corpo (não na AppBar): com três ações o título
             // era espremido no telefone (achado do E6b-3, auditoria).
-            final moveButton = onMove == null
+            final moveButton = !hasMove
                 ? null
                 : OutlinedButton.icon(
                     style: OutlinedButton.styleFrom(
                       minimumSize: const Size.fromHeight(56),
                     ),
-                    onPressed: _saving ? null : () => unawaited(onMove()),
+                    onPressed: _saving ? null : () => unawaited(_move()),
                     icon: const Icon(Icons.open_with),
                     label: Text(l10n.cardMove),
                   );
@@ -278,6 +354,15 @@ class _CardEditorPageState extends State<CardEditorPage> {
             final link = _LinkSection(
               draft: _draft,
               currentBoardId: widget.currentBoardId,
+            );
+            // Tamanho do card (E6b-4): também no corpo, nunca na AppBar.
+            final size = _CardSizeSection(
+              space: widget.gridSpace(),
+              colSpan: _colSpan,
+              rowSpan: _rowSpan,
+              enabled: !_saving,
+              onGrow: _grow,
+              onShrink: _shrink,
             );
 
             return SingleChildScrollView(
@@ -305,6 +390,8 @@ class _CardEditorPageState extends State<CardEditorPage> {
                                     ],
                                     const SizedBox(height: 16),
                                     symbol,
+                                    const SizedBox(height: 24),
+                                    size,
                                   ],
                                 ),
                               ),
@@ -340,6 +427,8 @@ class _CardEditorPageState extends State<CardEditorPage> {
                               wordClass,
                               const SizedBox(height: 24),
                               link,
+                              const SizedBox(height: 24),
+                              size,
                             ],
                           ),
                   ),
@@ -349,6 +438,162 @@ class _CardEditorPageState extends State<CardEditorPage> {
           },
         ),
       ),
+    );
+  }
+}
+
+/// Largura e altura do card, em posições da grade (ADR-042, E6b-4). Cada lado
+/// tem um "−" e um "+" de 56 dp; o "+" só liga quando há posição em branco
+/// para onde crescer (para a direita ou para baixo) e, quando está desligado,
+/// o motivo aparece por escrito. A região viva (resumo + motivos) diz o
+/// resultado a cada passo, para quem usa leitor de tela.
+class _CardSizeSection extends StatelessWidget {
+  const _CardSizeSection({
+    required this.space,
+    required this.colSpan,
+    required this.rowSpan,
+    required this.enabled,
+    required this.onGrow,
+    required this.onShrink,
+  });
+
+  final CardGridSpace space;
+  final int colSpan;
+  final int rowSpan;
+
+  /// Falso enquanto salva: nada muda no meio da gravação.
+  final bool enabled;
+  final ValueChanged<CardAxis> onGrow;
+  final ValueChanged<CardAxis> onShrink;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final textTheme = Theme.of(context).textTheme;
+
+    final canGrowWidth = CardSizeRules.canGrow(
+      space,
+      CardAxis.width,
+      colSpan: colSpan,
+      rowSpan: rowSpan,
+    );
+    final canGrowHeight = CardSizeRules.canGrow(
+      space,
+      CardAxis.height,
+      colSpan: colSpan,
+      rowSpan: rowSpan,
+    );
+    final canShrinkWidth = CardSizeRules.canShrink(
+      CardAxis.width,
+      colSpan: colSpan,
+      rowSpan: rowSpan,
+    );
+    final canShrinkHeight = CardSizeRules.canShrink(
+      CardAxis.height,
+      colSpan: colSpan,
+      rowSpan: rowSpan,
+    );
+
+    // Uma frase só (resumo + motivos): a região viva a lê inteira a cada mudança.
+    final status = [
+      l10n.cardSizeSummary(colSpan, rowSpan),
+      if (!canGrowWidth) l10n.cardSizeNoRoomRight,
+      if (!canGrowHeight) l10n.cardSizeNoRoomBelow,
+    ].join(' ');
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Semantics(
+          header: true,
+          child: Text(l10n.cardSizeTitle, style: textTheme.titleMedium),
+        ),
+        const SizedBox(height: 4),
+        Text(l10n.cardSizeHelp, style: textTheme.bodyMedium),
+        const SizedBox(height: 12),
+        _SizeStepper(
+          label: l10n.cardSizeWidthOf(
+            colSpan,
+            CardSizeRules.maxFor(space, CardAxis.width),
+          ),
+          decreaseTooltip: l10n.cardSizeWidthDecrease,
+          increaseTooltip: l10n.cardSizeWidthIncrease,
+          onDecrease: enabled && canShrinkWidth
+              ? () => onShrink(CardAxis.width)
+              : null,
+          onIncrease:
+              enabled && canGrowWidth ? () => onGrow(CardAxis.width) : null,
+        ),
+        const SizedBox(height: 8),
+        _SizeStepper(
+          label: l10n.cardSizeHeightOf(
+            rowSpan,
+            CardSizeRules.maxFor(space, CardAxis.height),
+          ),
+          decreaseTooltip: l10n.cardSizeHeightDecrease,
+          increaseTooltip: l10n.cardSizeHeightIncrease,
+          onDecrease: enabled && canShrinkHeight
+              ? () => onShrink(CardAxis.height)
+              : null,
+          onIncrease:
+              enabled && canGrowHeight ? () => onGrow(CardAxis.height) : null,
+        ),
+        const SizedBox(height: 8),
+        Semantics(
+          liveRegion: true,
+          child: Text(status, style: textTheme.bodyMedium),
+        ),
+      ],
+    );
+  }
+}
+
+/// Uma linha "− texto +" (como os passos do "Mover…"): botões de 56 dp; um
+/// botão desligado (`null`) continua na tela, sem esconder o motivo.
+class _SizeStepper extends StatelessWidget {
+  const _SizeStepper({
+    required this.label,
+    required this.decreaseTooltip,
+    required this.increaseTooltip,
+    required this.onDecrease,
+    required this.onIncrease,
+  });
+
+  final String label;
+  final String decreaseTooltip;
+  final String increaseTooltip;
+  final VoidCallback? onDecrease;
+  final VoidCallback? onIncrease;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = IconButton.styleFrom(minimumSize: const Size.square(56));
+
+    return Row(
+      children: [
+        IconButton.filledTonal(
+          tooltip: decreaseTooltip,
+          style: style,
+          onPressed: onDecrease,
+          icon: const Icon(Icons.remove),
+        ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Text(
+              label,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+          ),
+        ),
+        IconButton.filledTonal(
+          tooltip: increaseTooltip,
+          style: style,
+          onPressed: onIncrease,
+          icon: const Icon(Icons.add),
+        ),
+      ],
     );
   }
 }

@@ -15,7 +15,7 @@ import 'package:prifono_caa/features/symbols/data/symbol_image_store.dart';
 
 import '../support/unlock_edit_mode.dart';
 
-// AUDITORIA DE ACESSIBILIDADE (E6-1, ADR-041). Versão 6 (E6b-3, ADR-042).
+// AUDITORIA DE ACESSIBILIDADE (E6-1, ADR-041). Versão 7 (E6b-4, ADR-042).
 //
 // Roda os guidelines oficiais do `flutter_test` (alvo de toque Android 48 dp,
 // alvo de toque iOS 44 dp, rótulo em todo alvo tocável e contraste de texto
@@ -40,6 +40,11 @@ import '../support/unlock_edit_mode.dart';
 //   decisão 3 do ADR-041 é AVISAR no formulário da prancha, não bloquear, então
 //   a prancha continua desenhando a grade pedida. O aviso é coberto por
 //   `test/a11y/text_scale_test.dart`. No tablet (1280 dp) a mesma prancha passa.
+// - v7 (E6b-4, ADR-042): o editor ganha a seção "Tamanho do card" (dois
+//   passos "− texto +" de 56 dp). O cenário "editor de card grande (página
+//   inteira)" abre o 2×2 "Brincar" da "Temática", onde há "+" ligados e "+"
+//   desligados, para o guideline de alvo de toque medir os dois estados (em
+//   "Água", da "Casa", todos os vizinhos estão ocupados).
 // - v6 (E6b-3, ADR-042): o editor de um card existente ganha o botão
 //   "Mover…" no corpo e o cenário "diálogo Mover…" audita as duas
 //   linhas de passo (Linha/Coluna) e os botões do diálogo.
@@ -125,6 +130,15 @@ Future<void> _openCardEditor(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
+/// Abre o editor do 2×2 "Brincar" da "Temática": a largura ainda cresce (a
+/// coluna da direita está em branco), a altura não (o "Parque" está embaixo).
+Future<void> _openBigCardEditor(WidgetTester tester) async {
+  await _openBoard(tester, 'Temática');
+  await unlockEditMode(tester);
+  await tester.tap(find.text('Brincar'));
+  await tester.pumpAndSettle();
+}
+
 final List<_Scenario> _scenarios = [
   _Scenario('lista de pranchas (uso)', (tester) async {}),
   _Scenario('lista de pranchas (edição)', unlockEditMode),
@@ -151,6 +165,11 @@ final List<_Scenario> _scenarios = [
   }),
   _Scenario('editor de card (início)', _openCardEditor),
   _Scenario('editor de card (página inteira)', _openCardEditor, tall: true),
+  _Scenario(
+    'editor de card grande (página inteira)',
+    _openBigCardEditor,
+    tall: true,
+  ),
   _Scenario('diálogo Mover…', (tester) async {
     await _openCardEditor(tester);
     await _scrollTo(tester, find.text('Mover…'));

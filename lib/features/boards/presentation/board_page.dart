@@ -11,6 +11,7 @@ import 'package:prifono_caa/features/boards/domain/board.dart';
 import 'package:prifono_caa/features/boards/domain/board_card.dart';
 import 'package:prifono_caa/features/boards/domain/board_cell_size.dart';
 import 'package:prifono_caa/features/boards/domain/board_move.dart';
+import 'package:prifono_caa/features/boards/domain/card_size_rules.dart';
 import 'package:prifono_caa/features/boards/presentation/board_cards_controller.dart';
 import 'package:prifono_caa/features/boards/presentation/board_grid_geometry.dart';
 import 'package:prifono_caa/features/boards/presentation/card_colors.dart';
@@ -66,14 +67,52 @@ class _BoardPageState extends State<BoardPage> {
 
   // --- Ações de EDIÇÃO (ADR-027): só no modo de edição (E5-3). ---
 
+  /// Retrato da grade para um card NOVO na posição em branco [origin] (1×1):
+  /// ele pode crescer para a direita e para baixo sobre posições em branco.
+  CardGridSpace _spaceForNew(CardPlacement origin) {
+    return CardGridSpace(
+      columns: widget.board.gridColumns,
+      rows: widget.board.gridRows,
+      origin: origin,
+      others: [for (final card in _controller.cards) card.placement],
+    );
+  }
+
+  /// Retrato ATUAL da grade para o card [cardId] (E6b-4). É relido a cada
+  /// chamada porque o "Mover…" age na hora e o card pode ter mudado de lugar
+  /// com o editor aberto. Se o card sumiu, devolve o último conhecido [fallback]
+  /// (o editor fecha logo em seguida, ao salvar falhar).
+  CardGridSpace _spaceForCard(int cardId, CardPlacement fallback) {
+    final current = _cardById(cardId);
+    return CardGridSpace(
+      columns: widget.board.gridColumns,
+      rows: widget.board.gridRows,
+      origin: current?.placement ?? fallback,
+      others: [
+        for (final card in _controller.cards)
+          if (card.id != cardId) card.placement,
+      ],
+    );
+  }
+
   /// Abre o editor para um card novo EXATAMENTE na posição em branco
-  /// [placement] (a que o usuário tocou).
+  /// [placement] (a que o usuário tocou). O card já NASCE com o tamanho
+  /// escolhido no editor (E6b-4): uma gravação só.
   Future<void> _addCard(CardPlacement placement) {
     return Navigator.of(context).push<void>(
       MaterialPageRoute<void>(
         builder: (_) => CardEditorPage(
           currentBoardId: widget.board.id,
-          onSave: (content) => _controller.add(content, placement: placement),
+          gridSpace: () => _spaceForNew(placement),
+          onSave: (content, size) => _controller.add(
+            content,
+            placement: CardPlacement(
+              col: placement.col,
+              row: placement.row,
+              colSpan: size.colSpan,
+              rowSpan: size.rowSpan,
+            ),
+          ),
         ),
       ),
     );
@@ -85,12 +124,31 @@ class _BoardPageState extends State<BoardPage> {
         builder: (_) => CardEditorPage(
           currentBoardId: widget.board.id,
           initial: card.content,
-          onSave: (content) => _controller.update(card.id, content),
+          gridSpace: () => _spaceForCard(card.id, card.placement),
+          onSave: (content, size) => _saveCard(card.id, content, size),
           onDelete: () => _controller.delete(card.id),
           onMove: () => _moveWithDialog(card.id),
         ),
       ),
     );
+  }
+
+  /// Grava o conteúdo e o tamanho de um card existente (E6b-4). O tamanho vem
+  /// PRIMEIRO: se a regra recusar (`ArgumentError`), nada foi gravado e o
+  /// editor avisa e continua aberto, sem deixar o conteúdo pela metade. O
+  /// tamanho só é gravado se mudou.
+  Future<void> _saveCard(int cardId, CardContent content, CardSize size) async {
+    final current = _cardById(cardId);
+    if (current != null &&
+        (current.placement.colSpan != size.colSpan ||
+            current.placement.rowSpan != size.rowSpan)) {
+      await _controller.resize(
+        cardId,
+        colSpan: size.colSpan,
+        rowSpan: size.rowSpan,
+      );
+    }
+    await _controller.update(cardId, content);
   }
 
   // --- Ações de USO (ADR-027). ---
